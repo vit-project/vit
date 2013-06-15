@@ -1,5 +1,7 @@
 
 include /usr/local/share/doc/task/rc/light-256.theme
+color.header=bold 
+color.label=bold 
 color.active=black on green
 color.alternate=on gray23
 color.header=bold 

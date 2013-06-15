@@ -23,4 +23,5 @@ misc.pl
 prompt.pl
 read.pl
 screen.pl
+search.pl
 vit.pl

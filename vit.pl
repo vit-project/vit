@@ -10,6 +10,8 @@ use Curses;
 use Time::HiRes qw(usleep);
 
 our $commands_file = '%prefix%/etc/vit-commands';
+our $task = '%TASK%';
+if ( $task =~ /^%/ ) { $task = '/usr/local/bin/task'; }
 
 our $audit = 0;
 our @colors2pair;
@@ -19,9 +21,11 @@ our $cursor_position = 'unknown';
 our $debug = 1;
 our $default_command = 'next';
 our $display_start_idx = 0;
+our $error_delay = 500000;
 our $error_msg = '';
 our $flash_delay = 80000;
 our $header_win;
+our $input_mode = 'cmd';
 our $num_tasks = 0;
 our $feedback_msg = '';
 our @parsed_tokens = ();
@@ -31,7 +35,9 @@ our @parsed_attrs = ();
 our $prev_command = 'next';
 our $prev_display_start_idx;
 our $prev_task_selected_idx;
+our @project_types = ();
 our $prompt_win;
+our $refresh_needed = 0;
 our $reread_needed = 0;
 our $report_descr = 'unknown';
 our $report_win;
@@ -41,11 +47,14 @@ our @report_header_colors_bg = ();
 our @report_header_attrs = ();
 our @report_header_attrs_global = ();
 our @report_tokens = ();
+our @report_lines = ();
 our @report_types = ();
 our @report_colors_fg = ();
 our @report_colors_bg = ();
 our @report_attrs = ();
 our @report2taskid = ();
+our $search_direction = 1;
+our $search_pat = '';
 our @taskid2report = ();
 our $tasks_completed = 0;
 our $tasks_pending = 0;
@@ -74,6 +83,7 @@ require 'misc.pl';
 require 'prompt.pl';
 require 'read.pl';
 require 'screen.pl';
+require 'search.pl';
 
 ###################################################################
 ## main...

@@ -1,13 +1,15 @@
 
 sub init_curses {
-  my $mode = $_[0];
+  my $m = $_[0];
   initscr();
   noecho();
   curs_set(0);
   start_color();
   use_default_colors();
   init_pair($COLOR_ERRORS,231,1); # white on red # FIXME xterm specific, wrong for ANSI 
-  init_pair($COLOR_SELECTION,231,4); # white on blue  # FIXME xterm specific, wrong for ANSI
+  if ( $m eq 'init' ) { 
+    init_pair($COLOR_SELECTION,231,4); # white on blue  # FIXME xterm specific, wrong for ANSI
+  }
   init_pair($COLOR_EMPTY_LINE,4,-1); # blue foreground
   my $HEADER_SIZE = 3;
   $REPORT_LINES = $LINES - $HEADER_SIZE - 1;

@@ -1,33 +1,14 @@
 
-implement these....
-   cmd   p PROJECT       set the current task's project to PROJECT
-   rpt   P               display the projects report
-   rpt   S               display the summary report
-   cmd   u               undo the last change
-   cmd   x               delete the current task
-   cmd   /STRING         search forwards for STRING
-   cmd   ?STRING         search backwards for STRING
-
-tab complete proj:
+finish :summary... 
+  nix \d+ projects
+  fix selection rendering
+  <enter> should jump to ls proj:CURRENT
 
 flash convergence when it changes
 
-check on use of dingbats in add/change/anno/deno/
-
-check on the use of dingbats in reports (fix e.g. ":ls 'ear '"?)
-
-can't do :s/fu/fu\/bar/ ... who's at fault??
-
-finish :summary... 
-   nix \d+ projects
-   fix selection rendering
-   <enter> should jump to ls proj:CURRENT
-
-selection bar gets wrong color after 'e'
-  
-other non-report commands?
-
-check for perl Curses and Time::HiRes in configure.in
+make this work...
+color.header=bold underline
+color.label=bold underline
 
 done needs to be disallowed for done tasks
 
@@ -35,25 +16,11 @@ fix resize-looses-selection problem
 
 include task-anonymous 
 
-fixes for strictly ANSI color terminals
-
 allow for gracefuly marking last (report size one) task done
 
-try doing the tutorial(s) in vit
+review/revise ~/.taskrc wrt task v1 cruft 
 
-review/revise ~/.taskrc wrt task v1 cruft and task v2 goodness
+review/revise ~/.taskrc wrt task v2 goodness
 
 contrib gnome.theme
-
-propose MH-style IDs
-
-dynamic sort order?  e.g. task ls age
-
-propose task rate
-
-crib other commands from mh-v?
-
-rc.indent doesn't work?
-
-fix light-256.theme and dark-256.theme
 

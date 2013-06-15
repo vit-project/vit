@@ -3,8 +3,8 @@ sub task_exec {
   my ($cmd) = @_;
   my $es = 0;
   my $result = '';
-  &audit("EXEC \"task $cmd\" 2>&1");
-  open(IN,"task $cmd 2>&1 |");
+  &audit("EXEC $task $cmd 2>&1");
+  open(IN,"$task $cmd 2>&1 |");
   while(<IN>) {
     chop;
     $_ =~ s/\x1b.*?m//g; # decolorize
@@ -14,11 +14,11 @@ sub task_exec {
   close(IN);
   if ( $! ) { 
     $es = 1;
-    &audit("FAILED \"task $cmd\" error closing short pipe");
+    &audit("FAILED \"$task $cmd\" error closing short pipe");
   }
   if ( $? != 0 ) {
     $es = $?;
-    &audit("FAILED \"task $cmd\" returned exit status $?");
+    &audit("FAILED \"$task $cmd\" returned exit status $?");
   }
   return ($es,$result);
 }

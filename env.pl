@@ -16,11 +16,12 @@ sub init_shell_env {
 
 sub init_task_env {
   my @reports;
-  &audit("EXEC task 2>&1");
-  open(IN,"task rc._forcecolor=on 2>&1 |");
+  &audit("EXEC $task rc._forcecolor=on 2>&1");
+  open(IN,"$task rc._forcecolor=on 2>&1 |");
   while(<IN>) {
     chop;
-    if ( $_ =~ /^\[task (.*)\]$/ || $_ =~ /^\x1b.*?m\[task (.*)\]\x1b\[0m$/ ) {
+    # parse out the color.header...
+    if ( $_ =~ /^\[.*task (.*)\]$/ || $_ =~ /^\x1b.*?m\[.*task (.*)\]\x1b\[0m$/ ) {
       $default_command = $1;
       $default_command =~ s/ rc._forcecolor=on//;
       &parse_line(0,$_);
@@ -36,8 +37,8 @@ sub init_task_env {
   $current_command = $default_command;
   push(@reports,$default_command);
   push(@reports,'summary'); # FIXME temp. hack
-  &audit("EXEC task show 2>&1");
-  open(IN,"task show 2>&1 |");
+  &audit("EXEC $task show 2>&1");
+  open(IN,"$task show 2>&1 |");
   while(<IN>) {
     chop;
     if ( $_ =~ /^report\.(.*?)\.columns/ ) {

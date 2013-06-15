@@ -44,11 +44,23 @@ sub draw_screen {
   } else {
     $cursor_position = int($task_selected_idx/$#report_tokens*100) . '%';
   }
-  if ( $error_msg ne '' ) { 
-    &draw_error_msg();
-  } elsif ( $feedback_msg ne '' ) {
-    &draw_feedback_msg();
-  } else {
+  CASE: { 
+    if ( $error_msg ne '' ) { 
+      &draw_error_msg();
+      last CASE;
+    }
+    if ( $feedback_msg ne '' ) {
+      &draw_feedback_msg();
+      last CASE;
+    }
+    if ( $input_mode eq 'search' && $search_direction == 1 ) { 
+      &draw_prompt_line("/$search_pat");
+      last CASE;
+    }
+    if ( $input_mode eq 'search' && $search_direction == 0 ) { 
+      &draw_prompt_line("?$search_pat");
+      last CASE;
+    }
     &draw_prompt_line('');
   }
 }

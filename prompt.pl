@@ -20,9 +20,21 @@ sub prompt_str {
   my $str = '';
   my $tab_cnt = 0;
   my $tab_match_str = '';
-  if ( $prompt =~ /^(:)(.*)/ || $prompt =~ /^(.*?:)(.*)/ ) {
+  my $mode;
+  my @match_types;
+  if ( $prompt =~ /^(:)(.*)/ || $prompt =~ /^(.*?: )(.*)/ || $prompt =~ /^(.*?:)(.*)/ ) {
     $prompt = $1;
     $str = $2;
+  } 
+  if ( $prompt eq ':' ) { 
+    $mode = 'cmd';
+    @match_types = @report_types;
+  } else {
+    $mode = lc($prompt);
+    $mode =~ s/:.*$//;
+    if ( $mode eq 'project' ) {
+      @match_types = @project_types;
+    }
   }
   curs_set(1);
   &draw_prompt("$prompt$str");
@@ -58,13 +70,17 @@ sub prompt_str {
       last;
     }
     if ( $ch eq "\t" ) {
+      if ( $mode ne 'cmd' && $mode ne 'project' ) { 
+        beep();
+        next;
+      }
       $tab_cnt++;
       if ( $tab_cnt == 1 ) { $tab_match_str = $str; }
       if ( $tab_match_str eq '' ) {
-        my $idx = $tab_cnt % ($#report_types + 1) - 1;
-        $str = $report_types[$idx];
+        my $idx = $tab_cnt % ($#match_types + 1) - 1;
+        $str = $match_types[$idx];
       } else {
-        my @matches = (grep(/^$tab_match_str/,@report_types));
+        my @matches = (grep(/^$tab_match_str/,@match_types));
         if ( $#matches == -1 ) {
           $tab_cnt = 0;
           beep();
@@ -103,7 +119,7 @@ sub prompt_str {
   }
   noecho();
   curs_set(0);
-  if ( $str eq '' ) { beep(); }  
+  if ( $mode ne 'project' && $str eq '' ) { beep(); }  
   $str =~ s/"/\\"/g;
   $str =~ s/^\s+//;
   $str =~ s/\s+$//;

@@ -1,31 +1,37 @@
 
 sub read_report {
   my ($mode) = @_;
+
   my $report_header_idx = 0; 
   my $args;
   my @prev_num_tasks = $num_tasks;
   my @prev_report2taskid = @report2taskid;
   my @prev_report_tokens = @report_tokens;
+  my @prev_report_lines = @report_lines;
   my @prev_report_colors_fg = @report_colors_fg;
   my @prev_report_colors_bg = @report_colors_bg;
   my @prev_report_attrs = @report_attrs;
   my @prev_report_header_tokens = @report_header_tokens;
   my @prev_report_header_attrs = @report_header_attrs;
+
   $prev_display_start_idx = $display_start_idx;
   $prev_task_selected_idx = $task_selected_idx;
   @report2taskid = ();
   @report_tokens = ();
+  @report_lines = ();
   @report_colors_fg = ();
   @report_colors_bg = ();
   @report_attrs = ();
   @report_header_tokens = ();
   @report_header_attrs = ();
+  @project_types = ();
   if ( $mode eq 'init' ) {
     $task_selected_idx = 0;
     $display_start_idx = 0;
   }
-  &audit("EXEC task stat 2>&1");
-  open(IN,"task stat 2>&1 |");
+
+  &audit("EXEC $task stat 2>&1");
+  open(IN,"$task stat 2>&1 |");
   while(<IN>) {
     chop;
     if ( $_ =~ /^\s*$/ ) { next; }
@@ -40,9 +46,10 @@ sub read_report {
     } 
   } 
   close(IN);
+
   $args = "rc.defaultwidth=$REPORT_COLS rc.defaultheight=$REPORT_LINES burndown";
-  &audit("EXEC task $args 2>&1");
-  open(IN,"task $args 2>&1 |");
+  &audit("EXEC $task $args 2>&1");
+  open(IN,"$task $args 2>&1 |");
   while(<IN>) {
     if ( $_ =~ /Estimated completion: No convergence/ ) {
       $convergence = "no convergence";
@@ -54,9 +61,25 @@ sub read_report {
     }
   }
   close(IN);
+
+  &audit("EXEC $task projects 2>&1");
+  open(IN,"$task projects 2>&1 |");
+  while(<IN>) {
+    chop;
+    if ( $_ =~ /^\s*$/ ) { next; }
+    $_ =~ s/\x1b.*?m//g;
+    if ( $_ =~ /^\w+ override/ ) { next; }
+    if ( $_ =~ /^Project/ ) { next; }
+    if ( $_ =~ /^\d+ project/ ) { next; }
+    my $p = (split(/\s+/,$_))[0];
+    if ( $p eq '(none)' ) { next; }
+    push(@project_types, $p);
+  }
+  close(IN);
+
   $args = "rc.defaultwidth=$REPORT_COLS rc.defaultheight=0 rc._forcecolor=on $current_command";
-  &audit("EXEC task $args 2> /dev/null");
-  open(IN,"task $args 2> /dev/null |");
+  &audit("EXEC $task $args 2> /dev/null");
+  open(IN,"$task $args 2> /dev/null |");
   my $i = 0;
   my $prev_id;
   while(<IN>) {
@@ -71,6 +94,7 @@ sub read_report {
     }
     &parse_report_line($i,$_);
     $_ =~ s/\x1b.*?m//g; 
+    $report_lines[$i] =  $_;
     if ( $_ =~ /^ID / ) {
       $report_header_idx = $i;
       $i++;
@@ -87,10 +111,12 @@ sub read_report {
     $i++;
   }
   close(IN);
+
   if ( $#report_tokens > -1 ) {
     @report_header_tokens = @{ $report_tokens[$report_header_idx] };
     @report_header_attrs = @{ $report_attrs[$report_header_idx] };
     splice(@report_tokens,$report_header_idx,1);
+    splice(@report_lines,$report_header_idx,1);
     splice(@report_colors_fg,$report_header_idx,1);
     splice(@report_colors_bg,$report_header_idx,1);
     splice(@report_attrs,$report_header_idx,1);
@@ -106,12 +132,14 @@ sub read_report {
     @report_header_tokens = @prev_report_header_tokens;
     @report_header_attrs = @prev_report_header_attrs;
     @report_tokens = @prev_report_tokens;
+    @report_lines = @prev_report_lines;
     @report_colors_fg = @prev_report_colors_fg;
     @report_colors_bg = @prev_report_colors_bg;
     @report_attrs = @prev_report_attrs;
     @report2taskid = @prev_report2taskid;
     return;
   }
+
 }
 
 return 1;

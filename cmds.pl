@@ -149,11 +149,11 @@ sub task_modify {
 #------------------------------------------------------------------
 
 sub task_set_prio {
-  my $yes;
   my $p = $_[0];
+  my $yes;
   my $id = $report2taskid[$task_selected_idx];
   my $prio = &task_info('Priority');
-  if ( $prio eq $p ) { 
+  if ( $p eq $prio ) { 
     beep();
     return;
   }
@@ -167,6 +167,27 @@ sub task_set_prio {
     return;
   }
   my ($es,$result) = &task_exec("$id modify prio:$p");
+  if ( $es != 0 ) { 
+    $error_msg = $result;
+    &draw_error_msg();
+    return;
+  }
+  $feedback_msg = "Modified task $id.";
+  &flash_current_task();
+  $reread_needed = 1;
+}
+
+#------------------------------------------------------------------
+
+sub task_set_project {
+  my $id = $report2taskid[$task_selected_idx];
+  my $p = &prompt_str("Project: ");
+  my $proj = &task_info('Project');
+  if ( $p eq $proj ) { 
+    beep();
+    return;
+  }
+  my ($es,$result) = &task_exec("$id modify proj:$p");
   if ( $es != 0 ) { 
     $error_msg = $result;
     &draw_error_msg();

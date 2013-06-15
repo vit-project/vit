@@ -3,7 +3,7 @@ sub getch_loop {
   my $p_ch = '';
   while (1) {
     my $ch = $report_win->getch();
-    my $refresh_needed = 0;
+    $refresh_needed = 0; 
     $reread_needed = 0; 
     $error_msg = '';
     $feedback_msg = '';
@@ -131,14 +131,43 @@ sub getch_loop {
         last CASE;
       }
 
-      if ( $ch eq 'n' ) {
+      if ( $ch eq 'N' && $input_mode eq 'search' ) {
+        &do_search('N');
+        $refresh_needed = 1;
+        last CASE;
+      }
+
+      if ( $ch eq 'n' && $input_mode eq 'cmd' ) {
         &task_set_prio('');
+        last CASE;
+      }
+
+      if ( $ch eq 'n' && $input_mode eq 'search' ) {
+        &do_search('n');
+        $refresh_needed = 1;
+        last CASE;
+      }
+
+      if ( $ch eq 'p' ) {
+        &task_set_project();
         last CASE;
       }
 
       if ( $ch eq 'Z' && $p_ch eq 'Z' ) {
         return;
       } 
+
+      if ( $ch eq '/' ) {
+        $search_direction = 1;
+        &start_search();
+        last CASE;
+      }
+
+      if ( $ch eq '?' ) {
+        $search_direction = 0;
+        &start_search();
+        last CASE;
+      }
 
       if ( $ch eq ':' ) {
         &cmd_line(':');
@@ -177,6 +206,7 @@ sub getch_loop {
         $error_msg = '';
         $feedback_msg = '';
         $refresh_needed = 1;
+        $input_mode = 'cmd';
         last CASE;
       }
       if ( $ch eq 'Z' ) { last CASE; }
@@ -184,7 +214,9 @@ sub getch_loop {
       if ( $ch eq '-1' ) { last CASE; }
       beep();
     }
-
+    if ( $ch ne '/' && $ch ne '?' && $ch ne 'n' && $ch ne 'N' ) {
+      $input_mode = 'cmd';
+    }
     $p_ch = $ch;
     if ( $reread_needed ) { &read_report('refresh'); }
     if ( $refresh_needed || $reread_needed ) { &draw_screen(); }

@@ -3,13 +3,17 @@ PARTS = args.pl cmdline.pl cmds.pl color.pl curses.pl draw.pl env.pl exec.pl get
   misc.pl prompt.pl read.pl screen.pl
 
 VERSION=@VERSION@
+TASK=@TASK@
+PERL=@PERL@
+PREFIX=@prefix@
 
 build: 
 	@echo "adding vit.pl to vit"
 	@cat vit.pl | grep -v ^require \
 	  | sed "s/%BUILD%/$(VERSION) built `date`/" \
 	  | sed "s/%VERSION%/$(VERSION) (`date +%Y%m%d`)/" \
-	  | sed "s:%prefix%:@prefix@:" \
+	  | sed "s:%TASK%:$(TASK):" \
+	  | sed "s:%prefix%:$(PREFIX):" \
 	  > vit
 	@for f in $(PARTS); do \
 	  echo "adding $$f to vit"; \

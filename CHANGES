@@ -1,4 +1,14 @@
 
+ Tue Dec 11 2012 - released v0.7
+ Mon Dec 10 2012 - added ./configure checks for the perl Curses and Time::HiRes modules
+ Mon Dec 10 2012 - added ./configure ab-end when /usr/bin/perl doesn't exist
+ Mon Dec 10 2012 - added ./configure substitution for the localized path to the "task" command
+ Sun Dec  9 2012 - fixed a problem where selection color was lost after refresh
+ Sun Dec  9 2012 - added '/', '?', 'n' and 'N' for search the current report
+ Sat Dec  8 2012 - added color.label to taskrc-gtk+
+ Fri Dec  7 2012 - added <tab> completion when using 'p' to set project
+ Thu Dec  6 2012 - added 'p' for setting project
+
  Wed Dec  5 2012 - released v0.6
  Wed Dec  5 2012 - added 'n' for setting priority to none
  Wed Dec  5 2012 - added 'l' for setting priority to L

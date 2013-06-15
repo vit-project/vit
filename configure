@@ -565,6 +565,7 @@ ac_unique_file="Makefile.in"
 ac_subst_vars='LTLIBOBJS
 LIBOBJS
 PERL
+TASK
 BUILD
 VERSION
 target_alias
@@ -1680,6 +1681,51 @@ VERSION=`cat VERSION`
 
 
 
+# Extract the first word of "task", so it can be a program name with args.
+set dummy task; ac_word=$2
+{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for $ac_word" >&5
+$as_echo_n "checking for $ac_word... " >&6; }
+if ${ac_cv_path_TASK+:} false; then :
+  $as_echo_n "(cached) " >&6
+else
+  case $TASK in
+  [\\/]* | ?:[\\/]*)
+  ac_cv_path_TASK="$TASK" # Let the user override the test with a path.
+  ;;
+  *)
+  as_save_IFS=$IFS; IFS=$PATH_SEPARATOR
+for as_dir in $PATH
+do
+  IFS=$as_save_IFS
+  test -z "$as_dir" && as_dir=.
+    for ac_exec_ext in '' $ac_executable_extensions; do
+  if { test -f "$as_dir/$ac_word$ac_exec_ext" && $as_test_x "$as_dir/$ac_word$ac_exec_ext"; }; then
+    ac_cv_path_TASK="$as_dir/$ac_word$ac_exec_ext"
+    $as_echo "$as_me:${as_lineno-$LINENO}: found $as_dir/$ac_word$ac_exec_ext" >&5
+    break 2
+  fi
+done
+  done
+IFS=$as_save_IFS
+
+  test -z "$ac_cv_path_TASK" && ac_cv_path_TASK="NOT_FOUND"
+  ;;
+esac
+fi
+TASK=$ac_cv_path_TASK
+if test -n "$TASK"; then
+  { $as_echo "$as_me:${as_lineno-$LINENO}: result: $TASK" >&5
+$as_echo "$TASK" >&6; }
+else
+  { $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
+$as_echo "no" >&6; }
+fi
+
+
+if test "$TASK" = "NOT_FOUND"; then
+  as_fn_error $? "can not continue: task not found" "$LINENO" 5
+fi
+
 # Extract the first word of "perl", so it can be a program name with args.
 set dummy perl; ac_word=$2
 { $as_echo "$as_me:${as_lineno-$LINENO}: checking for $ac_word" >&5
@@ -1724,6 +1770,25 @@ fi
 if test "$PERL" = "NOT_FOUND"; then
   as_fn_error $? "can not continue: perl not found" "$LINENO" 5
 fi
+if test "$PERL" != "/usr/bin/perl"; then
+  echo configure: error: can not continue... perl must be installed as /usr/bin/perl
+  echo confgiure: hint: try \"sudo ln -s $PERL /usr/bin/perl\"
+  exit 1
+fi
+
+PERL_MODULE_CHECK=`perl -e "use Curses" 2> /dev/null; echo $?`
+if test "$PERL_MODULE_CHECK" = "2"; then
+  echo checking for perl Curses...
+  as_fn_error $? "can not continue: perl \"Curses\" module not found" "$LINENO" 5
+fi
+echo "checking for perl Curses... found"
+
+PERL_MODULE_CHECK=`perl -e "use Time::HiRes" 2> /dev/null; echo $?`
+if test "$PERL_MODULE_CHECK" = "2"; then
+  echo checking for perl Curses...
+  as_fn_error $? "can not continue: perl \"Time::HiRes\" module not found" "$LINENO" 5
+fi
+echo "checking for perl Time::HiRes... found"
 
 ac_config_files="$ac_config_files Makefile"
 
