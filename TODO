@@ -1,28 +1,7 @@
 
-color scheme...
- high - red, hot
- low - blue, cool
+summary mode: improve selection by making the bar graph bar visable
 
-implemente :summary... 
-  nix \d+ projects
-  fix selection rendering
-  <enter> should jump to ls proj:CURRENT
+summary mode: <enter> and '=' should use $default_command (currently hardcoded to "ls")
 
-setting project to the current project should beep
-
-fix "1 tasks shown"
-
-put the cursor at Description: when doing edit 
-
-make this work...
-color.header=bold underline
-color.label=bold underline
-
-include task-anonymous 
-
-review/revise ~/.taskrc wrt task v1 cruft 
-
-review/revise ~/.taskrc wrt task v2 goodness
-
-contrib gnome.theme
+add rc for report header effects (workaround for bug #1222)
 

@@ -31,6 +31,7 @@ sub draw_prompt {
 
 sub draw_error_msg {
   beep();
+  &audit("ERROR $error_msg");
   $prompt_win->addstr(0, 0, ' ');
   $prompt_win->clrtoeol();
   $prompt_win->attron(COLOR_PAIR($COLOR_ERRORS));
@@ -63,6 +64,7 @@ sub draw_report_line {
   $x = 0;
   if ( $mode eq 'with-selection' && $i == $task_selected_idx ) {
     $report_win->attron(COLOR_PAIR($COLOR_SELECTION));
+    &set_attron($report_win,$selection_attrs);
   }
   for $t (0 .. $#{ $report_tokens[$i] } ) {
     if ( $mode eq 'without-selection' || $i != $task_selected_idx ) {
@@ -89,6 +91,7 @@ sub draw_report_line {
   &set_attroff($report_win,$report_attrs[$i][$#{ $report_tokens[$i] }]);
   if ( $mode eq 'with-selection' && $i == $task_selected_idx ) {
     $report_win->attroff(COLOR_PAIR($COLOR_SELECTION));
+    &set_attroff($report_win,$selection_attrs);
   } else { 
     $report_win->attroff(COLOR_PAIR($cp));
   }
@@ -128,7 +131,7 @@ sub flash_current_task {
 
 sub flash_convergence {
   $header_win->attron(COLOR_PAIR($COLOR_HEADER));
-  &set_attron($header_win,$report_header_attrs_global[0]);
+  &set_attron($header_win,$header_attrs);
   &draw_header_line(1,'',"$tasks_completed tasks completed");
   usleep($flash_delay);
   &draw_header_line(1,$convergence,"$tasks_completed tasks completed");
@@ -137,7 +140,7 @@ sub flash_convergence {
   usleep($flash_delay);
   &draw_header_line(1,$convergence,"$tasks_completed tasks completed");
   usleep($flash_delay);
-  &set_attroff($header_win,$report_header_attrs_global[0]);
+  &set_attroff($header_win,$header_attrs);
   $header_win->attroff(COLOR_PAIR($COLOR_HEADER));
 }
 
@@ -145,10 +148,11 @@ sub flash_convergence {
 
 sub set_attron {
   my ($win,$attr) = @_;
-  if ( $attr eq 'underline' ) {
+  if ( ! defined $attr ) { return; }
+  if ( $attr =~ /underline/ ) {
     $win->attron(A_UNDERLINE);
   }
-  if ( $attr eq 'bold' ) {
+  if ( $attr =~ /bold/ ) {
     $win->attron(A_BOLD);
   }
 }
@@ -157,11 +161,18 @@ sub set_attron {
 
 sub set_attroff {
   my ($win,$attr) = @_;
-  if ( $attr eq 'underline' ) {
+  if ( ! defined $attr ) { return; }
+  if ( $attr =~ /underline/ ) {
     $win->attroff(A_UNDERLINE);
   }
-  if ( $attr eq 'bold' ) {
+  if ( $attr =~ /bold/ ) {
     $win->attroff(A_BOLD);
+  }
+  if ( $attr =~ /inverse/ ) {
+    $win->attroff(A_REVERSE);
+  }
+  if ( $attr =~ /standout/ ) {
+    $win->attroff(A_STANDOUT);
   }
 }
 

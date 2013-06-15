@@ -2,20 +2,22 @@
 PARTS = args.pl cmdline.pl cmds.pl color.pl curses.pl draw.pl env.pl exec.pl \
   getch.pl misc.pl prompt.pl read.pl search.pl screen.pl
 
+PREFIX=@prefix@
 VERSION=@VERSION@
 TASK=@TASK@
 PERL=@PERL@
-PREFIX=@prefix@
+CLEAR=@CLEAR@
 
 .PHONY : install
 
 build: 
 	@echo "adding vit.pl to vit"
 	@cat vit.pl | grep -v ^require \
+	  | sed "s:%prefix%:$(PREFIX):" \
 	  | sed "s/%BUILD%/$(VERSION) built `date`/" \
 	  | sed "s/%VERSION%/$(VERSION) (`date +%Y%m%d`)/" \
 	  | sed "s:%TASK%:$(TASK):" \
-	  | sed "s:%prefix%:$(PREFIX):" \
+	  | sed "s:%CLEAR%:$(CLEAR):" \
 	  > vit
 	@for f in $(PARTS); do \
 	  echo "adding $$f to vit"; \

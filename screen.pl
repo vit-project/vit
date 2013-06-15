@@ -2,10 +2,45 @@
 sub draw_screen {
   my ($x,$t,$fg,$bg,$cp,$str);
   my $line = 0;
+
   $header_win->attron(COLOR_PAIR($COLOR_HEADER));
-  &set_attron($header_win,$report_header_attrs_global[0]); 
-  &draw_header_line(0,"task $current_command","$num_tasks tasks shown");
-  &draw_header_line(1,$convergence,"$tasks_completed tasks completed");
+  &set_attron($header_win,$header_attrs);
+  CASE: {
+    if ( $current_command eq 'summary' && $num_projects == 1 ) {
+      $str = '1 project';
+      last CASE;
+    }
+    if ( $current_command eq 'summary' ) {
+      $str = "$num_projects projects";
+      last CASE;
+    }
+    if ( $num_tasks == 1 ) { 
+      $str = '1 task shown';
+      last CASE;
+    }
+    $str = "$num_tasks tasks shown";
+  }
+  &draw_header_line(0,"task $current_command",$str);
+  CASE: {
+    if ( $current_command eq 'summary' && $num_tasks == 1 ) {
+      $str = '1 task';
+      last CASE;
+    }
+    if ( $current_command eq 'summary' ) { 
+      $str = "$num_tasks tasks";
+      last CASE;
+    }
+    if ( $tasks_completed == 1 ) {
+      $str = '1 task completed';
+      last CASE;
+    }
+    $str = "$tasks_completed tasks completed";
+  }
+  &draw_header_line(1,$convergence,$str);
+  &set_attroff($header_win,$header_attrs);
+  $header_win->attroff(COLOR_PAIR($COLOR_HEADER));
+
+  $header_win->attron(COLOR_PAIR($COLOR_REPORT_HEADER));
   $x = 1;
   for $t (0 .. $#report_header_tokens) {
     &set_attron($header_win,$report_header_attrs[$t]);
@@ -13,14 +48,13 @@ sub draw_screen {
     &set_attroff($header_win,$report_header_attrs[$t]);
     $x += length($report_header_tokens[$t]);
   }
-  &set_attroff($header_win,$report_header_attrs_global[0]); 
-  $str = ' ' x ($REPORT_COLS - $x + 1);  # why +1?
+  $str = ' ' x ($REPORT_COLS - $x + 1);
   &set_attron($header_win,$report_header_attrs[$#report_header_attrs]);
   $header_win->addstr(2,$x,$str);
   &set_attroff($header_win,$report_header_attrs[$#report_header_attrs]);
-  &set_attroff($header_win,$report_header_attrs_global[0]);
-  $header_win->attroff(COLOR_PAIR($COLOR_HEADER));
+  $header_win->attroff(COLOR_PAIR($COLOR_REPORT_HEADER));
   $header_win->refresh();
+
   #debug("DRAW lines=$REPORT_LINES start=$display_start_idx cur=$task_selected_idx");
   for my $i ($display_start_idx .. ($display_start_idx+$REPORT_LINES-1)) {
     $cp = 0;
@@ -69,6 +103,7 @@ sub draw_screen {
     $flash_convergence = 0;
     $prev_convergence = $convergence;
   }
+
 }
 
 return 1;

@@ -6,6 +6,9 @@ sub read_report {
     # take care of marking last done...
     &inner_read_report('init');
   }
+  if ( $current_command eq 'summary' ) {
+    &get_num_tasks();
+  }
 }
 
 #------------------------------------------------------------------
@@ -159,6 +162,23 @@ sub inner_read_report {
   }
 
 }
+
+#------------------------------------------------------------------
+
+sub get_num_tasks {
+  $num_tasks = 0;
+  &audit("EXEC $task projects 2> /dev/null");
+  open(IN,"$task projects 2> /dev/null |");
+  while(<IN>) {
+    if ( $_ =~ /(\d+) task/ ) { 
+      $num_tasks = $1;
+      last;
+    }
+  }
+  close(IN);
+}
+
+#------------------------------------------------------------------
 
 return 1;
 

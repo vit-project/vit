@@ -1,4 +1,20 @@
-  
+
+ Wed Apr  3 2013 - released v1.1
+ Wed Apr  3 2013 - fixes for not having color=on set in ~/.taskrc
+ Sun Mar 31 2013 - added <enter> for task info
+ Sun Mar 31 2013 - added logging error msgs when "-audit" is used
+ Sun Mar 31 2013 - added support for selection effects (e.g. bold)
+ Sun Mar 31 2013 - added setting the VIT header color via color.vit.header setting
+ Sat Mar 30 2013 - set the VIT header color via the color.header setting
+ Fri Mar 29 2013 - added support for the "inverse" and "bright" effects
+ Fri Mar 29 2013 - fixed parsing some ANSI underline effect escape sequences
+ Fri Mar 29 2013 - clear the screen before exec'ing external commands as per feature #1214
+ Fri Mar 29 2013 - fixed a bug where some commands (e.g. ":h") incorrectly waited after exec'ing
+ Fri Mar 29 2013 - added setting the default report via command line args as per feature #1216
+ Fri Mar 29 2013 - added support to allow for verbose=off as per topic #2851
+ Fri Mar 29 2013 - disallowed using a default.command which doesn't include an "ID" column
+ Fri Mar 29 2013 - added support for multiple effects, e.g. bold underline 
+ 
  Sun Mar 24 2013 - released v1.0
  Sun Mar 24 2013 - added '=' for task info as per feature #1156
  Sun Mar 24 2013 - added 'u' for task undo
@@ -12,7 +28,7 @@
  Mon Dec 10 2012 - added ./configure checks for the perl Curses and Time::HiRes modules
  Mon Dec 10 2012 - added ./configure ab-end when /usr/bin/perl doesn't exist
  Mon Dec 10 2012 - added ./configure substitution for the localized path to the "task" command
- Sun Dec  9 2012 - fixed a problem where selection color was lost after refresh
+ Sun Dec  9 2012 - fixed a problem where the selection color was lost after refresh
  Sun Dec  9 2012 - added '/', '?', 'n' and 'N' for searching the current report
  Sat Dec  8 2012 - added color.label to taskrc-gtk+
  Fri Dec  7 2012 - added <tab> completion when using 'p' to set project

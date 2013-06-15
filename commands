@@ -7,6 +7,7 @@
  cmd   D               delete the current annotation (denotate)
  cmd   e               edit the current task
  cmd   =               view the current task's info
+ cmd   <enter>         view the current task's info
  cmd   u               undo the last change
  rpt   :REPORT         display REPORT
  rpt   :REPORT FILTER  display REPORT with FILTER

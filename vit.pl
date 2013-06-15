@@ -11,8 +11,12 @@ use Time::HiRes qw(usleep);
 
 our $commands_file = '%prefix%/etc/vit-commands';
 our $task = '%TASK%';
+our $clear = '%CLEAR%';
+if ( $commands_file =~ /^%/ ) { $commands_file = "./commands"; }
 if ( $task =~ /^%/ ) { $task = '/usr/local/bin/task'; }
+if ( $clear =~ /^%/ ) { $clear = '/usr/bin/clear'; }
 
+our $cli_args = '';
 our $audit = 0;
 our @colors2pair;
 our $convergence = '';
@@ -25,7 +29,9 @@ our $error_msg = '';
 our $flash_convergence = 0;
 our $flash_delay = 80000;
 our $header_win;
+our $header_attrs; 
 our $input_mode = 'cmd';
+our $num_projects = 0;
 our $num_tasks = 0;
 our $feedback_msg = '';
 our @parsed_tokens = ();
@@ -47,7 +53,6 @@ our @report_header_tokens = ();
 our @report_header_colors_fg = ();
 our @report_header_colors_bg = ();
 our @report_header_attrs = ();
-our @report_header_attrs_global = ();
 our @report_tokens = ();
 our @report_lines = ();
 our @report_types = ();
@@ -57,6 +62,7 @@ our @report_attrs = ();
 our @report2taskid = ();
 our $search_direction = 1;
 our $search_pat = '';
+our $selection_attrs = '';
 our @taskid2report = ();
 our $tasks_completed = 0;
 our $tasks_pending = 0;
@@ -67,10 +73,11 @@ our $REPORT_LINES;
 our $REPORT_COLS;
 
 our $COLOR_HEADER = 1;
-our $COLOR_ERRORS = 2;
+our $COLOR_REPORT_HEADER = 2;
 our $COLOR_SELECTION = 3;
 our $COLOR_EMPTY_LINE = 4;
-our $next_color_pair = 5;
+our $COLOR_ERRORS = 5;
+our $next_color_pair = 6;
 
 require 'args.pl';
 require 'cmdline.pl';

@@ -28,6 +28,7 @@ sub task_exec {
 sub shell_exec {
   my ($cmd,$mode) = @_;
   endwin();
+  if ( $clear ne 'NOT_FOUND' ) { system("$clear"); }
   print "$_[0]\r\n";
   if ( ! fork() ) {
     &audit("EXEC $cmd");
@@ -35,8 +36,10 @@ sub shell_exec {
     exit();
   }
   wait();
-  if ( $mode eq 'wait' ) { print "Press return to continue.\r\n"; }
-  <STDIN>;
+  if ( $mode eq 'wait' ) { 
+    print "Press return to continue.\r\n"; 
+    <STDIN>;
+  }
   &init_curses('refresh');
   &draw_screen();
 }

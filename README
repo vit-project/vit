@@ -14,8 +14,9 @@
 
  Recommendations:
    follow the directions in the "INSTALL" file
-   look over the "commands" file
-   xterm terminal (for full color support)
+   do "vit -help" (know the vit command line arguments)
+   do ":help" in vit (look over the "commands" file)
+   use an xterm terminal (for full color support)
    for GTK+ (Gnome) colors, add the taskrc-gtk+ configuration strings to your ~/.taskrc
    xterm -geom 100x40 +sb -e /usr/local/bin/vit -titlebar &
 
