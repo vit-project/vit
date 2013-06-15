@@ -1,6 +1,17 @@
 
 sub read_report {
   my ($mode) = @_;
+  &inner_read_report($mode);
+  if ( $prev_ch eq 'd' && $error_msg =~ /Error: task .*: no matches/ ) {
+    # take care of marking last done...
+    &inner_read_report('init');
+  }
+}
+
+#------------------------------------------------------------------
+
+sub inner_read_report {
+  my ($mode) = @_;
 
   my $report_header_idx = 0; 
   my $args;
@@ -13,6 +24,7 @@ sub read_report {
   my @prev_report_attrs = @report_attrs;
   my @prev_report_header_tokens = @report_header_tokens;
   my @prev_report_header_attrs = @report_header_attrs;
+  $prev_convergence = $convergence;
 
   $prev_display_start_idx = $display_start_idx;
   $prev_task_selected_idx = $task_selected_idx;
@@ -61,6 +73,11 @@ sub read_report {
     }
   }
   close(IN);
+  if ( $convergence ne $prev_convergence && $prev_convergence ne '' ) { 
+    $flash_convergence = 1; 
+  } else {
+    $flash_convergence = 0; 
+  }
 
   &audit("EXEC $task projects 2>&1");
   open(IN,"$task projects 2>&1 |");
@@ -137,6 +154,7 @@ sub read_report {
     @report_colors_bg = @prev_report_colors_bg;
     @report_attrs = @prev_report_attrs;
     @report2taskid = @prev_report2taskid;
+    $convergence = $prev_convergence; 
     return;
   }
 

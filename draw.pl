@@ -100,23 +100,45 @@ sub flash_current_task {
   my ($x, $t, $cp, $str);
   my $i = $task_selected_idx;
   my $line = $task_selected_idx - $display_start_idx;
+
   &draw_report_line($i,$line,'without-selection');
   $report_win->refresh();
   usleep($flash_delay);
+
   $report_win->addstr($line,0,' ');
   $report_win->clrtoeol();
   $report_win->refresh();
   usleep($flash_delay);
+
   &draw_report_line($i,$line,'without-selection');
   $report_win->refresh();
   usleep($flash_delay);
+
   $report_win->addstr($line,0,' ');
   $report_win->clrtoeol();
   $report_win->refresh();
   usleep($flash_delay);
+
   &draw_report_line($i,$line,'without-selection');
   $report_win->refresh();
   usleep($flash_delay);
+}
+
+#------------------------------------------------------------------
+
+sub flash_convergence {
+  $header_win->attron(COLOR_PAIR($COLOR_HEADER));
+  &set_attron($header_win,$report_header_attrs_global[0]);
+  &draw_header_line(1,'',"$tasks_completed tasks completed");
+  usleep($flash_delay);
+  &draw_header_line(1,$convergence,"$tasks_completed tasks completed");
+  usleep($flash_delay);
+  &draw_header_line(1,'',"$tasks_completed tasks completed");
+  usleep($flash_delay);
+  &draw_header_line(1,$convergence,"$tasks_completed tasks completed");
+  usleep($flash_delay);
+  &set_attroff($header_win,$report_header_attrs_global[0]);
+  $header_win->attroff(COLOR_PAIR($COLOR_HEADER));
 }
 
 #------------------------------------------------------------------

@@ -1,22 +1,24 @@
 
-finish :summary... 
+color scheme...
+ high - red, hot
+ low - blue, cool
+
+implemente :summary... 
   nix \d+ projects
   fix selection rendering
   <enter> should jump to ls proj:CURRENT
 
-flash convergence when it changes
+setting project to the current project should beep
+
+fix "1 tasks shown"
+
+put the cursor at Description: when doing edit 
 
 make this work...
 color.header=bold underline
 color.label=bold underline
 
-done needs to be disallowed for done tasks
-
-fix resize-looses-selection problem
-
 include task-anonymous 
-
-allow for gracefuly marking last (report size one) task done
 
 review/revise ~/.taskrc wrt task v1 cruft 
 

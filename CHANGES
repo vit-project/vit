@@ -1,10 +1,19 @@
+  
+ Sun Mar 24 2013 - released v1.0
+ Sun Mar 24 2013 - added '=' for task info as per feature #1156
+ Sun Mar 24 2013 - added 'u' for task undo
+ Thu Jan  1 2013 - fixed a bug where '/' and '?' caused a crash as per bug #1152
+ Wed Dec 12 2012 - added graceful handling of marking only task in current report "done"
+ Wed Dec 12 2012 - added "blinking" of the convergence info when convergence changes
+ Wed Dec 12 2012 - disallowed marking completed tasks as "done"
+ Wed Dec 12 2012 - fixed a problem where the selection could get lost after resize and '^l'
 
  Tue Dec 11 2012 - released v0.7
  Mon Dec 10 2012 - added ./configure checks for the perl Curses and Time::HiRes modules
  Mon Dec 10 2012 - added ./configure ab-end when /usr/bin/perl doesn't exist
  Mon Dec 10 2012 - added ./configure substitution for the localized path to the "task" command
  Sun Dec  9 2012 - fixed a problem where selection color was lost after refresh
- Sun Dec  9 2012 - added '/', '?', 'n' and 'N' for search the current report
+ Sun Dec  9 2012 - added '/', '?', 'n' and 'N' for searching the current report
  Sat Dec  8 2012 - added color.label to taskrc-gtk+
  Fri Dec  7 2012 - added <tab> completion when using 'p' to set project
  Thu Dec  6 2012 - added 'p' for setting project

@@ -5,11 +5,13 @@
  cmd   :s/OLD/NEW/     change OLD to NEW in the current task's description
  cmd   :%s/OLD/NEW/    change OLD to NEW in the current task's description
  cmd   D               delete the current annotation (denotate)
+ cmd   e               edit the current task
+ cmd   =               view the current task's info
+ cmd   u               undo the last change
  rpt   :REPORT         display REPORT
  rpt   :REPORT FILTER  display REPORT with FILTER
  rpt   :STRING<tab>    display REPORT using tab completion
  rpt   :<tab>          display REPORT using tab completion of all defined reports
- cmd   e               edit the current task
  cmd   ZZ              exit
  cmd   :q              exit
  cmd   f FILTER        filter the current report with FILTER
@@ -41,10 +43,10 @@
  cmd   p STRING        set the current task's project to STRING
  cmd   p STRING<tab>   set the current task's project to STRING using tab completion
  cmd   p <tab>         set the current task's project using tab completion
- help  h               view the whole help file
- help  h cmd           view help about commands
- help  h help          view help about help
- help  h nav           view help about navigation
- help  h rpt           view help about reports
- help  h PATTERN       view help file lines matching PATTERN
+ help  :h              view the whole help file
+ help  :h cmd          view help about commands
+ help  :h help         view help about help
+ help  :h nav          view help about navigation
+ help  :h rpt          view help about reports
+ help  :h PATTERN      view help file lines matching PATTERN
 

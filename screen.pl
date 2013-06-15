@@ -13,6 +13,7 @@ sub draw_screen {
     &set_attroff($header_win,$report_header_attrs[$t]);
     $x += length($report_header_tokens[$t]);
   }
+  &set_attroff($header_win,$report_header_attrs_global[0]); 
   $str = ' ' x ($REPORT_COLS - $x + 1);  # why +1?
   &set_attron($header_win,$report_header_attrs[$#report_header_attrs]);
   $header_win->addstr(2,$x,$str);
@@ -62,6 +63,11 @@ sub draw_screen {
       last CASE;
     }
     &draw_prompt_line('');
+  }
+  if ( $flash_convergence ) { 
+    &flash_convergence(); 
+    $flash_convergence = 0;
+    $prev_convergence = $convergence;
   }
 }
 

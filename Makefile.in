@@ -1,11 +1,13 @@
 
-PARTS = args.pl cmdline.pl cmds.pl color.pl curses.pl draw.pl env.pl exec.pl getch.pl \
-  misc.pl prompt.pl read.pl screen.pl
+PARTS = args.pl cmdline.pl cmds.pl color.pl curses.pl draw.pl env.pl exec.pl \
+  getch.pl misc.pl prompt.pl read.pl search.pl screen.pl
 
 VERSION=@VERSION@
 TASK=@TASK@
 PERL=@PERL@
 PREFIX=@prefix@
+
+.PHONY : install
 
 build: 
 	@echo "adding vit.pl to vit"
@@ -39,7 +41,7 @@ push:
 	@make -f .makefile push
 
 debug:
-	@make -f .makefile test
+	@make -f .makefile debug
 
 test:
 	@make -f .makefile test

@@ -15,14 +15,14 @@ if ( $task =~ /^%/ ) { $task = '/usr/local/bin/task'; }
 
 our $audit = 0;
 our @colors2pair;
-our $convergence = 'unknown';
+our $convergence = '';
 our $current_command = 'unknown';
 our $cursor_position = 'unknown';
-our $debug = 1;
 our $default_command = 'next';
 our $display_start_idx = 0;
 our $error_delay = 500000;
 our $error_msg = '';
+our $flash_convergence = 0;
 our $flash_delay = 80000;
 our $header_win;
 our $input_mode = 'cmd';
@@ -32,8 +32,10 @@ our @parsed_tokens = ();
 our @parsed_colors_fg = ();
 our @parsed_colors_bg = ();
 our @parsed_attrs = ();
-our $prev_command = 'next';
 our $prev_display_start_idx;
+our $prev_ch = '';
+our $prev_command = 'next';
+our $prev_convergence = '';
 our $prev_task_selected_idx;
 our @project_types = ();
 our $prompt_win;

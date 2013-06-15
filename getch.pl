@@ -1,6 +1,5 @@
 
 sub getch_loop {
-  my $p_ch = '';
   while (1) {
     my $ch = $report_win->getch();
     $refresh_needed = 0; 
@@ -43,6 +42,11 @@ sub getch_loop {
       }
 
       if ( $ch eq 'd' ) {
+        if ( grep(/^Complete\s*$/,@report_header_tokens) ) { # FIXME: really, good enough?
+          $error_msg = "Error: task has already been completed.";
+          $refresh_needed = 1;
+          last CASE;
+        }
         &task_done();
         last CASE;
       }
@@ -153,7 +157,13 @@ sub getch_loop {
         last CASE;
       }
 
-      if ( $ch eq 'Z' && $p_ch eq 'Z' ) {
+      if ( $ch eq 'u' ) {
+        &shell_exec('task undo','wait');
+        $reread_needed = 1;
+        last CASE;
+      }
+
+      if ( $ch eq 'Z' && $prev_ch eq 'Z' ) {
         return;
       } 
 
@@ -171,6 +181,11 @@ sub getch_loop {
 
       if ( $ch eq ':' ) {
         &cmd_line(':');
+        last CASE;
+      }
+
+      if ( $ch eq '=' ) {
+        &shell_exec("task $report2taskid[$task_selected_idx] info",'wait');
         last CASE;
       }
 
@@ -198,6 +213,9 @@ sub getch_loop {
         endwin();
         &init_curses('refresh');
         &read_report('refresh');
+        if ( $task_selected_idx > $display_start_idx + $REPORT_LINES - 1 ) { 
+          $display_start_idx = $task_selected_idx - $REPORT_LINES + 1;
+        }
         &draw_screen();
         last CASE;
       }
@@ -217,7 +235,7 @@ sub getch_loop {
     if ( $ch ne '/' && $ch ne '?' && $ch ne 'n' && $ch ne 'N' ) {
       $input_mode = 'cmd';
     }
-    $p_ch = $ch;
+    $prev_ch = $ch;
     if ( $reread_needed ) { &read_report('refresh'); }
     if ( $refresh_needed || $reread_needed ) { &draw_screen(); }
 
