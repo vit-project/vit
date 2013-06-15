@@ -1,0 +1,11 @@
+
+include /usr/local/share/doc/task/rc/light-256.theme
+color.active=black on green
+color.alternate=on gray23
+color.header=bold 
+color.pri.H=blue
+color.pri.M=black
+color.pri.L=color28
+color.summary.background=white 
+color.vit.selection=color231 on color68
+

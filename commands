@@ -1,0 +1,26 @@
+
+ nav   0               move to line zero
+ cmd   a STRING        add a new task
+ cmd   c STRING        change the current task's description
+ cmd   d               mark the current task done
+ nav   G               goto end
+ nav   H               goto first line on screen ("home")
+ nav   j               move down one line
+ nav   k               move up one line
+ nav   L               goto last line on screen 
+ nav   M               goto middle line on screen
+ cmd   ZZ              exit
+ nav   ^b              back (up) one page
+ nav   ^f              forward (down) one page
+ nav   ^l              refresh (redraw) the display
+ cmd   :s/OLD/NEW/     change OLD to NEW in the current task's description
+ cmd   :%s/OLD/NEW/    change OLD to NEW in the current task's description
+ cmd   :q              exit
+ nav   DownArrow       move down one line
+ nav   PgDn            move down one page
+ nav   PgUp            move up one page
+ nave  Spacebar        move down one line
+ nav   UpArrow         move up one line
+
+vim:set ts=6:
+

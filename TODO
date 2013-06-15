@@ -1,0 +1,51 @@
+
+fix could-not-lock hangs
+
+vet double quote and single tick
+
+implement these....
+
+   cmd   A STRING        add an annotation to the current task
+   cmd   f PATTERN       filter the current report by PATTERN
+   cmd   h               set the current task's priority to "H" (high)
+   info  i               display the current task's info
+   cmd   l               set the current task's priority to "L" (low)
+   cmd   m               set the current task's priority to "M" (medium)
+   cmd   n               set the current task's priority to "none"
+   cmd   N               denotate (remove) the current annotation (also d?)
+   cmd   p PROJECT       set the current task's project to PROJECT
+   rpt   P               display the projects report
+   cmd   q               quit the current report (?)
+   rpt   S               display the summary report
+   cmd   u               undo the last change
+   cmd   x               delete the current task
+   cmd   /STRING         search forwards for STRING
+   cmd   ?STRING         search backwards for STRING
+   rpt   :burndown       display the burndown report
+   rpt   :history        display the history
+   rpt   :completed      display the completed report
+   help  :help           display help in vi
+   help  :help PATTERN   display help filtered by PATTERN in vi
+   rpt   :summary        display the summary report
+
+fix resize looses selection problem
+
+catch SIGWINCH and automatically resize.
+
+use timer to remove $feedback_msg after N seconds
+
+include task-anonymous 
+
+flash convergence when it changes!
+
+try doing the tutorial(s) in vit
+
+review/revise ~/.taskrc wrt task v1 cruft and task v2 goodness
+
+crib other commands from mh-v?
+
+rc.indent doesn't work?
+
+autoconf?
+
+fix dark-256.theme when used with light terminals etc?
