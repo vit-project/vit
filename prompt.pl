@@ -24,12 +24,12 @@ sub prompt_str {
     $prompt = $1;
     $str = $2;
   }
-  echo();
   curs_set(1);
   &draw_prompt("$prompt$str");
   while (1) {
     my $ch = $prompt_win->getch();
-    if ( $ch eq "\ch" ) {
+    #debug("TOP str=\"$str\" ch=\"$ch\"");
+    if ( $ch eq "\b" || $ch eq "\c?" ) {
       if ( $str ne '' ) {
         chop $str;
         if ( length($str) < length($tab_match_str) ) { 
@@ -54,6 +54,9 @@ sub prompt_str {
       curs_set(0);
       return '';
     }
+    if ( $ch eq "\n" ) {
+      last;
+    }
     if ( $ch eq "\t" ) {
       $tab_cnt++;
       if ( $tab_cnt == 1 ) { $tab_match_str = $str; }
@@ -73,10 +76,30 @@ sub prompt_str {
       &draw_prompt("$prompt$str");
       next;
     }
-    if ( $ch eq "\n" ) {
-      last;
+    if ( $ch eq "\cw" ) {
+      if ( $str eq '' ) { 
+        chop $str;
+        beep();
+        next;
+      }
+      if ( $str =~ s/^(.*\s+)\S+\s+$/$1/ ) {
+        &draw_prompt("$prompt$str");
+        next;
+      }
+      if ( $str =~ s/^.*\s+$// ) {
+        &draw_prompt("$prompt$str");
+        next;
+      }
+      if ( $str =~ s/^(.*\s+).*/$1/ ) {
+        &draw_prompt("$prompt$str");
+        next;
+      }
+      $str = "";
+      &draw_prompt("$prompt$str");
+      next;
     }
     $str .= $ch;
+    &draw_prompt("$prompt$str");
   }
   noecho();
   curs_set(0);

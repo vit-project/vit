@@ -4,6 +4,7 @@
  cmd   :s/OLD/NEW/     change OLD to NEW in the current task's description
  cmd   :%s/OLD/NEW/    change OLD to NEW in the current task's description
  rpt   :REPORT         display REPORT
+ rpt   :REPORT FILTER  display REPORT with FILTER
  rpt   :STRING<tab>    display REPORT by tab completion
  rpt   :<tab>          display REPORT by tab completion of all defined reports
  cmd   ZZ              exit

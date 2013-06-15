@@ -15,6 +15,7 @@ sub init_shell_env {
 #------------------------------------------------------------------
 
 sub init_task_env {
+  my @reports;
   &audit("EXEC task 2>&1");
   open(IN,"task rc._forcecolor=on 2>&1 |");
   while(<IN>) {
@@ -36,12 +37,14 @@ sub init_task_env {
   } 
   close(IN);
   $current_command = $default_command;
+  push(@reports,$default_command);
+  push(@reports,'summary'); # FIXME temp. hack
   &audit("EXEC task show 2>&1");
   open(IN,"task show 2>&1 |");
   while(<IN>) {
     chop;
     if ( $_ =~ /^report\.(.*?)\.columns/ ) {
-      push(@report_types, $1);
+      push(@reports, $1);
       next;
     }
     if ( $_ =~ /color\.vit\.selection\s+(.*)/ ) {
@@ -66,6 +69,7 @@ sub init_task_env {
     }
   }
   close(IN);
+  @report_types = sort(@reports);
 }
 
 return 1;

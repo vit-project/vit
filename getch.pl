@@ -138,7 +138,7 @@ sub getch_loop {
         last CASE;
       }
       if ( $ch eq 'Z' ) { last CASE; }
-      if ( $ch eq "0x19A" ) { last CASE; } # FIXME: resize
+      if ( $ch eq "410" ) { last CASE; } # FIXME resize
       if ( $ch eq '-1' ) { last CASE; }
       beep();
     }

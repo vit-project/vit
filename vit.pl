@@ -2,14 +2,14 @@
 #
 # VIT - Visual Interactive Taskwarrior
 #
-# @BUILD@
+# %BUILD%
 #
 
 use strict;
 use Curses;
 use Time::HiRes qw(usleep);
 
-our $commands_file = '/usr/local/etc/vit-commands';
+our $commands_file = '%prefix%/etc/vit-commands';
 
 our $audit = 0;
 our @colors2pair;
@@ -50,7 +50,7 @@ our $tasks_completed = 0;
 our $tasks_pending = 0;
 our $task_selected_idx = 0;
 our $titlebar = 0;
-our $version = '@VERSION@';
+our $version = '%VERSION%';
 our $REPORT_LINES;
 our $REPORT_COLS;
 

@@ -1,9 +1,5 @@
 
-tab complete prio: and proj:
-
-add burndown, summary and the other non report commands
-
-include aliases in tab completion
+'\n' for task edit
 
 implement these....
    cmd   A STRING        add an annotation to the current task
@@ -23,23 +19,34 @@ implement these....
    cmd   /STRING         search forwards for STRING
    cmd   ?STRING         search backwards for STRING
 
+:summary... 
+nix \d+ projects
+fix selection rendering
+<enter> should jump to ls proj:CURRENT
+
+other non-report commands
+
 fix could-not-lock hangs
+
+check for perl Curses and Time::HiRes in configure.in
 
 done needs to be disallowed for done tasks
 
 fix resize looses selection problem
 
-catch SIGWINCH and automatically resize.
-
 use timer to remove $feedback_msg after N seconds
+
+tab complete prio: and proj:
 
 include task-anonymous 
 
 flash convergence when it changes
 
-'R' for "reports mode", like "folders mode" in mh-v
-
 fixes for strictly ANSI color terminals
+
+fix e.g. ":ls 'ear '"
+
+allow for gracefuly marking last (report size one) task done
 
 try doing the tutorial(s) in vit
 
@@ -49,11 +56,11 @@ contrib gnome.theme
 
 propose MH-style IDs
 
+dynamic sort order?  e.g. task ls age
+
 crib other commands from mh-v?
 
 rc.indent doesn't work?
-
-autoconf?
 
 fix light-256.theme and dark-256.theme
 

@@ -1,11 +1,13 @@
 CHANGES
 INSTALL
 MANIFEST
-Makefile
+Makefile.in
 README
 TODO
 VERSION
 commands
+configure
+install-sh
 taskrc-gtk+
 args.pl
 cmdline.pl

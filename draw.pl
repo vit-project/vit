@@ -63,7 +63,6 @@ sub draw_report_line {
     $report_win->attron(COLOR_PAIR($COLOR_SELECTION));
   }
   for $t (0 .. $#{ $report_tokens[$i] } ) {
-    &set_attron($report_win,$report_attrs[$t]);
     if ( $mode eq 'without-selection' || $i != $task_selected_idx ) {
       my $fg = $report_colors_fg[$i][$t];
       my $bg = $report_colors_bg[$i][$t];

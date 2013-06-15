@@ -62,10 +62,10 @@ sub read_report {
   while(<IN>) {
     chop;
     if ( $_ =~ /^\s*$/ ) { next; }
-    if ( $_ =~ /^(\d+) tasks[s]{0}$/ || 
-         $_ =~ /^\x1b.*?m(\d+) tasks[s]{0}\x1b\[0m$/ ||
-         $_ =~ /^\d+ tasks[s]{0}, (\d+) shown$/ || 
-         $_ =~ /^\x1b.*?m\d+ tasks[s]{0}, (\d+) shown\x1b\[0m$/ ) {
+    if ( $_ =~ /^(\d+) tasks?$/ || 
+         $_ =~ /^\x1b.*?m(\d+) tasks?\x1b\[0m$/ ||
+         $_ =~ /^\d+ tasks?, (\d+) shown$/ || 
+         $_ =~ /^\x1b.*?m\d+ tasks?, (\d+) shown\x1b\[0m$/ ) {
       $num_tasks = $1;
       next;
     }

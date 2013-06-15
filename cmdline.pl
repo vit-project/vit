@@ -55,7 +55,6 @@ sub cmd_line {
     unlink($tmp_file);
     return;
   }
-
   if ( $str eq 'q' ) { 
     endwin();
     exit();
@@ -66,6 +65,16 @@ sub cmd_line {
     &read_report('init');
     &draw_screen(); 
     return;
+  }
+  if ( $str =~ /^(.*?) .*/ ) {
+    my $s = $1;
+    if ( grep(/^$s/,@report_types) ) {
+      $prev_command = $current_command;
+      $current_command = $str;
+      &read_report('init');
+      &draw_screen(); 
+      return;
+    }
   }
   $error_msg = "$str: command not found";
   &draw_error_msg();

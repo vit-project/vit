@@ -1,0 +1,48 @@
+
+PARTS = args.pl cmdline.pl cmds.pl color.pl curses.pl draw.pl env.pl exec.pl getch.pl \
+  misc.pl prompt.pl read.pl screen.pl
+
+VERSION=@VERSION@
+
+build: 
+	@echo "adding vit.pl to vit"
+	@cat vit.pl | grep -v ^require \
+	  | sed "s/%BUILD%/$(VERSION) built `date`/" \
+	  | sed "s/%VERSION%/$(VERSION) (`date +%Y%m%d`)/" \
+	  | sed "s:%prefix%:@prefix@:" \
+	  > vit
+	@for f in $(PARTS); do \
+	  echo "adding $$f to vit"; \
+	  echo "########################################################" >> vit; \
+	  echo "## $$f..." >> vit; \
+	  grep -v ^return $$f >> vit; \
+	done
+	chmod 755 vit
+
+install:
+	sudo mkdir -p @prefix@/bin
+	sudo cp vit @prefix@/bin/vit
+	sudo mkdir -p @prefix@/etc/
+	sudo cp commands @prefix@/etc/vit-commands
+
+autoconf:
+	@make -f .makefile autoconf
+
+release:
+	@make -f .makefile release
+
+push:
+	@make -f .makefile push
+
+debug:
+	@make -f .makefile test
+
+test:
+	@make -f .makefile test
+
+diffs:
+	@make -f .makefile diffs
+
+ci:
+	@make -f .makefile ci
+
