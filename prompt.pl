@@ -105,6 +105,8 @@ sub prompt_str {
   curs_set(0);
   if ( $str eq '' ) { beep(); }  
   $str =~ s/"/\\"/g;
+  $str =~ s/^\s+//;
+  $str =~ s/\s+$//;
   return $str;
 } 
 

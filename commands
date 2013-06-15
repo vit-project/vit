@@ -1,14 +1,18 @@
 
  cmd   a STRING        add a new task
+ cmd   A STRING        add an annotation to the current task
  cmd   c STRING        change the current task's description
  cmd   :s/OLD/NEW/     change OLD to NEW in the current task's description
  cmd   :%s/OLD/NEW/    change OLD to NEW in the current task's description
+ cmd   D               delete the current annotation (denotate)
  rpt   :REPORT         display REPORT
  rpt   :REPORT FILTER  display REPORT with FILTER
  rpt   :STRING<tab>    display REPORT by tab completion
  rpt   :<tab>          display REPORT by tab completion of all defined reports
+ cmd   e               edit the current task
  cmd   ZZ              exit
  cmd   :q              exit
+ cmd   f FILTER        filter the current report with FILTER
  cmd   d               mark the current task done
  nav   j               move down one line
  nav   DownArrow       move down one line
@@ -26,6 +30,10 @@
  nav   PgDn            scroll down (forward) one page
  nav   ^b              scroll up (back) one page
  nav   PgUp            scroll up (back) up one page
+ cmd   h               set current task's priority to H (high)
+ cmd   l               set current task's priority to L (low)
+ cmd   m               set current task's priority to M (medium)
+ cmd   n               set current task's priority to none
  help  h               view the whole help file
  help  h cmd           view help about commands
  help  h help          view help about help

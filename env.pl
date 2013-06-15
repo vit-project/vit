@@ -26,13 +26,10 @@ sub init_task_env {
       &parse_line(0,$_);
       @report_header_colors_fg = @parsed_colors_fg;
       @report_header_colors_bg = @parsed_colors_bg;
-      @report_header_attrs = @parsed_attrs;
+      @report_header_attrs_global = @parsed_attrs;
       my $fg = $report_header_colors_fg[0];
       my $bg = $report_header_colors_bg[0];
       $COLOR_HEADER = &get_color_pair($fg,$bg);
-      $header_win->attron(COLOR_PAIR($COLOR_HEADER));
-      &set_attron($header_win,$report_header_attrs[0]);
-      $prompt_win->attron(COLOR_PAIR($COLOR_HEADER));
     }
   } 
   close(IN);

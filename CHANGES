@@ -1,10 +1,23 @@
 
- Fri Nov 30 2012 - release v0.5
+ Wed Dec  5 2012 - released v0.6
+ Wed Dec  5 2012 - added 'n' for setting priority to none
+ Wed Dec  5 2012 - added 'l' for setting priority to L
+ Wed Dec  5 2012 - added 'm' for setting priority to M
+ Wed Dec  5 2012 - added 'h' for setting priority to H
+ Tue Dec  4 2012 - added 'f' for filter the current report
+ Mon Dec  3 2012 - added checking of task command closing short pipe error
+ Mon Dec  3 2012 - added checking of task command exit status
+ Sun Dec  2 2012 - added 'D' for delete the current annotation (denotate)
+ Sat Dec  1 2012 - added 'A' for add an annotation to the current task
+ Sat Dec  1 2012 - added 'e' for edit current task
+ Sat Dec  1 2012 - fixed problems with the header attributions (bold and underline)
+
+ Fri Nov 30 2012 - released v0.5
  Fri Nov 30 2012 - added ./configure (autoconf)  (e.g. "./configure --prefix=/usr/local/vit")
  Thu Nov 29 2012 - added support for '^w' (erase word) at the command line
  Thu Nov 29 2012 - added default.command to the list of available reports
  Wed Nov 28 2012 - added support for ":REPORT <filter>" syntax (e.g. ":mimimal prio:H")
- Wed Nov 28 2012 - added support for the DEL key ('^?') as per issue1134
+ Wed Nov 28 2012 - added support for the DEL key ('^?') as per bug #1134
 
  Wed Nov 28 2012 - released v0.4
  Wed Nov 28 2012 - added ":N" for move to task number N
@@ -12,7 +25,7 @@
  Wed Nov 28 2012 - added ":h PATTERN" for help about PATTERN (e.g. ":h help")
  Tue Nov 27 2012 - added ":h" for help
  Tue Nov 27 2012 - removed the Term::ReadKey requirement
- Tue Nov 27 2012 - removed xterm only requirement as per feature1132
+ Tue Nov 27 2012 - removed xterm only requirement as per feature #1132
  Tue Nov 27 2012 - fixed problems with marking the last task done
  Mon Nov 26 2012 - added ":STRING<tab>" and ":<tab>" for changing the current report
  Mon Nov 26 2012 - added ":REPORT" (e.g. ":long") for changing the report
@@ -28,11 +41,11 @@
  Sat Nov 24 2012 - various changes for task version 2.x
  Sat Nov 24 2012 - added ":s/OLD/NEW/" for change description (e.g. ":s/opps/oops/")
  Fri Nov 23 2012 - added ":q" for quit
- Fri Nov 23 2012 - added 'c' for change
+ Fri Nov 23 2012 - added 'c' for change current task
 
  Fri Nov 23 2012 - released v0.1
- Fri Nov 23 2012 - added 'a' for add
- Wed Nov 21 2012 - added 'd' for done
+ Fri Nov 23 2012 - added 'a' for add task
+ Wed Nov 21 2012 - added 'd' for mark current task done
  Tue Nov 20 2012 - added the 'G' and '0'
  Mon Nov 19 2012 - added the '^f' and '^b'
  Sun Nov 18 2012 - added the 'L', 'M' and 'H'

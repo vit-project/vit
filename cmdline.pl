@@ -34,7 +34,7 @@ sub cmd_line {
     return;
   }
   if ( $str eq 'help' || $str eq 'h' ) {
-    &shell_exec("view $commands_file");
+    &shell_exec("view $commands_file",'no-wait');
     return;
   }
   if ( $str =~ /^help (.*)/ || $str =~ /^h (.*)/ ) { 
@@ -51,7 +51,7 @@ sub cmd_line {
     close(IN);
     print OUT "\n";
     close(OUT);
-    &shell_exec("view $tmp_file");
+    &shell_exec("view $tmp_file",'no-wait');
     unlink($tmp_file);
     return;
   }

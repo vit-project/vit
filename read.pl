@@ -40,7 +40,7 @@ sub read_report {
     } 
   } 
   close(IN);
-  $args = "rc.defaultwidth=$REPORT_COLS rc.defaultheight=$REPORT_LINES burndown.daily";
+  $args = "rc.defaultwidth=$REPORT_COLS rc.defaultheight=$REPORT_LINES burndown";
   &audit("EXEC task $args 2>&1");
   open(IN,"task $args 2>&1 |");
   while(<IN>) {
@@ -71,7 +71,7 @@ sub read_report {
     }
     &parse_report_line($i,$_);
     $_ =~ s/\x1b.*?m//g; 
-    if ( $_ =~ /^ID / ) { # FIXME?
+    if ( $_ =~ /^ID / ) {
       $report_header_idx = $i;
       $i++;
       next;

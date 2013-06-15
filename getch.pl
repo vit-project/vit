@@ -27,13 +27,34 @@ sub getch_loop {
         last CASE;
       }
 
+      if ( $ch eq 'A' ) {
+        &task_annotate();
+        last CASE;
+      }
+
       if ( $ch eq 'c' ) {
         &task_change();
         last CASE;
       }
 
+      if ( $ch eq 'D' ) {
+        &task_denotate();
+        last CASE;
+      }
+
       if ( $ch eq 'd' ) {
         &task_done();
+        last CASE;
+      }
+
+      if ( $ch eq "e" ) {
+        &shell_exec("task $report2taskid[$task_selected_idx] edit",'wait');
+        $reread_needed = 1;
+        last CASE;
+      }
+
+      if ( $ch eq 'f' ) {
+        &task_filter();
         last CASE;
       }
 
@@ -46,11 +67,17 @@ sub getch_loop {
         last CASE;
       }
 
+      if ( $ch eq 'h' ) {
+        &task_set_prio('H');
+        last CASE;
+      }
+
       if ( $ch eq 'H' ) {
         $task_selected_idx = $display_start_idx;
         $refresh_needed = 1;
         last CASE;
       }
+
 
       if ( $ch eq 'j' || $ch eq KEY_DOWN || $ch eq ' ' ) {
         if ( $task_selected_idx >= $#report_tokens ) { 
@@ -85,12 +112,27 @@ sub getch_loop {
         last CASE;
       }
 
+      if ( $ch eq 'l' ) {
+        &task_set_prio('L');
+        last CASE;
+      }
+
       if ( $ch eq 'M' ) {
         $task_selected_idx = $display_start_idx + int($REPORT_LINES / 2);
         if ( $display_start_idx + $REPORT_LINES > $#report_tokens ) { 
           $task_selected_idx = $display_start_idx + int(($#report_tokens - $display_start_idx) / 2);
         }
         $refresh_needed = 1;
+        last CASE;
+      }
+
+      if ( $ch eq 'm' ) {
+        &task_set_prio('M');
+        last CASE;
+      }
+
+      if ( $ch eq 'n' ) {
+        &task_set_prio('');
         last CASE;
       }
 

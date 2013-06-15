@@ -39,6 +39,7 @@ our @report_header_tokens = ();
 our @report_header_colors_fg = ();
 our @report_header_colors_bg = ();
 our @report_header_attrs = ();
+our @report_header_attrs_global = ();
 our @report_tokens = ();
 our @report_types = ();
 our @report_colors_fg = ();
