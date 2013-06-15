@@ -1,10 +1,11 @@
 
-fix could-not-lock hangs
+tab complete prio: and proj:
 
-vet double quote and single tick
+add burndown, summary and the other non report commands
+
+include aliases in tab completion
 
 implement these....
-
    cmd   A STRING        add an annotation to the current task
    cmd   f PATTERN       filter the current report by PATTERN
    cmd   h               set the current task's priority to "H" (high)
@@ -21,12 +22,10 @@ implement these....
    cmd   x               delete the current task
    cmd   /STRING         search forwards for STRING
    cmd   ?STRING         search backwards for STRING
-   rpt   :burndown       display the burndown report
-   rpt   :history        display the history
-   rpt   :completed      display the completed report
-   help  :help           display help in vi
-   help  :help PATTERN   display help filtered by PATTERN in vi
-   rpt   :summary        display the summary report
+
+fix could-not-lock hangs
+
+done needs to be disallowed for done tasks
 
 fix resize looses selection problem
 
@@ -36,11 +35,19 @@ use timer to remove $feedback_msg after N seconds
 
 include task-anonymous 
 
-flash convergence when it changes!
+flash convergence when it changes
+
+'R' for "reports mode", like "folders mode" in mh-v
+
+fixes for strictly ANSI color terminals
 
 try doing the tutorial(s) in vit
 
 review/revise ~/.taskrc wrt task v1 cruft and task v2 goodness
+
+contrib gnome.theme
+
+propose MH-style IDs
 
 crib other commands from mh-v?
 
@@ -48,4 +55,5 @@ rc.indent doesn't work?
 
 autoconf?
 
-fix dark-256.theme when used with light terminals etc?
+fix light-256.theme and dark-256.theme
+

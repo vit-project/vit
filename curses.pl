@@ -6,10 +6,9 @@ sub init_curses {
   curs_set(0);
   start_color();
   use_default_colors();
-  init_pair($COLOR_ERRORS,231,1); # white on red
-  init_pair($COLOR_SCROLLBAR,248,248); # solid dark gray?
-  #init_pair($COLOR_SELECTION,231,68); # white on gtk+ blue # FIXME use rc
-  init_pair($COLOR_SELECTION,231,4); # foreground color on blue # FIXME use rc
+  init_pair($COLOR_ERRORS,231,1); # white on red # FIXME xterm specific, wrong for ANSI 
+  init_pair($COLOR_SELECTION,231,4); # white on blue  # FIXME xterm specific, wrong for ANSI
+  init_pair($COLOR_EMPTY_LINE,4,-1); # blue foreground
   my $HEADER_SIZE = 3;
   $REPORT_LINES = $LINES - $HEADER_SIZE - 1;
   $REPORT_COLS = $COLS - 2;

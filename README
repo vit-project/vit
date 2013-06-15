@@ -11,12 +11,11 @@
    task version 2.1.2 or newer
    modern ncurses (built with wide character support via --enable-widec)
    the perl Curses module 
-   the perl Term::ReadKey module
-   256-color xterm 
 
  Recommendations:
    follow the directions in the "INSTALL" file
    look over the "commands" file
+   xterm terminal (for full color support)
    for GTK+ (Gnome) colors, add the taskrc-gtk+ configuration strings to your ~/.taskrc
    xterm -geom 100x40 +sb -e /usr/local/bin/vit -titlebar &
 

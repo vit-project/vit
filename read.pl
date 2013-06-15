@@ -1,63 +1,29 @@
 
 sub read_report {
+  my ($mode) = @_;
   my $report_header_idx = 0; 
   my $args;
+  my @prev_num_tasks = $num_tasks;
+  my @prev_report2taskid = @report2taskid;
+  my @prev_report_tokens = @report_tokens;
+  my @prev_report_colors_fg = @report_colors_fg;
+  my @prev_report_colors_bg = @report_colors_bg;
+  my @prev_report_attrs = @report_attrs;
+  my @prev_report_header_tokens = @report_header_tokens;
+  my @prev_report_header_attrs = @report_header_attrs;
+  $prev_display_start_idx = $display_start_idx;
+  $prev_task_selected_idx = $task_selected_idx;
+  @report2taskid = ();
   @report_tokens = ();
   @report_colors_fg = ();
   @report_colors_bg = ();
   @report_attrs = ();
   @report_header_tokens = ();
-  @report_header_colors_fg = ();
-  @report_header_colors_bg = ();
   @report_header_attrs = ();
-
-  &audit("EXEC task 2>&1");
-  open(IN,"task rc._forcecolor=on 2>&1 |");
-  while(<IN>) {
-    chop;
-    if ( $_ =~ /^\[(.*)\]$/ || $_ =~ /^\x1b.*?m\[(.*)\]\x1b\[0m$/ ) { 
-      $report_descr = $1;
-      $report_descr =~ s/ rc._forcecolor=on//;
-      &parse_line(0,$_);
-      @report_header_colors_fg = @parsed_colors_fg;
-      @report_header_colors_bg = @parsed_colors_bg;
-      @report_header_attrs = @parsed_attrs;
-      my $fg = $report_header_colors_fg[0];
-      my $bg = $report_header_colors_bg[0];
-      $COLOR_HEADER = &get_color_pair($fg,$bg);
-      $header_win->attron(COLOR_PAIR($COLOR_HEADER));
-      &set_attron($header_win,$report_header_attrs[0]);
-      $prompt_win->attron(COLOR_PAIR($COLOR_HEADER));
-      last; 
-    }
+  if ( $mode eq 'init' ) {
+    $task_selected_idx = 0;
+    $display_start_idx = 0;
   }
-  close(IN);
-
-  &audit("EXEC task show color.vit.selection 2>&1");
-  open(IN,"task show color.vit.selection 2>&1 |");
-  while(<IN>) {
-    chop;
-    if ( $_ !~ /^color.vit.selection\s+(.*)/ ) { next; }
-    my $cstr = $1;
-    CASE: { 
-      if ( $cstr =~ /color(\d+) on color(\d+)/ ) {
-        init_pair($COLOR_SELECTION,$1,$2); 
-        last CASE;
-      }
-      if ( $cstr =~ /on color(\d+)/ ) {
-        init_pair($COLOR_SELECTION,-1,$1); 
-        last CASE;
-      }
-      if ( $cstr =~ /color(\d+)/ ) {
-        init_pair($COLOR_SELECTION,$1,-1); 
-        last CASE;
-      }
-      $error_msg = "Warning: the color '$cstr' is not recognized.  Only the 'colorN' notation is allowed.";
-    }
-    last;
-  }
-  close(IN);
-
   &audit("EXEC task stat 2>&1");
   open(IN,"task stat 2>&1 |");
   while(<IN>) {
@@ -74,7 +40,6 @@ sub read_report {
     } 
   } 
   close(IN);
-
   $args = "rc.defaultwidth=$REPORT_COLS rc.defaultheight=$REPORT_LINES burndown.daily";
   &audit("EXEC task $args 2>&1");
   open(IN,"task $args 2>&1 |");
@@ -89,8 +54,7 @@ sub read_report {
     }
   }
   close(IN);
-
-  $args = "rc.defaultwidth=$REPORT_COLS rc.defaultheight=0 rc._forcecolor=on";
+  $args = "rc.defaultwidth=$REPORT_COLS rc.defaultheight=0 rc._forcecolor=on $current_command";
   &audit("EXEC task $args 2> /dev/null");
   open(IN,"task $args 2> /dev/null |");
   my $i = 0;
@@ -98,7 +62,10 @@ sub read_report {
   while(<IN>) {
     chop;
     if ( $_ =~ /^\s*$/ ) { next; }
-    if ( $_ =~ /^(\d+) tasks[s]{0}$/ || $_ =~ /^\x1b.*?m(\d+) tasks[s]{0}\x1b\[0m$/ ) { 
+    if ( $_ =~ /^(\d+) tasks[s]{0}$/ || 
+         $_ =~ /^\x1b.*?m(\d+) tasks[s]{0}\x1b\[0m$/ ||
+         $_ =~ /^\d+ tasks[s]{0}, (\d+) shown$/ || 
+         $_ =~ /^\x1b.*?m\d+ tasks[s]{0}, (\d+) shown\x1b\[0m$/ ) {
       $num_tasks = $1;
       next;
     }
@@ -111,22 +78,40 @@ sub read_report {
     }
     if ( $_ =~ /^\s*(\d+) / ) {
       $report2taskid[$i] = $1;
+      $taskid2report[$1] = $i;
     } else {
       $report2taskid[$i] = $prev_id;
+      $taskid2report[$i] = $prev_id;
     }
     $prev_id = $report2taskid[$i];
     $i++;
   }
   close(IN);
-
-  @report_header_tokens = @{ $report_tokens[$report_header_idx] };
-  @report_header_attrs = @{ $report_attrs[$report_header_idx] };
-  splice(@report_tokens,$report_header_idx,1);
-  splice(@report_colors_fg,$report_header_idx,1);
-  splice(@report_colors_bg,$report_header_idx,1);
-  splice(@report_attrs,$report_header_idx,1);
-  splice(@report2taskid,$report_header_idx,1);
-
+  if ( $#report_tokens > -1 ) {
+    @report_header_tokens = @{ $report_tokens[$report_header_idx] };
+    @report_header_attrs = @{ $report_attrs[$report_header_idx] };
+    splice(@report_tokens,$report_header_idx,1);
+    splice(@report_colors_fg,$report_header_idx,1);
+    splice(@report_colors_bg,$report_header_idx,1);
+    splice(@report_attrs,$report_header_idx,1);
+    splice(@report2taskid,$report_header_idx,1);
+    if ( $task_selected_idx > $#report_tokens ) { 
+      $task_selected_idx = $#report_tokens;
+    }
+  } else {
+    $error_msg = "Error: task $current_command: no matches";
+    $current_command = $prev_command;
+    $display_start_idx = $prev_display_start_idx;
+    $task_selected_idx = $prev_task_selected_idx;
+    @report_header_tokens = @prev_report_header_tokens;
+    @report_header_attrs = @prev_report_header_attrs;
+    @report_tokens = @prev_report_tokens;
+    @report_colors_fg = @prev_report_colors_fg;
+    @report_colors_bg = @prev_report_colors_bg;
+    @report_attrs = @prev_report_attrs;
+    @report2taskid = @prev_report2taskid;
+    return;
+  }
 }
 
 return 1;

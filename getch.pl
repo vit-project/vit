@@ -17,6 +17,11 @@ sub getch_loop {
         last CASE;
       }
 
+      if ( $ch =~ /^\d$/ ) {
+        &cmd_line(":$ch");
+        last CASE;
+      }
+
       if ( $ch eq 'a' ) {
         &task_add();
         last CASE;
@@ -94,7 +99,7 @@ sub getch_loop {
       } 
 
       if ( $ch eq ':' ) {
-        &vit_cmd_line();
+        &cmd_line(':');
         last CASE;
       }
 
@@ -121,7 +126,7 @@ sub getch_loop {
       if ( $ch eq "\cl" ) {
         endwin();
         &init_curses('refresh');
-        &read_report();
+        &read_report('refresh');
         &draw_screen();
         last CASE;
       }
@@ -132,13 +137,14 @@ sub getch_loop {
         $refresh_needed = 1;
         last CASE;
       }
-
+      if ( $ch eq 'Z' ) { last CASE; }
+      if ( $ch eq "0x19A" ) { last CASE; } # FIXME: resize
+      if ( $ch eq '-1' ) { last CASE; }
       beep();
-
     }
 
     $p_ch = $ch;
-    if ( $reread_needed ) { &read_report(); }
+    if ( $reread_needed ) { &read_report('refresh'); }
     if ( $refresh_needed || $reread_needed ) { &draw_screen(); }
 
   }

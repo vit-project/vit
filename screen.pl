@@ -1,8 +1,8 @@
 
 sub draw_screen {
-  my ($x, $t, $fg, $bg, $cp, $str);
+  my ($x,$t,$fg,$bg,$cp,$str);
   my $line = 0;
-  &draw_header_line(0,$report_descr,"$num_tasks tasks shown");
+  &draw_header_line(0,"task $current_command","$num_tasks tasks shown");
   &draw_header_line(1,$convergence,"$tasks_completed tasks completed");
   $x = 1;
   for $t (0 .. $#report_header_tokens) {
@@ -16,19 +16,21 @@ sub draw_screen {
   $header_win->addstr(2,$x,$str);
   &set_attroff($header_win,$report_header_attrs[$#report_header_attrs]);
   $header_win->refresh();
-# FIXME map out the scrollbar here
   #debug("DRAW lines=$REPORT_LINES start=$display_start_idx cur=$task_selected_idx");
   for my $i ($display_start_idx .. ($display_start_idx+$REPORT_LINES-1)) {
     $cp = 0;
     if ( $i > $#report_tokens ) {
       $str = '~' . ' ' x ($COLS-2);
+      $report_win->attron(COLOR_PAIR($COLOR_EMPTY_LINE));
+      $report_win->attron(A_BOLD);
       $report_win->addstr($line,0,$str);
+      $report_win->attroff(A_BOLD);
+      $report_win->attroff(COLOR_PAIR($COLOR_EMPTY_LINE));
       $line++;
       next;
     }
     &draw_report_line($i,$line,'with-selection');
     $line++;
-
   }
   $report_win->refresh();
   if ( $display_start_idx == 0 ) { 

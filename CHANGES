@@ -1,26 +1,32 @@
 
-    vit-0.3.tar.gz (11/26/2012)
-        - Mon Nov 26 2012 - released v0.3
-        - Mon Nov 26 2012 - added support for bold and underlines ANSI colors
-        - Sun Nov 25 2012 - wrote taskrc-gtk+
-        - Sun Nov 25 2012 - implemented task-native colorization
-        - Sat Nov 24 2012 - added ' ' for move down one line binding
-        - Sat Nov 24 2012 - released v0.2
-        - Sat Nov 24 2012 - various changes for task version 2.x
-        - Sat Nov 24 2012 - implemented ":s/OLD/NEW/"
-        - Fri Nov 23 2012 - implemented ":q"
-        - Fri Nov 23 2012 - implemented "change"
-        - Fri Nov 23 2012 - released v0.1
-        - Fri Nov 23 2012 - implemented "add"
-        - Wed Nov 21 2012 - implemented "done"
-        - Tue Nov 20 2012 - implemented the 'G' and '0'
-        - Mon Nov 19 2012 - implemented the '^f' and '^b'
-        - Sun Nov 18 2012 - implemented the 'L', 'M' and 'H'
-        - Sat Nov 17 2012 - implemented the 'j' and 'k'
-        - Fri Nov 16 2012 - designed the layout
+ Wed Nov 28 2012 - added ":N" for move to task number N
+ Wed Nov 28 2012 - fixed problems with task reports that have no matches
+ Wed Nov 28 2012 - added ":h PATTERN" for help about PATTERN
+ Tue Nov 27 2012 - added ":h" for help
+ Tue Nov 27 2012 - removed the Term::ReadKey requirement
+ Tue Nov 27 2012 - removed xterm only requirement
+ Tue Nov 27 2012 - fixed problems with marking the last task done
+ Mon Nov 26 2012 - added ":REPORT", ":STRING<tab>" and ":<tab>" for changing the current report
+ Mon Nov 26 2012 - fixed problems with single tick and double quote
 
-    vit-0.2.tar.gz (11/24/2012)
-        - Sat Nov 24 2012 - added ":s/OLD/NEW/" for change description
-        - Fri Nov 23 2012 - added ":q" for quit
-        - Fri Nov 23 2012 - added 'c' for change
+ Mon Nov 26 2012 - released v0.3
+ Mon Nov 26 2012 - added support for bold and underlines ANSI colors
+ Sun Nov 25 2012 - wrote taskrc-gtk+
+ Sun Nov 25 2012 - implemented task-native colorization
+ Sat Nov 24 2012 - added ' ' for move down one line 
+
+ Sat Nov 24 2012 - released v0.2
+ Sat Nov 24 2012 - various changes for task version 2.x
+ Sat Nov 24 2012 - implemented ":s/OLD/NEW/" for change description
+ Fri Nov 23 2012 - implemented ":q" for quit
+ Fri Nov 23 2012 - implemented 'c' for change
+
+ Fri Nov 23 2012 - released v0.1
+ Fri Nov 23 2012 - implemented 'a' for add
+ Wed Nov 21 2012 - implemented 'd' for done
+ Tue Nov 20 2012 - implemented the 'G' and '0'
+ Mon Nov 19 2012 - implemented the '^f' and '^b'
+ Sun Nov 18 2012 - implemented the 'L', 'M' and 'H'
+ Sat Nov 17 2012 - implemented the 'j' and 'k'
+ Fri Nov 16 2012 - designed the layout
 

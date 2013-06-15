@@ -1,26 +1,34 @@
 
- nav   0               move to line zero
  cmd   a STRING        add a new task
  cmd   c STRING        change the current task's description
- cmd   d               mark the current task done
- nav   G               goto end
- nav   H               goto first line on screen ("home")
- nav   j               move down one line
- nav   k               move up one line
- nav   L               goto last line on screen 
- nav   M               goto middle line on screen
- cmd   ZZ              exit
- nav   ^b              back (up) one page
- nav   ^f              forward (down) one page
- nav   ^l              refresh (redraw) the display
  cmd   :s/OLD/NEW/     change OLD to NEW in the current task's description
  cmd   :%s/OLD/NEW/    change OLD to NEW in the current task's description
+ rpt   :REPORT         display REPORT
+ rpt   :STRING<tab>    display REPORT by tab completion
+ rpt   :<tab>          display REPORT by tab completion of all defined reports
+ cmd   ZZ              exit
  cmd   :q              exit
+ cmd   d               mark the current task done
+ nav   j               move down one line
  nav   DownArrow       move down one line
- nav   PgDn            move down one page
- nav   PgUp            move up one page
- nave  Spacebar        move down one line
+ nav   Spacebar        move down one line
+ nav   :N              move to task number N
+ nav   0               move to the first line
+ nav   H               move to the first line on screen
+ nav   G               move to the last line
+ nav   L               move to the last line on screen
+ nav   M               move to the middle line on screen
+ nav   k               move up one line
  nav   UpArrow         move up one line
-
-vim:set ts=6:
+ nav   ^l              refresh (redraw) the display
+ nav   ^f              scroll down (forward) one page
+ nav   PgDn            scroll down (forward) one page
+ nav   ^b              scroll up (back) one page
+ nav   PgUp            scroll up (back) up one page
+ help  h               view the whole help file
+ help  h cmd           view help about commands
+ help  h help          view help about help
+ help  h nav           view help about navigation
+ help  h rpt           view help about reports
+ help  h PATTERN       view help file lines matching PATTERN
 

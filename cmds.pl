@@ -32,7 +32,7 @@ sub task_done {
 
 sub task_add {
   my $id = $report2taskid[$task_selected_idx];
-  my $descr = &prompt_str("Description: ");
+  my $descr = &prompt_str("Add: ");
   if ( $descr eq '' ) { 
     &draw_prompt_line('');
     return; 
@@ -43,8 +43,10 @@ sub task_add {
   while(<IN>) {
     chop;
     $_ =~ s/\x1b.*?m//g; # decolorize
-    if ( $_ =~ /^\w+ override:/ ) { next; }
-    $result .= "$_ ";
+    if ( $_ =~ /^Created task/ ) { 
+      $result = $_; 
+      last;
+    }
   }
   close(IN);
   if ( $result =~ s/.*(Could not lock.*pending.data\'.)\s*/$1/ ) {
@@ -60,7 +62,7 @@ sub task_add {
 
 sub task_change {
   my $id = $report2taskid[$task_selected_idx];
-  my $descr = &prompt_str("New description: ");
+  my $descr = &prompt_str("Change: ");
   if ( $descr eq '' ) { 
     &draw_prompt_line('');
     return; 

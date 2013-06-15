@@ -1,6 +1,6 @@
 
-PARTS = args.pl cmdline.pl cmds.pl color.pl curses.pl draw.pl env.pl getch.pl \
-  misc.pl prompt.pl read.pl screen.pl
+PARTS = args.pl cmdline.pl cmds.pl color.pl curses.pl draw.pl env.pl \
+  exec.pl getch.pl misc.pl prompt.pl read.pl screen.pl
 
 build: 
 	@echo "adding vit.pl to vit"
@@ -19,8 +19,8 @@ build:
 install:
 	sudo mkdir -p /usr/local/bin
 	sudo cp vit /usr/local/bin/vit
-	sudo mkdir -p /usr/local/etc/vit
-	sudo cp commands /usr/local/etc/vit/commands
+	sudo mkdir -p /usr/local/etc
+	sudo cp commands /usr/local/etc/vit-commands
 
 testing:
 	@make -f .makefile testing
