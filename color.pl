@@ -3,9 +3,9 @@
 sub parse_report_line {
   my ($l,$str) = @_;
   &parse_line($l,$str);
-  if ( $current_command eq 'summary' && $parsed_tokens[0] =~ /^(\d+) project/ ) { 
+  if ( $current_command eq 'summary' && $parsed_tokens[0] =~ /^(\d+) project/ ) {
     $num_projects = $1;
-    return; 
+    return;
   }
   push @{ $report_tokens[$l] }, (@parsed_tokens);
   push @{ $report_colors_fg[$l] },  (@parsed_colors_fg);
@@ -32,8 +32,8 @@ sub parse_line {
     $attr = '';
     CASE: {
       # ANSI 16 color attr pairs...
-      if ( $tok =~ s/\[(\d+);(\d+)m// ) { 
-        my ($a,$b) = ($1,$2); 
+      if ( $tok =~ s/\[(\d+);(\d+)m// ) {
+        my ($a,$b) = ($1,$2);
         if ( $a > 30 ) {
           $fg = $a - 30;
           $bg = $b - 40;
@@ -51,7 +51,7 @@ sub parse_line {
       }
       # ANSI 16 color single colors or single attrs or attrs off...
       if ( $tok =~ s/\[(\d+)m// ) {
-        my $a = $1; 
+        my $a = $1;
         if ( $a eq '0' ) {
           $fg = $bg = 999999;
           $attr .= 'none ';
@@ -73,43 +73,43 @@ sub parse_line {
         last CASE;
       }
       # ANSI 16 color bold...
-      if ( $tok =~ s/\[1;(\d+);(\d+)m// ) { 
-        my ($a,$b) = ($1,$2); 
-        $attr .= 'bold '; 
-        $fg = $a - 30;  
-        $bg = $b - 40;  
+      if ( $tok =~ s/\[1;(\d+);(\d+)m// ) {
+        my ($a,$b) = ($1,$2);
+        $attr .= 'bold ';
+        $fg = $a - 30;
+        $bg = $b - 40;
         last CASE;
       }
       # ANSI 16 color underline...
-      if ( $tok =~ s/\[4;(\d+);(\d+)m// ) { 
-        my ($a,$b) = ($1,$2); 
-        $attr .= 'underline '; 
-        $fg = $a - 30;  
-        $bg = $b - 40;  
+      if ( $tok =~ s/\[4;(\d+);(\d+)m// ) {
+        my ($a,$b) = ($1,$2);
+        $attr .= 'underline ';
+        $fg = $a - 30;
+        $bg = $b - 40;
         last CASE;
       }
       # ANSI 16 color inverse...
-      if ( $tok =~ s/\[7;(\d+);(\d+)m// ) { 
-        my ($a,$b) = ($1,$2); 
-        $attr .= 'inverse '; 
-        $fg = $a - 30;  
-        $bg = $b - 40;  
+      if ( $tok =~ s/\[7;(\d+);(\d+)m// ) {
+        my ($a,$b) = ($1,$2);
+        $attr .= 'inverse ';
+        $fg = $a - 30;
+        $bg = $b - 40;
         last CASE;
       }
       # 256 color xterm foreground...
-      if ( $tok =~ s/\[38;5;(\d+)m// ) { 
-        $fg = $1; 
+      if ( $tok =~ s/\[38;5;(\d+)m// ) {
+        $fg = $1;
         last CASE;
       }
       # 256 color xterm background...
-      if ( $tok =~ s/\[48;5;(\d+)m// ) { 
-        $bg = $1; 
+      if ( $tok =~ s/\[48;5;(\d+)m// ) {
+        $bg = $1;
         last CASE;
-      } 
+      }
     }
     # FIXME summary mode...
     # if ( $tok =~ /0%\s+100%/ ) { debug("summary graph tok=\"$tok\" column=$t"); }
-    if ( $tok ne '' ) { 
+    if ( $tok ne '' ) {
       $parsed_tokens[$t] = $tok;
       $parsed_colors_fg[$t] = $fg;
       $parsed_colors_bg[$t] = $bg;
@@ -130,8 +130,8 @@ sub extract_color {
   $parsed_attrs[1] = '';
   &audit("EXEC $task rc._forcecolor=on color $s 2>&1");
   open(IN2,"$task rc._forcecolor=on color $s 2>&1 |");
-  while(<IN2>){ 
-    if ( $_ =~ /Your sample:/ ) { 
+  while(<IN2>){
+    if ( $_ =~ /Your sample:/ ) {
       $_ = <IN2>; $_ = <IN2>;
       &parse_line(0,$_);
       if ( $parsed_colors_fg[1] eq '999999' ) { $parsed_colors_fg[1] = -1; }

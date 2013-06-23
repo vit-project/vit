@@ -13,7 +13,7 @@ sub task_exec {
     $result .= "$_ ";
   }
   close(IN);
-  if ( $! ) { 
+  if ( $! ) {
     $es = 1;
     &audit("FAILED \"$task $cmd\" error closing short pipe");
   }
@@ -37,8 +37,8 @@ sub shell_exec {
     exit();
   }
   wait();
-  if ( $mode eq 'wait' ) { 
-    print "Press return to continue.\r\n"; 
+  if ( $mode eq 'wait' ) {
+    print "Press return to continue.\r\n";
     <STDIN>;
   }
   &init_curses('refresh');

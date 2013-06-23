@@ -26,8 +26,8 @@ sub prompt_str {
   if ( $prompt =~ /^(:)(.*)/ || $prompt =~ /^(.*?: )(.*)/ || $prompt =~ /^(.*?:)(.*)/ ) {
     $prompt = $1;
     $str = $2;
-  } 
-  if ( $prompt eq ':' ) { 
+  }
+  if ( $prompt eq ':' ) {
     $mode = 'cmd';
     @match_types = @report_types;
   } else {
@@ -45,7 +45,7 @@ sub prompt_str {
     if ( $ch eq "\b" || $ch eq "\c?" ) {
       if ( $str ne '' ) {
         chop $str;
-        if ( length($str) < length($tab_match_str) ) { 
+        if ( length($str) < length($tab_match_str) ) {
           chop $tab_match_str;
         }
       } else {
@@ -53,14 +53,14 @@ sub prompt_str {
         $tab_cnt = 0;
       }
       &draw_prompt("$prompt$str");
-      next; 
+      next;
     }
     if ( $ch eq "\cu" ) {
       $str = '';
       $tab_match_str = '';
       $tab_cnt = 0;
       &draw_prompt("$prompt$str");
-      next; 
+      next;
     }
     if ( $ch eq "\e" ) {
       noecho();
@@ -71,7 +71,7 @@ sub prompt_str {
       last;
     }
     if ( $ch eq "\t" ) {
-      if ( $mode ne 'cmd' && $mode ne 'project' ) { 
+      if ( $mode ne 'cmd' && $mode ne 'project' ) {
         beep();
         next;
       }
@@ -94,7 +94,7 @@ sub prompt_str {
       next;
     }
     if ( $ch eq "\cw" ) {
-      if ( $str eq '' ) { 
+      if ( $str eq '' ) {
         chop $str;
         beep();
         next;
@@ -120,11 +120,11 @@ sub prompt_str {
   }
   noecho();
   curs_set(0);
-  if ( $mode ne 'project' && $str eq '' ) { beep(); }  
+  if ( $mode ne 'project' && $str eq '' ) { beep(); }
   $str =~ s/"/\\"/g;
   $str =~ s/^\s+//;
   $str =~ s/\s+$//;
   return $str;
-} 
+}
 
 return 1;

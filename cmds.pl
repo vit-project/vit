@@ -4,9 +4,9 @@
 
 sub task_add {
   my $str = &prompt_str("Add: ");
-  if ( $str eq '' ) { 
+  if ( $str eq '' ) {
     &draw_prompt_line('');
-    return; 
+    return;
   }
   my ($es,$result) = &task_exec("add \"$str\"");
   if ( $es != 0 ) {
@@ -23,9 +23,9 @@ sub task_add {
 sub task_annotate {
   my $id = $report2taskid[$task_selected_idx];
   my $str = &prompt_str("Annotate: ");
-  if ( $str eq '' ) { 
+  if ( $str eq '' ) {
     &draw_prompt_line('');
-    return; 
+    return;
   }
   my ($es,$result) = &task_exec("$id annotate \"$str\"");
   if ( $es != 0 ) {
@@ -58,7 +58,7 @@ sub task_denotate {
     return;
   }
   my ($es,$result) = &task_exec("$id denotate \"$str\"");
-  if ( $es != 0 ) { 
+  if ( $es != 0 ) {
     $error_msg = $result;
     &draw_error_msg();
     return;
@@ -74,9 +74,9 @@ sub task_denotate {
 sub task_change {
   my $id = $report2taskid[$task_selected_idx];
   my $str = &prompt_str("Change: ");
-  if ( $str eq '' ) { 
+  if ( $str eq '' ) {
     &draw_prompt_line('');
-    return; 
+    return;
   }
   &task_modify("$str");
   $reread_needed = 1;
@@ -108,9 +108,9 @@ sub task_done {
 
 sub task_filter {
   my ($c, $f);
-  if ( $current_command =~ /(.*?)\s+(.*)/ ) { 
-    ($c,$f) = ($1,$2); 
-  } else { 
+  if ( $current_command =~ /(.*?)\s+(.*)/ ) {
+    ($c,$f) = ($1,$2);
+  } else {
     $c = $current_command;
     $f = '';
   }
@@ -137,7 +137,7 @@ sub task_modify {
     &draw_error_msg();
     return;
   }
-  if ( $es != 0 ) { 
+  if ( $es != 0 ) {
     $error_msg = $result;
     &draw_error_msg();
     return;
@@ -154,13 +154,13 @@ sub task_set_prio {
   my $yes;
   my $id = $report2taskid[$task_selected_idx];
   my $prio = &task_info('Priority');
-  if ( $p eq $prio ) { 
+  if ( $p eq $prio ) {
     beep();
     return;
   }
-  if ( $p eq '' ) { 
+  if ( $p eq '' ) {
     $yes = &prompt_y("Set task ${id}'s priority to none? ");
-  } else { 
+  } else {
     $yes = &prompt_y("Set task ${id}'s priority to $p? ");
   }
   if ( ! $yes ) {
@@ -168,7 +168,7 @@ sub task_set_prio {
     return;
   }
   my ($es,$result) = &task_exec("$id modify prio:$p");
-  if ( $es != 0 ) { 
+  if ( $es != 0 ) {
     $error_msg = $result;
     &draw_error_msg();
     return;
@@ -184,12 +184,12 @@ sub task_set_project {
   my $id = $report2taskid[$task_selected_idx];
   my $p = &prompt_str("Project: ");
   my $proj = &task_info('Project');
-  if ( $p eq $proj ) { 
+  if ( $p eq $proj ) {
     beep();
     return;
   }
   my ($es,$result) = &task_exec("$id modify proj:$p");
-  if ( $es != 0 ) { 
+  if ( $es != 0 ) {
     $error_msg = $result;
     &draw_error_msg();
     return;

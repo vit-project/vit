@@ -13,7 +13,7 @@ sub start_search {
   GETCH: while (1) {
     my $ch = $prompt_win->getch();
     if ( $ch eq "\ch" ) {
-      if ( length($search_pat) > 1 ) { chop $search_pat; } 
+      if ( length($search_pat) > 1 ) { chop $search_pat; }
       &draw_prompt($search_pat);
       next GETCH;
     }
@@ -41,7 +41,7 @@ sub start_search {
   noecho();
   curs_set(0);
   $search_pat = substr($search_pat, 1);
-  if ( $search_pat eq '' ) { 
+  if ( $search_pat eq '' ) {
     $search_pat = '';
     &draw_prompt('');
     beep();
@@ -64,7 +64,7 @@ sub do_search {
     if ( $task_selected_idx - $display_start_idx >= $REPORT_LINES ) {
       $display_start_idx = $task_selected_idx - $REPORT_LINES + 1;
     } elsif ( $task_selected_idx < $display_start_idx ) {
-      $display_start_idx = $task_selected_idx; 
+      $display_start_idx = $task_selected_idx;
     }
     return 1;
   } else {
@@ -72,7 +72,7 @@ sub do_search {
     $search_pat = '';
     beep();
     return 0;
-  } 
+  }
   return 0;
 }
 
@@ -108,7 +108,7 @@ sub do_inner_search {
     &draw_prompt('Search hit TOP, continuing at BOTTOM');
     usleep($error_delay);
     for ( my $i = $#report_lines; $i > $task_selected_idx; $i-- ) {
-      if ( $report_lines[$i] =~ /$search_pat/i ) { 
+      if ( $report_lines[$i] =~ /$search_pat/i ) {
         $task_selected_idx = $i;
         return 1;
       }

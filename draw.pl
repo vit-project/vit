@@ -93,7 +93,7 @@ sub draw_report_line {
   if ( $mode eq 'with-selection' && $i == $task_selected_idx ) {
     $report_win->attroff(COLOR_PAIR($COLOR_SELECTION));
     &set_attroff($report_win,$selection_attrs);
-  } else { 
+  } else {
     $report_win->attroff(COLOR_PAIR($cp));
   }
 }

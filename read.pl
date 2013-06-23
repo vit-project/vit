@@ -17,7 +17,7 @@ sub read_report {
 sub inner_read_report {
   my ($mode) = @_;
 
-  my $report_header_idx = 0; 
+  my $report_header_idx = 0;
   my $args;
   my @prev_num_tasks = $num_tasks;
   my @prev_report2taskid = @report2taskid;
@@ -55,12 +55,12 @@ sub inner_read_report {
     if ( $_ =~ /Pending\s+(\d+)/ ) {
       $tasks_pending = $1;
       next;
-    } 
+    }
     if ( $_ =~ /Completed\s+(\d+)/ ) {
       $tasks_completed = $1;
       next;
-    } 
-  } 
+    }
+  }
   close(IN);
 
   $args = "rc.defaultwidth=$REPORT_COLS rc.defaultheight=$REPORT_LINES burndown";
@@ -71,16 +71,16 @@ sub inner_read_report {
       $convergence = "no convergence";
       last;
     }
-    if ( $_ =~ /Estimated completion: .* \((.*)\)/ ) { 
+    if ( $_ =~ /Estimated completion: .* \((.*)\)/ ) {
       $convergence = "convergence in $1";
-      last; 
+      last;
     }
   }
   close(IN);
-  if ( $convergence ne $prev_convergence && $prev_convergence ne '' ) { 
-    $flash_convergence = 1; 
+  if ( $convergence ne $prev_convergence && $prev_convergence ne '' ) {
+    $flash_convergence = 1;
   } else {
-    $flash_convergence = 0; 
+    $flash_convergence = 0;
   }
 
   &audit("EXEC $task projects 2>&1");
@@ -106,15 +106,15 @@ sub inner_read_report {
   while(<IN>) {
     chop;
     if ( $_ =~ /^\s*$/ ) { next; }
-    if ( $_ =~ /^(\d+) tasks?$/ || 
+    if ( $_ =~ /^(\d+) tasks?$/ ||
          $_ =~ /^\x1b.*?m(\d+) tasks?\x1b\[0m$/ ||
-         $_ =~ /^\d+ tasks?, (\d+) shown$/ || 
+         $_ =~ /^\d+ tasks?, (\d+) shown$/ ||
          $_ =~ /^\x1b.*?m\d+ tasks?, (\d+) shown\x1b\[0m$/ ) {
       $num_tasks = $1;
       next;
     }
     &parse_report_line($i,$_);
-    $_ =~ s/\x1b.*?m//g; 
+    $_ =~ s/\x1b.*?m//g;
     $report_lines[$i] =  $_;
     if ( $_ =~ /^ID / ) {
       $report_header_idx = $i;
@@ -142,7 +142,7 @@ sub inner_read_report {
     splice(@report_colors_bg,$report_header_idx,1);
     splice(@report_attrs,$report_header_idx,1);
     splice(@report2taskid,$report_header_idx,1);
-    if ( $task_selected_idx > $#report_tokens ) { 
+    if ( $task_selected_idx > $#report_tokens ) {
       $task_selected_idx = $#report_tokens;
     }
   } else {
@@ -158,7 +158,7 @@ sub inner_read_report {
     @report_colors_bg = @prev_report_colors_bg;
     @report_attrs = @prev_report_attrs;
     @report2taskid = @prev_report2taskid;
-    $convergence = $prev_convergence; 
+    $convergence = $prev_convergence;
     return;
   }
 
@@ -171,7 +171,7 @@ sub get_num_tasks {
   &audit("EXEC $task projects 2> /dev/null");
   open(IN,"$task projects 2> /dev/null |");
   while(<IN>) {
-    if ( $_ =~ /(\d+) task/ ) { 
+    if ( $_ =~ /(\d+) task/ ) {
       $num_tasks = $1;
       last;
     }

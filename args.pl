@@ -2,10 +2,10 @@
 
 sub parse_args {
   while ( @ARGV ) {
-    if ( $ARGV[0] eq '-help' ) { 
+    if ( $ARGV[0] eq '-help' ) {
       &usage();
     }
-    if ( $ARGV[0] eq '-audit' || $ARGV[0] eq '-a' ) { 
+    if ( $ARGV[0] eq '-audit' || $ARGV[0] eq '-a' ) {
       $audit = 1;
       shift @ARGV;
       next;

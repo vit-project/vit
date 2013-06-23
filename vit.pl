@@ -30,7 +30,7 @@ our $error_msg = '';
 our $flash_convergence = 0;
 our $flash_delay = 80000;
 our $header_win;
-our $header_attrs; 
+our $header_attrs;
 our $input_mode = 'cmd';
 our $num_projects = 0;
 our $num_tasks = 0;
