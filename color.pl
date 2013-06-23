@@ -1,3 +1,4 @@
+# Copyright 2012 - 2013, Steve Rader
 
 sub parse_report_line {
   my ($l,$str) = @_;

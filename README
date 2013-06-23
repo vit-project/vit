@@ -21,15 +21,18 @@
    xterm -geom 100x40 +sb -e /usr/local/bin/vit -titlebar &
 
  Downloads:
-   http://www.hep.wisc.edu/~rader/vit/
+   http://taskwarrior.org/projects/taskwarrior/wiki/Vit
 
  If you actually use this program, feel free to send me a msg and let me know.
  
  steve
+
  --
- <rader@physics.wisc.edu>
- director of computing
- physics department
- university of wisconsin
- http://www.physics.wisc.edu/computing/
+
+ Our friend and collaborator Steve Rader passed away in May 2013.  We owe a lot
+ to Steve for his excellent work, and so vit is preserved, maintained and
+ continued.
+
+ Taskwarrior Team
+ support@taskwarrior.org
 

@@ -1,3 +1,4 @@
+# Copyright 2012 - 2013, Steve Rader
 
 sub init_shell_env {
   if ( $ENV{'TERM'} =~ /^xterm/ || $ENV{'TERM'} =~ /^screen/ ) {

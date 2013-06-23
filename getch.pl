@@ -1,3 +1,4 @@
+# Copyright 2012 - 2013, Steve Rader
 
 sub getch_loop {
   while (1) {

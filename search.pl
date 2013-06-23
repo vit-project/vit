@@ -1,3 +1,4 @@
+# Copyright 2012 - 2013, Steve Rader
 
 sub start_search {
   my $ch = $_[0];

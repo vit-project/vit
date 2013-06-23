@@ -1,3 +1,4 @@
+# Copyright 2012 - 2013, Steve Rader
 
 sub init_curses {
   my $m = $_[0];

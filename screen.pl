@@ -1,3 +1,4 @@
+# Copyright 2012 - 2013, Steve Rader
 
 sub draw_screen {
   my ($x,$t,$fg,$bg,$cp,$str);

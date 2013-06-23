@@ -4,6 +4,7 @@
 #
 # %BUILD%
 #
+# Copyright 2012 - 2013, Steve Rader
 
 use strict;
 use Curses;

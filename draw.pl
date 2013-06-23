@@ -1,3 +1,4 @@
+# Copyright 2012 - 2013, Steve Rader
 
 sub draw_header_line {
   my ($row,$lhs,$rhs) = @_;
