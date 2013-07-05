@@ -2,6 +2,7 @@
  cmd   a STRING        add a new task
  cmd   A STRING        add an annotation to the current task
  cmd   c STRING        change the current task's description
+ cmd   :!STRING        execute "task STRING"
  cmd   :s/OLD/NEW/     change OLD to NEW in the current task's description
  cmd   :%s/OLD/NEW/    change OLD to NEW in the current task's description
  cmd   D               delete the current annotation (denotate)

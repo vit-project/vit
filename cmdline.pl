@@ -7,6 +7,11 @@ sub cmd_line {
     &draw_prompt_line('');
     return;
   }
+  if ( $str =~ /^!(.*)/ ) {
+    my $rtn = &task_shellcommand($1);
+    $reread_needed = 1;
+    return;
+  }
   if ( $str =~ /^\d+$/ ) {
     if ( ! defined $taskid2report[$str] ) {
        $error_msg = "Error: task number $str not found";

@@ -199,4 +199,17 @@ sub task_set_project {
   $reread_needed = 1;
 }
 
+#------------------------------------------------------------------
+
+sub task_shellcommand {
+  my $args = $_[0];
+  if ( $args eq '' ) {
+    $error_msg = "Empty task command";
+    &draw_error_msg();
+    return;
+  }
+  &shell_exec("$task $args","wait");
+  $reread_needed = 1;
+}
+
 return 1;
