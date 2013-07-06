@@ -1,4 +1,5 @@
 # Copyright 2012 - 2013, Steve Rader
+# Copyright 2013, Scott Kostyshak
 
 sub getch_loop {
   while (1) {
