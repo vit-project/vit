@@ -23,6 +23,7 @@
  nav   Spacebar        move down one line
  nav   :N              move to task number N
  nav   0               move to the first line
+ nav   gg              move to the first line
  nav   H               move to the first line on screen
  nav   G               move to the last line
  nav   L               move to the last line on screen

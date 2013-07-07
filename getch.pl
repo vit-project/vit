@@ -10,7 +10,7 @@ sub getch_loop {
 
     CASE: {
 
-      if ( $ch eq '0' ) {
+      if ( $ch eq '0' || ( $ch eq 'g' && $prev_ch eq 'g' ) ) {
         $task_selected_idx = 0;
         $display_start_idx = 0;
         $refresh_needed = 1;
