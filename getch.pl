@@ -39,7 +39,7 @@ sub getch_loop {
       }
 
       if ( $ch eq 'D' ) {
-        &task_denotate();
+        &task_den_or_del();
         last CASE;
       }
 

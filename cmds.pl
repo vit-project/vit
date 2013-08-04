@@ -41,30 +41,30 @@ sub task_annotate {
 
 #------------------------------------------------------------------
 
-sub task_denotate {
+sub task_den_or_del {
   my ($ch, $str, $yes);
   my $id = $report2taskid[$task_selected_idx];
   for my $t (0 .. $#{ $report_tokens[$task_selected_idx] } ) {
     $str .= "$report_tokens[$task_selected_idx][$t]";
   }
-  if ( $str !~ s/^\s*\d+\/\d+\/\d+\s+// ) {
-    &draw_prompt_line('');
-    beep();
-    return;
-  }
+  my $target = ( $str !~ s/^\s*\d+\/\d+\/\d+\s+// )
+             ? "task"
+             : "annotation";
   $str =~ s/\s+$//;
-  $yes = &prompt_y("Delete current annotation? ");
+  $yes = &prompt_y("Delete current $target? ");
   if ( ! $yes ) {
     &draw_prompt_line('');
     return;
   }
-  my ($es,$result) = &task_exec("$id denotate \"$str\"");
+  my ($es,$result) = ($target eq "annotation")
+                   ? &task_exec("$id denotate \"$str\"")
+                   : &task_exec("$id delete rc.confirmation:no");
   if ( $es != 0 ) {
     $error_msg = $result;
     &draw_error_msg();
     return;
   }
-  $feedback_msg = "Deleted annotation.";
+  $feedback_msg = "Deleted $target.";
   &draw_feedback_msg();
   &flash_current_task();
   $reread_needed = 1;

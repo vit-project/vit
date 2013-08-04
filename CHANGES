@@ -1,3 +1,4 @@
+ Sat Aug  3 2013 - 'D' now deletes a task when not over an annotation (#1230)
  Sat Jul  6 2013 - added Copyright 2013, Scott Kostyshak
  Sat Jul  6 2013 - added an AUTHORS file listing contributors
  Sat Jul  6 2013 - 'gg' now moves to first line (#1229)

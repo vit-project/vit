@@ -5,7 +5,7 @@
  cmd   :!STRING        execute "task STRING"
  cmd   :s/OLD/NEW/     change OLD to NEW in the current task's description
  cmd   :%s/OLD/NEW/    change OLD to NEW in the current task's description
- cmd   D               delete the current annotation (denotate)
+ cmd   D               denotate if over annotation, delete task if on first line
  cmd   e               edit the current task
  cmd   =               view the current task's info
  cmd   <enter>         view the current task's info
