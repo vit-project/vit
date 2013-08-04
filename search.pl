@@ -13,7 +13,8 @@ sub start_search {
   curs_set(1);
   GETCH: while (1) {
     my $ch = $prompt_win->getch();
-    if ( $ch eq "\ch" ) {
+    if ( $ch eq "\ch" || $ch eq "\o{177}" ) {
+      # either ctrl + h or backspace
       if ( length($search_pat) > 1 ) { chop $search_pat; }
       &draw_prompt($search_pat);
       next GETCH;
