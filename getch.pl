@@ -186,6 +186,18 @@ sub getch_loop {
         last CASE;
       }
 
+      if ( $ch eq 's' ) {
+        my $majmin = &task_version('major.minor');
+        if ( $majmin >= 2.3 ) {
+          &shell_exec("task sync",'wait');
+        }
+        else {
+          $error_msg = "'sync' was introduced in Taskwarrior 2.3.0";
+          $refresh_needed = 1;
+        }
+        last CASE;
+      }
+
       if ( $ch eq '=' || $ch eq "\n" ) {
         if ( $current_command eq 'summary' ) {
           my $p = $report_tokens[$task_selected_idx][0];
