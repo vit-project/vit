@@ -18,6 +18,24 @@ sub debug {
 
 #------------------------------------------------------------------
 
+sub task_version {
+  my $request = $_[0];
+  my $version;
+  open(IN,"task --version 2>&1 |");
+  while(<IN>) {
+    chop;
+    $version = $_;
+  }
+  close(IN);
+  if ( $request eq "major.minor" ) {
+    my @v_ = split(/\./,$version);
+    return "$v_[0].$v_[1]";
+  }
+  return $version;
+}
+
+#------------------------------------------------------------------
+
 sub task_info {
   my $n = $_[0];
   my $id = $report2taskid[$task_selected_idx];
