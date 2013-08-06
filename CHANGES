@@ -1,3 +1,4 @@
+ Thu Aug  6 2013 - shortcuts can now be specified in ~/.vitrc (#1302)
  Mon Aug  5 2013 - 's' now runs 'task sync' if Taskwarrior >= 2.3.0 (#1301)
  Sun Aug  4 2013 - when in search mode, backspace now removes a character
  Sat Aug  3 2013 - 'D' now deletes a task when not over an annotation (#1230)

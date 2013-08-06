@@ -2,6 +2,18 @@
 # Copyright 2013, Scott Kostyshak
 
 sub getch_loop {
+  my %shortcuts;
+  my $vitrc = glob("~/.vitrc");
+  if ( open(IN,"<$vitrc") ) {
+    while (<IN>) {
+      if ( $_ =~ s/^map // ) {
+        my($scut, $cmd) = split(/=/, $_, 2);
+        $shortcuts{$scut} = $cmd;
+      }
+    }
+    close(IN);
+  }
+
   while (1) {
     my $ch = $report_win->getch();
     $refresh_needed = 0;
@@ -10,6 +22,14 @@ sub getch_loop {
     $feedback_msg = '';
 
     CASE: {
+
+      if (my $action = $shortcuts{$ch}) {
+        $action =~ s/([^\\])%/$1$report2taskid[$task_selected_idx]/g;
+        $action =~ s/^%/$1$report2taskid[$task_selected_idx]/g;
+        $action =~ s/\\%/%/g;
+        &shell_exec($action,'nowait');
+        last CASE;
+      }
 
       if ( $ch eq '0' || ( $ch eq 'g' && $prev_ch eq 'g' ) ) {
         $task_selected_idx = 0;
