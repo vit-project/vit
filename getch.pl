@@ -7,9 +7,15 @@ sub getch_loop {
   if ( open(IN,"<$vitrc") ) {
     while (<IN>) {
       if ( $_ =~ s/^map // ) {
+        my $wait = "nowait";
+        if ( $_ =~ s/^(-w|--wait) // ) {
+          $wait = "wait";
+        }
+
         my($scut, $cmd) = split(/=/, $_, 2);
         my $expanded = eval "\"$scut\"";
-        $shortcuts{$expanded} = $cmd;
+        my @pair = ($cmd, $wait);
+        $shortcuts{$expanded} = \@pair;
       }
     }
     close(IN);
@@ -24,11 +30,13 @@ sub getch_loop {
 
     CASE: {
 
-      if (my $action = $shortcuts{$ch}) {
+      if (exists $shortcuts{$ch}) {
+        my $action = $shortcuts{$ch}[0];
+        my $w = $shortcuts{$ch}[1];
         $action =~ s/([^\\])%/$1$report2taskid[$task_selected_idx]/g;
         $action =~ s/^%/$1$report2taskid[$task_selected_idx]/g;
         $action =~ s/\\%/%/g;
-        &shell_exec($action,'nowait');
+        &shell_exec($action,$w);
         last CASE;
       }
 
