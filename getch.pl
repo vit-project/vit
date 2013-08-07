@@ -8,7 +8,8 @@ sub getch_loop {
     while (<IN>) {
       if ( $_ =~ s/^map // ) {
         my($scut, $cmd) = split(/=/, $_, 2);
-        $shortcuts{$scut} = $cmd;
+        my $expanded = eval "\"$scut\"";
+        $shortcuts{$expanded} = $cmd;
       }
     }
     close(IN);
