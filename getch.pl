@@ -279,7 +279,12 @@ sub getch_loop {
         last CASE;
       }
       if ( $ch eq 'Z' ) { last CASE; }
-      if ( $ch eq "410" ) { last CASE; } # FIXME resize
+      if ( $ch eq "410" ) {
+        # FIXME resize
+        &init_curses('refresh');
+        &draw_screen();
+        last CASE;
+      }
       if ( $ch eq '-1' ) { last CASE; }
       beep();
     }
