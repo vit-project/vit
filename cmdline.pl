@@ -63,8 +63,7 @@ sub cmd_line {
     return;
   }
   if ( $str eq 'q' ) {
-    endwin();
-    exit();
+    &clean_exit();
   }
   if ( grep(/^$str$/,@report_types) ) {
     $prev_command = $current_command;

@@ -11,6 +11,14 @@ sub audit {
 
 #------------------------------------------------------------------
 
+sub clean_exit {
+  &shell_exec("clear", 'no-wait');
+  endwin();
+  exit();
+}
+
+#------------------------------------------------------------------
+
 sub debug {
   print STDERR @_;
   print STDERR "\r\n";

@@ -106,6 +106,5 @@ require 'search.pl';
 &read_report('init');
 &draw_screen();
 &getch_loop();
-endwin();
-exit();
+&clean_exit();
 
