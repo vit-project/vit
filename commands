@@ -14,6 +14,8 @@
  rpt   :REPORT FILTER  display REPORT with FILTER
  rpt   :STRING<tab>    display REPORT using tab completion
  rpt   :<tab>          display REPORT using tab completion of all defined reports
+ cmd   q               exit after confirmation
+ cmd   Q               exit
  cmd   ZZ              exit
  cmd   :q              exit
  cmd   f FILTER        filter the current report with FILTER

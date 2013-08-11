@@ -3,6 +3,19 @@
 
 #------------------------------------------------------------------
 
+sub prompt_quit {
+  my $yes;
+  $yes = &prompt_y("Quit?");
+  if ( ! $yes ) {
+    &draw_prompt_line('');
+    return;
+  }
+  endwin();
+  exit();
+}
+
+#------------------------------------------------------------------
+
 sub task_add {
   my $str = &prompt_str("Add: ");
   if ( $str eq '' ) {

@@ -1,3 +1,4 @@
+ Sun Aug 11 2013 - 'q' ('Q') now quits with(out) confirmation (#1266)
  Thu Aug  9 2013 - fix a bug where prompt text was invisible
  Thu Aug  6 2013 - shortcuts can now be specified in ~/.vitrc (#1302)
  Mon Aug  5 2013 - 's' now runs 'task sync' if Taskwarrior >= 2.3.0 (#1301)

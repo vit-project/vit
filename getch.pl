@@ -188,14 +188,19 @@ sub getch_loop {
         last CASE;
       }
 
+      if ( $ch eq 'q' ) {
+        &prompt_quit();
+        last CASE;
+      }
+
+      if ( $ch eq 'Q' || ($ch eq 'Z' && $prev_ch eq 'Z') ) {
+        return;
+      }
+
       if ( $ch eq 'u' ) {
         &shell_exec('task undo','wait');
         $reread_needed = 1;
         last CASE;
-      }
-
-      if ( $ch eq 'Z' && $prev_ch eq 'Z' ) {
-        return;
       }
 
       if ( $ch eq '/' ) {
