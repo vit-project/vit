@@ -7,7 +7,7 @@ sub getch_loop {
   if ( open(IN,"<$vitrc") ) {
     while (<IN>) {
       if ( $_ =~ s/^map // ) {
-        my $wait = "nowait";
+        my $wait = 'no-wait';
         if ( $_ =~ s/^(-w|--wait) // ) {
           $wait = "wait";
         }
