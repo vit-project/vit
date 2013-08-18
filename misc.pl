@@ -12,7 +12,9 @@ sub audit {
 #------------------------------------------------------------------
 
 sub clean_exit {
-  &shell_exec("clear", 'no-wait');
+  unless( $audit ) {
+    &shell_exec("clear", 'no-wait');
+  }
   endwin();
   exit();
 }
