@@ -31,7 +31,9 @@ sub shell_exec {
   my ($cmd,$mode) = @_;
   endwin();
   if ( $clear ne 'NOT_FOUND' ) { system("$clear"); }
-  print "$_[0]\r\n";
+  if ( $audit ) {
+    print "$_[0]\r\n";
+  }
   if ( ! fork() ) {
     &audit("EXEC $cmd");
     exec($cmd);
