@@ -17,17 +17,19 @@ sub getch_loop {
           exit(1);
         }
 
+	my $rereadflag;
         my $waitflag;
         GetOptionsFromString($scut,
-          "wait|w" => \$waitflag)
+          "reread|r" => \$rereadflag,
+          "wait|w"   => \$waitflag)
           or exit(1);
         my $wait = 'no-wait';
         if ($waitflag) {
           $wait = 'wait';
         }
         my $expanded = eval "\"$skey\"";
-        my @pair = ($cmd, $wait);
-        $shortcuts{$expanded} = \@pair;
+        my @attributes = ($cmd, $wait, $rereadflag);
+        $shortcuts{$expanded} = \@attributes;
       }
     }
     close(IN);
@@ -45,10 +47,14 @@ sub getch_loop {
       if (exists $shortcuts{$ch}) {
         my $action = $shortcuts{$ch}[0];
         my $w = $shortcuts{$ch}[1];
+        my $r = $shortcuts{$ch}[2];
         $action =~ s/([^\\])%/$1$report2taskid[$task_selected_idx]/g;
         $action =~ s/^%/$1$report2taskid[$task_selected_idx]/g;
         $action =~ s/\\%/%/g;
         &shell_exec($action,$w);
+        if ($r) {
+          $reread_needed = 1;
+        }
         last CASE;
       }
 
@@ -124,7 +130,6 @@ sub getch_loop {
         $refresh_needed = 1;
         last CASE;
       }
-
 
       if ( $ch eq 'j' || $ch eq KEY_DOWN || $ch eq ' ' ) {
         if ( $task_selected_idx >= $#report_tokens ) {
