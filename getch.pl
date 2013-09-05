@@ -6,14 +6,26 @@ sub getch_loop {
   my $vitrc = glob("~/.vitrc");
   if ( open(IN,"<$vitrc") ) {
     while (<IN>) {
-      if ( $_ =~ s/^map // ) {
-        my $wait = 'no-wait';
-        if ( $_ =~ s/^(-w|--wait) // ) {
-          $wait = "wait";
+      if ( $_ =~ s/^map// ) {
+        my($scut, $cmd) = split(/=/, $_, 2);
+
+        my $skey;
+        if ($scut =~ s/ ([^ ]+)$//) {
+          $skey = $1;
+        }
+        else {
+          exit(1);
         }
 
-        my($scut, $cmd) = split(/=/, $_, 2);
-        my $expanded = eval "\"$scut\"";
+        my $waitflag;
+        GetOptionsFromString($scut,
+          "wait|w" => \$waitflag)
+          or exit(1);
+        my $wait = 'no-wait';
+        if ($waitflag) {
+          $wait = 'wait';
+        }
+        my $expanded = eval "\"$skey\"";
         my @pair = ($cmd, $wait);
         $shortcuts{$expanded} = \@pair;
       }

@@ -10,6 +10,7 @@
 use strict;
 use Curses;
 use Time::HiRes qw(usleep);
+use Getopt::Long qw{GetOptionsFromString :config bundling no_ignore_case no_auto_abbrev};
 
 our $commands_file = '%prefix%/etc/vit-commands';
 our $task = '%TASK%';
