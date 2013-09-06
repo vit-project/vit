@@ -2,39 +2,6 @@
 # Copyright 2013, Scott Kostyshak
 
 sub getch_loop {
-  my %shortcuts;
-  my $vitrc = glob("~/.vitrc");
-  if ( open(IN,"<$vitrc") ) {
-    while (<IN>) {
-      if ( $_ =~ s/^map// ) {
-        my($scut, $cmd) = split(/=/, $_, 2);
-
-        my $skey;
-        if ($scut =~ s/ ([^ ]+)$//) {
-          $skey = $1;
-        }
-        else {
-          exit(1);
-        }
-
-	my $rereadflag;
-        my $waitflag;
-        GetOptionsFromString($scut,
-          "reread|r" => \$rereadflag,
-          "wait|w"   => \$waitflag)
-          or exit(1);
-        my $wait = 'no-wait';
-        if ($waitflag) {
-          $wait = 'wait';
-        }
-        my $expanded = eval "\"$skey\"";
-        my @attributes = ($cmd, $wait, $rereadflag);
-        $shortcuts{$expanded} = \@attributes;
-      }
-    }
-    close(IN);
-  }
-
   while (1) {
     my $ch = $report_win->getch();
     $refresh_needed = 0;

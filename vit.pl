@@ -82,6 +82,8 @@ our $COLOR_EMPTY_LINE = 4;
 our $COLOR_ERRORS = 5;
 our $next_color_pair = 6;
 
+our %shortcuts;
+
 require 'args.pl';
 require 'cmdline.pl';
 require 'cmds.pl';
@@ -101,6 +103,7 @@ require 'search.pl';
 ## main...
 
 &parse_args();
+&parse_vitrc();
 &init_shell_env();
 &init_curses('init');
 &init_task_env();

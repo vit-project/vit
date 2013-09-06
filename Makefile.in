@@ -1,6 +1,6 @@
 
 PARTS = args.pl cmdline.pl cmds.pl color.pl curses.pl draw.pl env.pl exec.pl \
-  getch.pl misc.pl prompt.pl read.pl search.pl screen.pl
+  getch.pl misc.pl prompt.pl read.pl search.pl screen.pl vitrc.pl
 
 PREFIX=@prefix@
 VERSION=@VERSION@
