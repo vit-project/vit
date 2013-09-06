@@ -17,20 +17,20 @@ sub parse_vitrc {
           exit(1);
         }
 
-	my $rereadflag;
-        my $waitflag;
+	my $reread_flag;
+        my $wait_flag;
         unless (GetOptionsFromString($scut,
-          "reread|r" => \$rereadflag,
-          "wait|w"   => \$waitflag)) {
+          "reread|r" => \$reread_flag,
+          "wait|w"   => \$wait_flag)) {
             print STDERR "$parse_error";
             exit(1);
         }
         my $wait = 'no-wait';
-        if ($waitflag) {
+        if ($wait_flag) {
           $wait = 'wait';
         }
         my $expanded = eval "\"$skey\"";
-        my @attributes = ($cmd, $wait, $rereadflag);
+        my @attributes = ($cmd, $wait, $reread_flag);
         $shortcuts{$expanded} = \@attributes;
       }
     }
