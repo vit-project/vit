@@ -65,4 +65,14 @@ sub task_info {
   return '';
 }
 
+#------------------------------------------------------------------
+
+sub ungetstr {
+  my $str = $_[0];
+  foreach my $ch (reverse split('', $str)) {
+    ungetch($ch);
+  }
+  return '';
+}
+
 return 1;

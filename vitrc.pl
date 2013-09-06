@@ -4,6 +4,7 @@ sub parse_vitrc {
   my $vitrc = glob("~/.vitrc");
   if ( open(IN,"<$vitrc") ) {
     while (<IN>) {
+      chop;
       my $parse_error = "ERROR: incorrect key bind line in .vitrc:\n  $_";
       if ( $_ =~ s/^map// ) {
         my($scut, $cmd) = split(/=/, $_, 2);
@@ -17,9 +18,11 @@ sub parse_vitrc {
           exit(1);
         }
 
+        my $internal_flag;
 	my $reread_flag;
         my $wait_flag;
         unless (GetOptionsFromString($scut,
+          "internal|i" => \$internal_flag,
           "reread|r" => \$reread_flag,
           "wait|w"   => \$wait_flag)) {
             print STDERR "$parse_error";
@@ -29,9 +32,12 @@ sub parse_vitrc {
         if ($wait_flag) {
           $wait = 'wait';
         }
-        my $expanded = eval "\"$skey\"";
-        my @attributes = ($cmd, $wait, $reread_flag);
-        $shortcuts{$expanded} = \@attributes;
+        $skey = eval "\"$skey\"";
+        if ($internal_flag) {
+          $cmd = eval "\"$cmd\"";
+        }
+        my @attributes = ($cmd, $wait, $reread_flag, $internal_flag);
+        $shortcuts{$skey} = \@attributes;
       }
     }
     close(IN);
