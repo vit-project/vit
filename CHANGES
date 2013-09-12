@@ -1,3 +1,4 @@
+ Thu Sep 12 2013 - added ':!' to execute arbitrary string in shell
  Sun Aug 12 2013 - When running an external command, Vit no longer echoes it
  Sun Aug 11 2013 - VIT now cleans the terminal before exiting
  Sun Aug 11 2013 - 'q' ('Q') now quits with(out) confirmation (#1266)
@@ -9,7 +10,6 @@
  Sat Jul  6 2013 - added Copyright 2013, Scott Kostyshak
  Sat Jul  6 2013 - added an AUTHORS file listing contributors
  Sat Jul  6 2013 - 'gg' now moves to first line (#1229)
- Mon Jun 24 2013 - added ':!' to execute arbitrary string in taskwarrior
  Sun Jun 23 2013 - added Copyright 2012 - 2013, Steve Rader
 
  Wed Apr  3 2013 - released v1.1

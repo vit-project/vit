@@ -215,14 +215,14 @@ sub task_set_project {
 
 #------------------------------------------------------------------
 
-sub task_shellcommand {
+sub shell_command {
   my $args = $_[0];
   if ( $args eq '' ) {
-    $error_msg = "Empty task command";
+    $error_msg = "Empty shell command";
     &draw_error_msg();
     return;
   }
-  &shell_exec("$task $args","wait");
+  &shell_exec("$args","wait");
   $reread_needed = 1;
 }
 

@@ -9,7 +9,7 @@ sub cmd_line {
     return;
   }
   if ( $str =~ /^!(.*)/ ) {
-    my $rtn = &task_shellcommand($1);
+    my $rtn = &shell_command($1);
     $reread_needed = 1;
     return;
   }
