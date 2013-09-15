@@ -10,7 +10,6 @@ sub cmd_line {
   }
   if ( $str =~ /^!(.*)/ ) {
     my $rtn = &shell_command($1);
-    $reread_needed = 1;
     return;
   }
   if ( $str =~ /^\d+$/ ) {

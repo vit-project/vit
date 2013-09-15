@@ -12,24 +12,8 @@ sub getch_loop {
     CASE: {
 
       if (exists $shortcuts{$ch}) {
-        my $action = $shortcuts{$ch}[0];
-        my $w = $shortcuts{$ch}[1];
-        my $r = $shortcuts{$ch}[2];
-        my $internal = $shortcuts{$ch}[3];
-
-        if ($internal) {
-          ungetstr($action)
-        }
-        else {
-          $action =~ s/([^\\])%/$1$report2taskid[$task_selected_idx]/g;
-          $action =~ s/^%/$1$report2taskid[$task_selected_idx]/g;
-          $action =~ s/\\%/%/g;
-          &shell_exec($action,$w);
-          if ($r) {
-            $reread_needed = 1;
-          }
-        }
-
+        my $action = $shortcuts{$ch};
+        ungetstr($action);
         last CASE;
       }
 

@@ -217,13 +217,33 @@ sub task_set_project {
 
 sub shell_command {
   my $args = $_[0];
-  if ( $args eq '' ) {
-    $error_msg = "Empty shell command";
+  my ($opts, $cmd);
+  if ( $args =~ /([^ ]*) (.+)/ ) {
+    $opts = $1;
+    $cmd = $2;
+  }
+  else {
+    $error_msg = "Empty shell command for ':!'. See help (:h).";
     &draw_error_msg();
     return;
   }
-  &shell_exec("$args","wait");
-  $reread_needed = 1;
+
+  my $wait = "no-wait";
+  foreach my $l ( split //, $opts ) {
+    if ( $l eq 'r' ) {
+      $reread_needed = 1;
+    } elsif ( $l eq 'w' ) {
+      $wait = "wait";
+    } else {
+      $error_msg = "$l is not a valid command option to ':!'. See help (:h).";
+      &draw_error_msg();
+      return;
+    }
+  }
+
+  $cmd =~ s/%TASKID/$report2taskid[$task_selected_idx]/g;
+
+  &shell_exec("$cmd","$wait");
 }
 
 return 1;

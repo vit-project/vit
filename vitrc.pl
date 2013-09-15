@@ -18,26 +18,10 @@ sub parse_vitrc {
           exit(1);
         }
 
-        my $internal_flag;
-	my $reread_flag;
-        my $wait_flag;
-        unless (GetOptionsFromString($scut,
-          "internal|i" => \$internal_flag,
-          "reread|r" => \$reread_flag,
-          "wait|w"   => \$wait_flag)) {
-            print STDERR "$parse_error";
-            exit(1);
-        }
-        my $wait = 'no-wait';
-        if ($wait_flag) {
-          $wait = 'wait';
-        }
         $skey = eval "\"$skey\"";
-        if ($internal_flag) {
-          $cmd = eval "\"$cmd\"";
-        }
-        my @attributes = ($cmd, $wait, $reread_flag, $internal_flag);
-        $shortcuts{$skey} = \@attributes;
+        $cmd = eval "\"$cmd\"";
+
+        $shortcuts{$skey} = $cmd;
       }
     }
     close(IN);
