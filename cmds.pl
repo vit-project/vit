@@ -242,6 +242,7 @@ sub shell_command {
   }
 
   $cmd =~ s/%TASKID/$report2taskid[$task_selected_idx]/g;
+  $cmd =~ s/%TASKARGS/$current_command/g;
 
   &shell_exec("$cmd","$wait");
 }
