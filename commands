@@ -3,6 +3,7 @@
  cmd   A STRING        add an annotation to the current task
  cmd   c STRING        change the current task's description
  cmd   :![rw] STRING   execute "STRING" in shell. 'r' rereads, 'w' waits
+ cmd   t               prepend the command prompt with ":!rw task "
  cmd   :s/OLD/NEW/     change OLD to NEW in the current task's description
  cmd   :%s/OLD/NEW/    change OLD to NEW in the current task's description
  cmd   D               denotate if over annotation, delete task if on first line

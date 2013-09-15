@@ -185,6 +185,10 @@ sub getch_loop {
         last CASE;
       }
 
+      if ( $ch eq 't' ) {
+        ungetstr(':!rw task ')
+      }
+
       if ( $ch eq 'u' ) {
         &shell_exec('task undo','wait');
         $reread_needed = 1;

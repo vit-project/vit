@@ -1,3 +1,4 @@
+ Sun Sep 15 2013 - 't' now opens the command prompt with ":!rw task "
  Sun Sep 15 2013 - shell commands can now pass the arguments VIT is using (#1338, #1237)
  Sat Sep 14 2013 - custom keybinds can now be specified in ~/.vitrc (#1237, #1302, #1336)
  Thu Sep 12 2013 - added ':!' to execute arbitrary string in shell
