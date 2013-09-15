@@ -13,7 +13,7 @@ sub getch_loop {
 
       if (exists $shortcuts{$ch}) {
         my $action = $shortcuts{$ch};
-        ungetstr($action);
+        &ungetstr($action);
         last CASE;
       }
 
@@ -186,7 +186,7 @@ sub getch_loop {
       }
 
       if ( $ch eq 't' ) {
-        ungetstr(':!rw task ')
+        &ungetstr(':!rw task ')
       }
 
       if ( $ch eq 'u' ) {
