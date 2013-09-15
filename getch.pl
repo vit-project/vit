@@ -173,6 +173,18 @@ sub getch_loop {
         return;
       }
 
+      if ( $ch eq 's' ) {
+        my $majmin = &task_version('major.minor');
+        if ( $majmin >= 2.3 ) {
+          &shell_exec("task sync",'wait');
+        }
+        else {
+          $error_msg = "'sync' was introduced in Taskwarrior 2.3.0";
+          $refresh_needed = 1;
+        }
+        last CASE;
+      }
+
       if ( $ch eq 'u' ) {
         &shell_exec('task undo','wait');
         $reread_needed = 1;
@@ -193,18 +205,6 @@ sub getch_loop {
 
       if ( $ch eq ':' ) {
         &cmd_line(':');
-        last CASE;
-      }
-
-      if ( $ch eq 's' ) {
-        my $majmin = &task_version('major.minor');
-        if ( $majmin >= 2.3 ) {
-          &shell_exec("task sync",'wait');
-        }
-        else {
-          $error_msg = "'sync' was introduced in Taskwarrior 2.3.0";
-          $refresh_needed = 1;
-        }
         last CASE;
       }
 

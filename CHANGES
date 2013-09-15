@@ -1,7 +1,7 @@
- Sun Sep 15 2013 - shell commands can now pass the arguments Vit is using (#1338, #1237)
+ Sun Sep 15 2013 - shell commands can now pass the arguments VIT is using (#1338, #1237)
  Sat Sep 14 2013 - custom keybinds can now be specified in ~/.vitrc (#1237, #1302, #1336)
  Thu Sep 12 2013 - added ':!' to execute arbitrary string in shell
- Sun Aug 12 2013 - When running an external command, Vit no longer echoes it
+ Sun Aug 12 2013 - When running an external command, VIT no longer echoes it
  Sun Aug 11 2013 - VIT now cleans the terminal before exiting
  Sun Aug 11 2013 - 'q' ('Q') now quits with(out) confirmation (#1266)
  Thu Aug  9 2013 - fix a bug where prompt text was invisible
