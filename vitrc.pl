@@ -19,7 +19,7 @@ sub parse_vitrc {
         }
 
         $skey = eval "\"$skey\"";
-        $cmd = eval "\"$cmd\"";
+        $cmd =~ s/<Return>/\n/g;
 
         $shortcuts{$skey} = $cmd;
       }
