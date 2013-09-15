@@ -5,7 +5,7 @@ sub parse_vitrc {
   if ( open(IN,"<$vitrc") ) {
     while (<IN>) {
       chop;
-      my $parse_error = "ERROR: incorrect key bind line in .vitrc:\n  $_";
+      my $parse_error = "ERROR: incorrect key bind line in .vitrc:\n $_\n";
       if ( $_ =~ s/^map// ) {
         my($scut, $cmd) = split(/=/, $_, 2);
 
