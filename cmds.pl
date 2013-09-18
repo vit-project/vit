@@ -145,19 +145,7 @@ sub task_filter {
 sub task_modify {
   my $args = $_[0];
   my $id = $report2taskid[$task_selected_idx];
-  my ($es,$result) = &task_exec("$id modify \"$args\"");
-  if ( $result =~ /Modified 0 tasks./ ) {
-    $error_msg = "Modifying task $id failed.";
-    &draw_error_msg();
-    return;
-  }
-  if ( $es != 0 ) {
-    $error_msg = $result;
-    &draw_error_msg();
-    return;
-  }
-  $feedback_msg = "Modified task $id.";
-  &flash_current_task();
+  &shell_exec("$task $id modify \"$args\"",'wait');
   $reread_needed = 1;
 }
 
@@ -244,7 +232,7 @@ sub shell_command {
   $cmd =~ s/%TASKID/$report2taskid[$task_selected_idx]/g;
   $cmd =~ s/%TASKARGS/$current_command/g;
 
-  &shell_exec("$cmd","$wait");
+  &shell_exec($cmd,"$wait");
 }
 
 return 1;
