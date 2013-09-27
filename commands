@@ -1,7 +1,7 @@
 
  cmd   a STRING        add a new task
  cmd   A STRING        add an annotation to the current task
- cmd   c STRING        change the current task's description
+ cmd   m STRING        modify the current task
  cmd   :![rw] STRING   execute "STRING" in shell. 'r' rereads, 'w' waits
  cmd   t               prepend the command prompt with ":!rw task "
  cmd   :s/OLD/NEW/     change OLD to NEW in the current task's description
@@ -44,7 +44,6 @@
  cmd   ?STRING         search backwards for STRING
  cmd   h               set the current task's priority to H (high)
  cmd   l               set the current task's priority to L (low)
- cmd   m               set the current task's priority to M (medium)
  cmd   n               set the current task's priority to none
  cmd   p STRING        set the current task's project to STRING
  cmd   p STRING<tab>   set the current task's project to STRING using tab completion

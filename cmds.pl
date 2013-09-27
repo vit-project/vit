@@ -85,19 +85,6 @@ sub task_den_or_del {
 
 #------------------------------------------------------------------
 
-sub task_change {
-  my $id = $report2taskid[$task_selected_idx];
-  my $str = &prompt_str("Change: ");
-  if ( $str eq '' ) {
-    &draw_prompt_line('');
-    return;
-  }
-  &task_modify("$str");
-  $reread_needed = 1;
-}
-
-#------------------------------------------------------------------
-
 sub task_done {
   my ($ch, $str, $yes);
   my $id = $report2taskid[$task_selected_idx];
@@ -146,6 +133,19 @@ sub task_modify {
   my $args = $_[0];
   my $id = $report2taskid[$task_selected_idx];
   &shell_exec("$task $id modify \"$args\"",'wait');
+  $reread_needed = 1;
+}
+
+#------------------------------------------------------------------
+
+sub task_modify_prompt {
+  my $id = $report2taskid[$task_selected_idx];
+  my $str = &prompt_str("Modify: ");
+  if ( $str eq '' ) {
+    &draw_prompt_line('');
+    return;
+  }
+  &task_modify("$str");
   $reread_needed = 1;
 }
 

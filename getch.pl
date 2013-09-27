@@ -39,11 +39,6 @@ sub getch_loop {
         last CASE;
       }
 
-      if ( $ch eq 'c' ) {
-        &task_change();
-        last CASE;
-      }
-
       if ( $ch eq 'D' ) {
         &task_den_or_del();
         last CASE;
@@ -138,7 +133,7 @@ sub getch_loop {
       }
 
       if ( $ch eq 'm' ) {
-        &task_set_prio('M');
+        &task_modify_prompt();
         last CASE;
       }
 
