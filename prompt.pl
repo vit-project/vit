@@ -2,16 +2,9 @@
 # Copyright 2013, Scott Kostyshak
 
 sub prompt_y {
-  my ($prompt) = @_;
+  my $ch = &prompt_chr(@_);
   my $ans = 0;
-  my $ch;
-  echo();
-  curs_set(1);
-  &draw_prompt($prompt);
-  $ch = $prompt_win->getch();
   if ( $ch eq "y" || $ch eq "Y" ) { $ans = 1; }
-  noecho();
-  curs_set(0);
   return $ans;
 }
 
