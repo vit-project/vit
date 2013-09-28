@@ -151,33 +151,29 @@ sub task_modify_prompt {
 
 #------------------------------------------------------------------
 
-sub task_set_prio {
-  my $p = $_[0];
-  my $yes;
+sub task_set_priority {
   my $id = $report2taskid[$task_selected_idx];
   my $prio = &task_info('Priority');
-  if ( $p eq $prio ) {
-    beep();
-    return;
+  my $p = &prompt_chr("Change priority (l/m/h/n): ");
+  $p = uc($p);
+  if ( $p ne $prio && $p =~ /[LMHN]/ ) {
+    if ( $p eq 'N' ) {
+      $p = '';
+    }
+    my ($es,$result) = &task_exec("$id modify prio:$p");
+    if ( $es != 0 ) {
+      $error_msg = $result;
+      &draw_error_msg();
+      return;
+    }
+    $feedback_msg = "Modified task $id.";
+    &flash_current_task();
+    $reread_needed = 1;
   }
-  if ( $p eq '' ) {
-    $yes = &prompt_y("Set task ${id}'s priority to none? ");
-  } else {
-    $yes = &prompt_y("Set task ${id}'s priority to $p? ");
-  }
-  if ( ! $yes ) {
+  else {
     &draw_prompt_line('');
     return;
   }
-  my ($es,$result) = &task_exec("$id modify prio:$p");
-  if ( $es != 0 ) {
-    $error_msg = $result;
-    &draw_error_msg();
-    return;
-  }
-  $feedback_msg = "Modified task $id.";
-  &flash_current_task();
-  $reread_needed = 1;
 }
 
 #------------------------------------------------------------------

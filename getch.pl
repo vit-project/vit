@@ -74,11 +74,6 @@ sub getch_loop {
         last CASE;
       }
 
-      if ( $ch eq 'h' ) {
-        &task_set_prio('H');
-        last CASE;
-      }
-
       if ( $ch eq 'H' ) {
         $task_selected_idx = $display_start_idx;
         $refresh_needed = 1;
@@ -118,11 +113,6 @@ sub getch_loop {
         last CASE;
       }
 
-      if ( $ch eq 'l' ) {
-        &task_set_prio('L');
-        last CASE;
-      }
-
       if ( $ch eq 'M' ) {
         $task_selected_idx = $display_start_idx + int($REPORT_LINES / 2);
         if ( $display_start_idx + $REPORT_LINES > $#report_tokens ) {
@@ -143,11 +133,6 @@ sub getch_loop {
         last CASE;
       }
 
-      if ( $ch eq 'n' && $input_mode eq 'cmd' ) {
-        &task_set_prio('');
-        last CASE;
-      }
-
       if ( $ch eq 'n' && $input_mode eq 'search' ) {
         &do_search('n');
         $refresh_needed = 1;
@@ -155,6 +140,11 @@ sub getch_loop {
       }
 
       if ( $ch eq 'p' ) {
+        &task_set_priority();
+        last CASE;
+      }
+
+      if ( $ch eq 'P' ) {
         &task_set_project();
         last CASE;
       }

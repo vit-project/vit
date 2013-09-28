@@ -1,3 +1,4 @@
+ Sun Sep 28 2013 - 'p' now sets priority and 'h', 'm', 'l', 'n' are freed (#1238)
  Sun Sep 27 2013 - 'c' is renamed to 'm' (#1231)
  Sun Sep 15 2013 - 't' now opens the command prompt with ":!rw task "
  Sun Sep 15 2013 - shell commands can now pass the arguments VIT is using (#1338, #1237)

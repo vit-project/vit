@@ -17,6 +17,20 @@ sub prompt_y {
 
 #------------------------------------------------------------------
 
+sub prompt_chr {
+  my ($prompt) = @_;
+  my $ch;
+  echo();
+  curs_set(1);
+  &draw_prompt($prompt);
+  $ch = $prompt_win->getch();
+  noecho();
+  curs_set(0);
+  return $ch;
+}
+
+#------------------------------------------------------------------
+
 sub prompt_str {
   my ($prompt) = @_;
   my $str = '';
