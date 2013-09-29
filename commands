@@ -42,10 +42,10 @@
  nav   PgUp            scroll up (back) up one page
  cmd   /STRING         search forwards for STRING
  cmd   ?STRING         search backwards for STRING
- cmd   p [hmln]        set the current task's priority to H, M, L, or none
- cmd   P STRING        set the current task's project to STRING
- cmd   P STRING<tab>   set the current task's project to STRING using tab completion
- cmd   P <tab>         set the current task's project using tab completion
+ cmd   P [hmln]        set the current task's priority to H, M, L, or none
+ cmd   p STRING        set the current task's project to STRING
+ cmd   p STRING<tab>   set the current task's project to STRING using tab completion
+ cmd   p <tab>         set the current task's project using tab completion
  help  :h              view the whole help file
  help  :h cmd          view help about commands
  help  :h help         view help about help

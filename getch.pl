@@ -139,12 +139,12 @@ sub getch_loop {
         last CASE;
       }
 
-      if ( $ch eq 'p' ) {
+      if ( $ch eq 'P' ) {
         &task_set_priority();
         last CASE;
       }
 
-      if ( $ch eq 'P' ) {
+      if ( $ch eq 'p' ) {
         &task_set_project();
         last CASE;
       }
