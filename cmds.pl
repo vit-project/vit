@@ -154,6 +154,9 @@ sub task_modify_prompt {
 sub task_set_priority {
   my $id = $report2taskid[$task_selected_idx];
   my $prio = &task_info('Priority');
+  if ( $prio eq '' ) {
+    $prio = 'N';
+  }
   my $p = &prompt_chr("Change priority (l/m/h/n): ");
   $p = uc($p);
   if ( $p ne $prio && $p =~ /[LMHN]/ ) {
