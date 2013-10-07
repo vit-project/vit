@@ -123,6 +123,9 @@ sub prompt_str {
       &draw_prompt("$prompt$str");
       next;
     }
+    if ( ! &is_printable($ch) ) {
+      next;
+    }
     $str .= $ch;
     &draw_prompt("$prompt$str");
   }

@@ -20,6 +20,7 @@ sub init_curses {
   $report_win = newwin($REPORT_LINES+$HEADER_SIZE, $REPORT_COLS+2, 3, 1);
   $prompt_win = newwin(1, $COLS, $LINES-1, 0);
   keypad($report_win, 1);
+  keypad($prompt_win, 1);
 }
 
 #------------------------------------------------------------------

@@ -1,3 +1,4 @@
+ Sun Oct  6 2013 - Remove confusing behavior from arrow keys in prompts (#1363)
  Sun Sep 28 2013 - 'P' now sets priority and 'h', 'm', 'l', 'n' are freed (#1238)
  Sun Sep 27 2013 - 'c' is renamed to 'm' (#1231)
  Sun Sep 15 2013 - 't' now opens the command prompt with ":!rw task "

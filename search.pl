@@ -37,7 +37,9 @@ sub start_search {
     if ( $ch eq "\n" ) {
       last GETCH;
     }
-    $search_pat .= $ch;
+    if ( &is_printable($ch) ) {
+      $search_pat .= $ch;
+    }
     &draw_prompt($search_pat);
   }
   noecho();
