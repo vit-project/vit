@@ -184,6 +184,10 @@ sub task_set_priority {
 sub task_set_project {
   my $id = $report2taskid[$task_selected_idx];
   my $p = &prompt_str("Project: ");
+  if ( $p eq '' ) {
+    &draw_prompt_line('');
+    return;
+  }
   my $proj = &task_info('Project');
   if ( $p eq $proj ) {
     beep();
