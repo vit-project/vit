@@ -11,21 +11,27 @@ sub start_search {
   &draw_prompt($search_pat);
   echo();
   curs_set(1);
+  $cur_pos = 1;
   GETCH: while (1) {
     my $ch = $prompt_win->getch();
-    if ( $ch eq "\ch" || $ch eq "\o{177}" ) {
-      # either ctrl + h or backspace
-      if ( length($search_pat) > 1 ) { chop $search_pat; }
-      &draw_prompt($search_pat);
+    if ( $ch eq "\ch" || $ch eq KEY_BACKSPACE ) {
+      if ( $cur_pos > 1 ) {
+        $cur_pos--;
+        substr($search_pat, $cur_pos, 1, "");
+      }
+      &draw_prompt_cur($search_pat);
       next GETCH;
     }
     if ( $ch eq "\cu" ) {
+      my $search_ch;
       if ( $search_direction == 1 ) {
-        $search_pat = '/';
+        $search_ch = '/';
       } else {
-        $search_pat = '?';
+        $search_ch = '?';
       }
-      &draw_prompt($search_pat);
+      $search_pat = $search_ch.substr($search_pat, $cur_pos);
+      $cur_pos = 1;
+      &draw_prompt_cur($search_pat);
       next GETCH;
     }
     if ( $ch eq "\e" ) {
@@ -37,10 +43,26 @@ sub start_search {
     if ( $ch eq "\n" ) {
       last GETCH;
     }
-    if ( &is_printable($ch) ) {
-      $search_pat .= $ch;
+    if ( $ch eq KEY_LEFT ) {
+      if ( $cur_pos > 1 ) {
+        $cur_pos--;
+      }
+      &draw_prompt_cur($search_pat);
+      next GETCH;
     }
-    &draw_prompt($search_pat);
+    if ( $ch eq KEY_RIGHT ) {
+      if ( $cur_pos < length($search_pat) ) {
+        $cur_pos++;
+      }
+      &draw_prompt_cur($search_pat);
+      next GETCH;
+    }
+
+    if ( &is_printable($ch) ) {
+      substr($search_pat, $cur_pos, 0, $ch);
+      $cur_pos = $cur_pos + 1;
+    }
+    &draw_prompt_cur($search_pat);
   }
   noecho();
   curs_set(0);

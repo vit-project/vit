@@ -82,6 +82,7 @@ our $COLOR_ERRORS = 5;
 our $next_color_pair = 6;
 
 our %shortcuts;
+our $cur_pos;
 
 require 'args.pl';
 require 'cmdline.pl';

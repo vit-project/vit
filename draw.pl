@@ -31,6 +31,16 @@ sub draw_prompt {
 
 #------------------------------------------------------------------
 
+sub draw_prompt_cur {
+  my ($lhs) = @_;
+  $prompt_win->addstr(0, 0, $lhs);
+  $prompt_win->clrtoeol();
+  $prompt_win->move(0, $cur_pos);
+  $prompt_win->refresh();
+}
+
+#------------------------------------------------------------------
+
 sub draw_error_msg {
   beep();
   &audit("ERROR $error_msg");

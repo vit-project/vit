@@ -26,6 +26,7 @@ sub prompt_chr {
 
 sub prompt_str {
   my ($prompt) = @_;
+  my $prompt_len = $cur_pos = length($prompt);
   my $str = '';
   my $tab_cnt = 0;
   my $tab_match_str = '';
@@ -64,10 +65,11 @@ sub prompt_str {
       next;
     }
     if ( $ch eq "\cu" ) {
-      $str = '';
+      $str = substr($str, $cur_pos - $prompt_len);
       $tab_match_str = '';
       $tab_cnt = 0;
-      &draw_prompt("$prompt$str");
+      $cur_pos = $prompt_len;
+      &draw_prompt_cur("$prompt$str");
       next;
     }
     if ( $ch eq "\e" ) {
@@ -123,11 +125,36 @@ sub prompt_str {
       &draw_prompt("$prompt$str");
       next;
     }
+    if ( $ch eq KEY_BACKSPACE ) {
+      if ( $cur_pos > $prompt_len ) {
+        $cur_pos--;
+        substr($str, $cur_pos - $prompt_len, 1, "");
+        &draw_prompt_cur("$prompt$str");
+        next;
+      }
+    }
+    if ( $ch eq KEY_LEFT ) {
+      if ( $cur_pos > $prompt_len ) {
+        $cur_pos -= 1;
+      }
+      &draw_prompt_cur("$prompt$str");
+      next;
+    }
+    if ( $ch eq KEY_RIGHT ) {
+      if ( $cur_pos < length("$prompt$str") ) {
+        $cur_pos += 1;
+      }
+      &draw_prompt_cur("$prompt$str");
+      next;
+    }
     if ( ! &is_printable($ch) ) {
       next;
     }
-    $str .= $ch;
-    &draw_prompt("$prompt$str");
+    if ( &is_printable($ch) ) {
+      substr($str, $cur_pos - $prompt_len, 0, $ch);
+      $cur_pos++;
+    }
+    &draw_prompt_cur("$prompt$str");
   }
   noecho();
   curs_set(0);
