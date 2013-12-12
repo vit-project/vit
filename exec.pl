@@ -6,7 +6,7 @@ sub task_exec {
   my $es = 0;
   my $result = '';
   &audit("EXEC $task $cmd 2>&1");
-  open(IN,"$task $cmd 2>&1 |");
+  open(IN,"echo -e \"yes\\n\" | $task $cmd 2>&1 |");
   while(<IN>) {
     chop;
     $_ =~ s/\x1b.*?m//g; # decolorize
