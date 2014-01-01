@@ -1,5 +1,5 @@
 # Copyright 2012 - 2013, Steve Rader
-# Copyright 2013, Scott Kostyshak
+# Copyright 2013 - 2014, Scott Kostyshak
 
 sub draw_header_line {
   my ($row,$lhs,$rhs) = @_;
