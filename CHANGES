@@ -1,3 +1,4 @@
+ Tue Feb  4 2014 - Add VIT man pages (#1284)
  Mon Oct 21 2013 - Implement cursor movement in prompts (#1403)
  Sun Oct  6 2013 - Clear project prompt string if escape (#1232)
  Sun Oct  6 2013 - Remove confusing behavior from arrow keys in prompts (#1363)

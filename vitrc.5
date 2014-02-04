@@ -1,0 +1,112 @@
+.TH vitrc 5 "" "" "User Manuals"
+
+.SH NAME
+vitrc \- Configuration file for the vit(1) command
+
+.SH SYNOPSIS
+.B $HOME/.vitrc
+
+.SH DESCRIPTION
+.B VIT
+obtains its configuration data from a file called
+.I .vitrc
+\&. This file must be located in the user's home directory.
+
+Except for comments (lines starting with "#"), currently the only acceptable
+commands in .vitrc are map commands. They take the form
+
+.RS
+map <KEY>=<KEY-SEQUENCE>
+.RE
+
+where:
+.RS
+.TP
+<KEY>
+should represent a key or combination of keys, such as "a" or a <KEY-CODE> as
+listed below.
+
+.P
+and
+.P
+<KEY-SEQUENCE>
+is a sequence of <KEY>s to emulate. The result should be the same as if these
+keys were pressed manually by the user.
+
+<KEY-CODE>s are strings that represent keys. The following may be used:
+.br
+Function keys: <F1> <F2> <F3> <F4> <F5> <F6> <F7> <F8> <F9> <F10> <F11> <F12>
+
+Navigation keys: <Home> <End> <PageUp> <PageDown> <Up> <Down> <Right> <Left>
+
+Editing keys: <Insert> <Del> <Backspace> <Space> <Tab> <Return>
+
+Modifier combinations: \\ca for Ctrl + "a" combination.
+
+.SH EXAMPLES
+.SS EXTERNAL COMMANDS
+Note that for many of the examples, you need to have the appropriate extension
+installed and in your PATH. Recall that after :! a 'w' means that VIT should
+"wait". This allows another command to take over (e.g. Vim when you're editing
+a task) and for you to see the output of a command. After :! a 'r' means that
+VIT should reread your list of tasks. This should be used when your external
+command changes the task data.
+
+.TP
+.B map \\\\cn=:!wr tasknote %TASKID<Return>
+When Ctrl + n is pressed, runs the command 'tasknote <ID>', where <ID> is the
+ID of the task that is currently selected in VIT.
+
+.TP
+.B map c=:! task %TASKID rc.defaultwidth:200 | grep -o -P -m 1 "(ftp|http)s?://\S*" | tr -d '\n' | xsel -b<Return>
+Copies the first link it finds to the clipboard.
+
+.TP
+.B map Z=:!rw echo "Changing due date\n"; task %TASKID modify due:$(read -p "How many days? " DAYS; echo $DAYS)days<Return>
+Asks you for input and then changes the due date of the selected task to NOW plus that many days.
+
+.TP
+.B map <Left>=:!wr task $(task _get %TASKID.parent) edit<Return>
+When the left arrow key is pressed, edits the parent of a recurring task
+(do not use on non-recurring task).
+
+.SS INTERNAL COMMANDS
+.TP
+.B map Q=
+Disables whatever the Q key is bound to internally in VIT, which is a quick quit.
+
+
+.SH "CREDITS & COPYRIGHTS"
+.PP
+Copyright (C) 2012 - 2013, Steve Rader
+.br
+Copyright (C) 2013 - 2014, Scott Kostyshak
+
+
+VIT is distributed under GNU General Public License version 3 or (at your
+option) any later version. See
+http://www.gnu.org/licenses/ for more information.
+
+.SH SEE ALSO
+.BR vit(1)
+.BR taskrc(1)
+
+For more information regarding VIT, see the following:
+
+.TP
+The official site at
+<http://tasktools.org/projects/vit.html>
+
+.TP
+The official code repository at
+<git://tasktools.org/vit.git/>
+
+.TP
+You can contact the project by emailing
+<support@taskwarrior.org>
+
+.SH REPORTING BUGS
+.TP
+Bugs in VIT may be reported to the issue-tracker at
+<http://taskwarrior.org>
+

@@ -24,5 +24,7 @@ prompt.pl
 read.pl
 screen.pl
 search.pl
+vit.1
 vit.pl
+vitrc.5
 vitrc.pl

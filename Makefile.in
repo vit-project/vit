@@ -30,6 +30,10 @@ build:
 install:
 	sudo mkdir -p @prefix@/bin
 	sudo cp vit @prefix@/bin/vit
+	sudo mkdir -p @prefix@/man/man1
+	sudo cp vit.1 @prefix@/man/man1/
+	sudo mkdir -p @prefix@/man/man5
+	sudo cp vitrc.5 @prefix@/man/man5/
 	sudo mkdir -p @prefix@/etc/
 	sudo cp commands @prefix@/etc/vit-commands
 
