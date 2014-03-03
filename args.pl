@@ -21,7 +21,9 @@ sub parse_args {
     next;
   }
   if ( $audit ) {
-    print STDERR "$$ INIT $0 " . join(' ',@ARGV), "\r\n";
+    open(AUDIT, ">", "vit_audit.log") or die "$!";
+    open STDERR, '>&AUDIT';
+    print AUDIT "$$ INIT $0 " . join(' ',@ARGV), "\r\n";
   }
 }
 
@@ -29,7 +31,7 @@ sub parse_args {
 
 sub usage {
   print "usage: vit [switches] [task_args]\n";
-  print "  -audit     print task commands to stderr\n";
+  print "  -audit     print task commands to vit_audit.log\n";
   print "  -titlebar  sets the xterm titlebar to \"$version\"\n";
   print "  task_args  any set of task commandline args that print an \"ID\" column\n";
   exit 1;

@@ -1,3 +1,6 @@
+ Mon Mar  3 2014 - 'vit -audit' now creates a log with debug info
+
+ Tue Feb  4 2014 - released v1.2.beta1
  Tue Feb  4 2014 - Add VIT man pages (#1284)
  Mon Oct 21 2013 - Implement cursor movement in prompts (#1403)
  Sun Oct  6 2013 - Clear project prompt string if escape (#1232)

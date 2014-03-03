@@ -3,9 +3,9 @@
 
 sub audit {
   if ( $audit ) {
-    print STDERR "$$ ";
-    print STDERR @_;
-    print STDERR "\r\n";
+    print AUDIT "$$ ";
+    print AUDIT @_;
+    print AUDIT "\r\n";
   }
 }
 
@@ -15,6 +15,10 @@ sub clean_exit {
   unless( $audit ) {
     &shell_exec("clear", 'no-wait');
   }
+  if ( $audit ) {
+      close(AUDIT) or die "$!";
+  }
+
   endwin();
   exit();
 }
@@ -22,8 +26,8 @@ sub clean_exit {
 #------------------------------------------------------------------
 
 sub debug {
-  print STDERR @_;
-  print STDERR "\r\n";
+  print AUDIT @_;
+  print AUDIT "\r\n";
 }
 
 #------------------------------------------------------------------
