@@ -23,6 +23,12 @@ sub parse_args {
   if ( $audit ) {
     open(AUDIT, ">", "vit_audit.log") or die "$!";
     open STDERR, '>&AUDIT';
+
+    # flush AUDIT after printing to it
+    my $ofh = select AUDIT;
+    $| = 1;
+    select $ofh;
+
     print AUDIT "$$ INIT $0 " . join(' ',@ARGV), "\r\n";
   }
 }
