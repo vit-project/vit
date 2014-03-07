@@ -52,19 +52,20 @@ sub prompt_str {
   while (1) {
     my $ch = $prompt_win->getch();
     #debug("TOP str=\"$str\" ch=\"$ch\"");
-    if ( $ch eq "\b" || $ch eq "\c?" ) {
-      if ( $str ne '' ) {
-        chop $str;
-        if ( length($str) < length($tab_match_str) ) {
-          chop $tab_match_str;
-        }
-      } else {
-        $tab_match_str = '';
-        $tab_cnt = 0;
-      }
-      &draw_prompt("$prompt$str");
-      next;
-    }
+# tab completion is broken and undocumented
+#    if ( $ch eq "\b" || $ch eq "\c?" ) {
+#      if ( $str ne '' ) {
+#        chop $str;
+#        if ( length($str) < length($tab_match_str) ) {
+#          chop $tab_match_str;
+#        }
+#      } else {
+#        $tab_match_str = '';
+#        $tab_cnt = 0;
+#      }
+#      &draw_prompt("$prompt$str");
+#      next;
+#    }
     if ( $ch eq "\cu" ) {
       $str = substr($str, $cur_pos - $prompt_len);
       $tab_match_str = '';
@@ -104,29 +105,30 @@ sub prompt_str {
       &draw_prompt("$prompt$str");
       next;
     }
-    if ( $ch eq "\cw" ) {
-      if ( $str eq '' ) {
-        chop $str;
-        beep();
-        next;
-      }
-      if ( $str =~ s/^(.*\s+)\S+\s+$/$1/ ) {
-        &draw_prompt("$prompt$str");
-        next;
-      }
-      if ( $str =~ s/^.*\s+$// ) {
-        &draw_prompt("$prompt$str");
-        next;
-      }
-      if ( $str =~ s/^(.*\s+).*/$1/ ) {
-        &draw_prompt("$prompt$str");
-        next;
-      }
-      $str = "";
-      &draw_prompt("$prompt$str");
-      next;
-    }
-    if ( $ch eq KEY_BACKSPACE ) {
+# This code was causing problems and was undocumented.
+#    if ( $ch eq "\cw" ) {
+#      if ( $str eq '' ) {
+#        chop $str;
+#        beep();
+#        next;
+#      }
+#      if ( $str =~ s/^(.*\s+)\S+\s+$/$1/ ) {
+#        &draw_prompt("$prompt$str");
+#        next;
+#      }
+#      if ( $str =~ s/^.*\s+$// ) {
+#        &draw_prompt("$prompt$str");
+#        next;
+#      }
+#      if ( $str =~ s/^(.*\s+).*/$1/ ) {
+#        &draw_prompt("$prompt$str");
+#        next;
+#      }
+#      $str = "";
+#      &draw_prompt("$prompt$str");
+#      next;
+#    }
+    if ( $ch eq KEY_BACKSPACE || $ch eq "\b" || $ch eq "\c?" ) {
       if ( $cur_pos > $prompt_len ) {
         $cur_pos--;
         substr($str, $cur_pos - $prompt_len, 1, "");
