@@ -26,7 +26,7 @@ sub prompt_chr {
 
 sub prompt_str {
   my ($prompt) = @_;
-  my $prompt_len = $cur_pos = length($prompt);
+  $cur_pos = length($prompt);
   my $str = '';
   my $tab_cnt = 0;
   my $tab_match_str = '';
@@ -36,6 +36,7 @@ sub prompt_str {
     $prompt = $1;
     $str = $2;
   }
+  my $prompt_len = length($prompt);
   if ( $prompt eq ':' ) {
     $mode = 'cmd';
     @match_types = @report_types;

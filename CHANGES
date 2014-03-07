@@ -1,3 +1,4 @@
+ Thu Mar  6 2014 - fix a prompt bug that prevented editing
  Mon Mar  3 2014 - 'vit -audit' now creates a log with debug info
 
  Tue Feb  4 2014 - released v1.2.beta1
