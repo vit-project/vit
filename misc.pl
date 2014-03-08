@@ -37,6 +37,9 @@ sub is_printable {
   if ( $char =~ /^[0-9]+$/ && $char >= KEY_MIN ) {
     return 0;
   }
+  if ( $char =~ /[[:cntrl:]]/ ) {
+    return 0;
+  }
   return 1;
 }
 
