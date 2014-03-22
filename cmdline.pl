@@ -2,6 +2,7 @@
 # Copyright 2013 - 2014, Scott Kostyshak
 
 sub cmd_line {
+  &audit("Inside of cmd_line");
   my ($prompt) = @_;
   my $str = &prompt_str($prompt);
   if ( $str eq '' ) {

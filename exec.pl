@@ -5,7 +5,7 @@ sub task_exec {
   my ($cmd) = @_;
   my $es = 0;
   my $result = '';
-  &audit("EXEC $task $cmd 2>&1");
+  &audit("TASK EXEC $task $cmd 2>&1");
   open(IN,"echo -e \"yes\\n\" | $task $cmd 2>&1 |");
   while(<IN>) {
     chop;

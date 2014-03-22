@@ -4,6 +4,7 @@
 sub getch_loop {
   while (1) {
     my $ch = $report_win->getch();
+    &audit("Received key: $ch");
     $refresh_needed = 0;
     $reread_needed = 0;
     $error_msg = '';
@@ -13,6 +14,7 @@ sub getch_loop {
 
       if (exists $shortcuts{$ch}) {
         my $action = $shortcuts{$ch};
+        &audit("Processing the following shortcut: $action");
         &ungetstr($action);
         last CASE;
       }
