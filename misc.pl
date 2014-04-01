@@ -25,6 +25,23 @@ sub clean_exit {
 
 #------------------------------------------------------------------
 
+sub error_exit {
+  unless( $audit ) {
+    &shell_exec("clear", 'no-wait');
+  }
+
+  endwin();
+  print STDERR "VIT fatal error: @_\r\n";
+
+  if ( $audit ) {
+      close(AUDIT) or die "$!";
+  }
+
+  exit(1);
+}
+
+#------------------------------------------------------------------
+
 sub debug {
   print AUDIT @_;
   print AUDIT "\r\n";
@@ -86,8 +103,12 @@ sub task_info {
 
 sub ungetstr {
   my $str = $_[0];
+  my $err;
   foreach my $ch (reverse split('', $str)) {
-    ungetch($ch);
+    $err = ungetch($ch);
+    if ( $err != 0 ) {
+      error_exit("Shortcut is too long.");
+    }
   }
   return '';
 }

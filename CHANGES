@@ -1,3 +1,4 @@
+ Tue Apr  1 2014 - exit with informative error if shortcut too long (see VT-81)
  Thu Mar 13 2014 - fix colors for running VIT in tmux
  Sat Mar  8 2014 - do not print control characters to prompts
  Thu Mar  6 2014 - fix recognition of backspace in tmux
