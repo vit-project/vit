@@ -68,6 +68,7 @@ sub replace_keycodes {
   $str_ =~ s/<Space>/ /;
   $str_ =~ s/<Tab>/\t/;
   $str_ =~ s/<Return>/\n/;
+  $str_ =~ s/<Esc>/\e/;
 
   return $str_;
 }
