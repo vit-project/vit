@@ -3,19 +3,19 @@
 
 sub parse_args {
   while ( @ARGV ) {
-    if ( $ARGV[0] eq '-help' ) {
+    if ( $ARGV[0] eq '--help' || $ARGV[0] eq '-help' || $ARGV[0] eq '-h' ) {
       &usage();
     }
-    if ( $ARGV[0] eq '-version' ) {
+    if ( $ARGV[0] eq '--version' || $ARGV[0] eq '-version' || $ARGV[0] eq '-v' ) {
       print "$version\n";
       exit 0;
     }
-    if ( $ARGV[0] eq '-audit' || $ARGV[0] eq '-a' ) {
+    if ( $ARGV[0] eq '--audit' || $ARGV[0] eq '-audit' || $ARGV[0] eq '-a' ) {
       $audit = 1;
       shift @ARGV;
       next;
     }
-    if ( $ARGV[0] eq '-titlebar' || $ARGV[0] eq '-t' ) {
+    if ( $ARGV[0] eq '--titlebar' || $ARGV[0] eq '-titlebar' || $ARGV[0] eq '-t' ) {
       $titlebar = 1;
       shift @ARGV;
       next;

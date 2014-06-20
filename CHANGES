@@ -1,3 +1,4 @@
+ Fri Jun 20 2014 - all of vit's options work with two dashes
  Fri Jun 20 2014 - 'vit -help' has 0 exit code
  Fri Jun 20 2014 - 'vit -version' prints the version (VT-92)
 
