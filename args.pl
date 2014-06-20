@@ -45,7 +45,7 @@ sub usage {
   print "  -titlebar  sets the xterm titlebar to \"$version\"\n";
   print "  -version  prints the version\n";
   print "  task_args  any set of task commandline args that print an \"ID\" column\n";
-  exit 1;
+  exit 0;
 }
 
 return 1;
