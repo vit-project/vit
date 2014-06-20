@@ -6,6 +6,10 @@ sub parse_args {
     if ( $ARGV[0] eq '-help' ) {
       &usage();
     }
+    if ( $ARGV[0] eq '-version' ) {
+      print "$version\n";
+      exit 0;
+    }
     if ( $ARGV[0] eq '-audit' || $ARGV[0] eq '-a' ) {
       $audit = 1;
       shift @ARGV;
@@ -39,6 +43,7 @@ sub usage {
   print "usage: vit [switches] [task_args]\n";
   print "  -audit     print task commands to vit_audit.log\n";
   print "  -titlebar  sets the xterm titlebar to \"$version\"\n";
+  print "  -version  prints the version\n";
   print "  task_args  any set of task commandline args that print an \"ID\" column\n";
   exit 1;
 }

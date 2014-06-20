@@ -1,4 +1,6 @@
- Sun Apr  6 2013 - released v1.2
+ Fri Jun 20 2014 - 'vit -version' prints the version (VT-92)
+
+ Sun Apr  6 2014 - released v1.2
  Tue Apr  1 2014 - the <Esc> key can now be used in shortcuts
  Tue Apr  1 2014 - exit with informative error if shortcut too long (see VT-81)
  Thu Mar 13 2014 - fix colors for running VIT in tmux
