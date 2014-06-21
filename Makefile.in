@@ -12,10 +12,14 @@ CLEAR=@CLEAR@
 
 build: 
 	@echo "adding vit.pl to vit"
-	@cat vit.pl | grep -v ^require \
+	@if which git > /dev/null && git rev-parse > /dev/null 2>&1; \
+	  then GITHASH=" ($$(git rev-parse --short HEAD))"; \
+	else GITHASH=""; \
+	fi && \
+	cat vit.pl | grep -v ^require \
 	  | sed "s:%prefix%:$(PREFIX):" \
 	  | sed "s/%BUILD%/$(VERSION) built `date`/" \
-	  | sed "s/%VERSION%/$(VERSION) (`date +%Y%m%d`)/" \
+	  | sed "s/%VERSION%/$(VERSION)$${GITHASH}/" \
 	  | sed "s:%TASK%:$(TASK):" \
 	  | sed "s:%CLEAR%:$(CLEAR):" \
 	  > vit
