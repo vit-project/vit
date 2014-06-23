@@ -32,14 +32,14 @@ build:
 	chmod 755 vit
 
 install:
-	sudo mkdir -p @prefix@/bin
-	sudo cp vit @prefix@/bin/vit
-	sudo mkdir -p @prefix@/man/man1
-	sudo cp vit.1 @prefix@/man/man1/
-	sudo mkdir -p @prefix@/man/man5
-	sudo cp vitrc.5 @prefix@/man/man5/
-	sudo mkdir -p @prefix@/etc/
-	sudo cp commands @prefix@/etc/vit-commands
+	mkdir -p @prefix@/bin
+	cp vit @prefix@/bin/vit
+	mkdir -p @prefix@/man/man1
+	cp vit.1 @prefix@/man/man1/
+	mkdir -p @prefix@/man/man5
+	cp vitrc.5 @prefix@/man/man5/
+	mkdir -p @prefix@/etc/
+	cp commands @prefix@/etc/vit-commands
 
 autoconf:
 	@make -f .makefile autoconf

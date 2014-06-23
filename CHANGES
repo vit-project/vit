@@ -1,3 +1,4 @@
+ Wed Jun 25 2014 - Makefile no longer requires sudo (VT-96)
  Sat Jun 21 2014 - '-version' prints the git hash if available
  Fri Jun 20 2014 - all of vit's options work with two dashes
  Fri Jun 20 2014 - 'vit -help' has 0 exit code
