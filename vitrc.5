@@ -58,7 +58,7 @@ When Ctrl + n is pressed, runs the command 'tasknote <ID>', where <ID> is the
 ID of the task that is currently selected in VIT.
 
 .TP
-.B map c=:! task %TASKID rc.defaultwidth:200 | grep -o -P -m 1 "(ftp|http)s?://\S*" | tr -d '\n' | xsel -b<Return>
+.B map c=:! task %TASKID rc.defaultwidth:200 | grep -o -P -m 1 "(ftp|http)s?://\\\\S*" | tr -d '\n' | xsel -b<Return>
 Copies the first link it finds to the clipboard.
 
 .TP
