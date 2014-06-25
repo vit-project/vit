@@ -33,7 +33,7 @@ build:
 
 install:
 	mkdir -p @prefix@/bin
-	cp vit @prefix@/bin/vit
+	cp vit @prefix@/bin/
 	mkdir -p @prefix@/man/man1
 	cp vit.1 @prefix@/man/man1/
 	mkdir -p @prefix@/man/man5
