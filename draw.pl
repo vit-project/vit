@@ -26,6 +26,7 @@ sub draw_prompt {
   my ($lhs) = @_;
   $prompt_win->addstr(0, 0, $lhs);
   $prompt_win->clrtoeol();
+  $cur_pos = length($lhs);
   $prompt_win->refresh();
 }
 
