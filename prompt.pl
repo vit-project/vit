@@ -29,6 +29,8 @@ sub prompt_str {
   $cur_pos = length($prompt);
   my $str = '';
   my $tab_cnt = 0;
+  my $history_idx = 0;
+  my $addedPromptStr = 0;
   my $tab_match_str = '';
   my $mode;
   my @match_types;
@@ -150,6 +152,41 @@ sub prompt_str {
       &draw_prompt_cur("$prompt$str");
       next;
     }
+    if ( $ch eq KEY_UP ) {
+      # We treat $history_idx specially because we save the prompt string the
+      # first time
+      # $#{ $histories{$prompt} } returns -1 if $prompt is not an existing key
+      if ( $history_idx > 0 && $history_idx >= $#{ $histories{$prompt} } ) {
+        next;
+      }
+      if ( $history_idx == 0 && $history_idx >= $#{ $histories{$prompt} } + 1 ) {
+        next;
+      }
+      if ( $history_idx == 0 ) {
+          if ( $addedPromptStr == 0 ) {
+            # don't add sequential duplicates
+            if ( $str ne $histories{$prompt}[0] ) {
+              $addedPromptStr = 1;
+              unshift @{ $histories{$prompt} }, $str;
+            }
+          }
+          else {
+            # if the user edits working prompt again, no need to add as separate
+            $histories{$prompt}[0] = $str;
+          }
+      }
+      $history_idx++;
+      $str = $histories{$prompt}[$history_idx];
+      &draw_prompt("$prompt$str");
+    }
+    if ( $ch eq KEY_DOWN ) {
+      if ( $history_idx == 0 ) {
+        next;
+      }
+      $history_idx--;
+      $str = $histories{$prompt}[$history_idx];
+      &draw_prompt("$prompt$str");
+    }
     if ( ! &is_printable($ch) ) {
       next;
     }
@@ -166,6 +203,18 @@ sub prompt_str {
     $str =~ s/"/\\"/g;
     $str =~ s/^\s+//;
     $str =~ s/\s+$//;
+  }
+  if ( $addedPromptStr == 0 ) {
+    # we add if no elements or not a sequential duplicate
+    if ( $#{ $histories{$prompt} } < 0 || $str ne $histories{$prompt}[0] ) {
+      # do not add an empty string
+      if ( $str ne "" ) {
+        unshift @{ $histories{$prompt} }, $str;
+      }
+    }
+  }
+  else {
+    $histories{$prompt}[0] = $str;
   }
   return $str;
 }
