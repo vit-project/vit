@@ -1,3 +1,4 @@
+ Thu Jun 26 2014 - install files in more conventional paths (VT-96)
  Wed Jun 25 2014 - fix vitrc man file (VT-97)
  Wed Jun 25 2014 - Makefile no longer requires sudo (VT-96)
  Sat Jun 21 2014 - '-version' prints the git hash if available

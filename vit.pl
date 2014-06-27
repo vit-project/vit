@@ -11,7 +11,7 @@ use strict;
 use Curses;
 use Time::HiRes qw(usleep);
 
-our $commands_file = '%prefix%/etc/vit-commands';
+our $commands_file = '/etc/vit-commands';
 our $task = '%TASK%';
 our $clear = '%CLEAR%';
 if ( $commands_file =~ /^%/ ) { $commands_file = "./commands"; }
