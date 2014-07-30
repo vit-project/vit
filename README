@@ -21,7 +21,7 @@
    xterm -geom 100x40 +sb -e /usr/local/bin/vit -titlebar &
 
  Downloads:
-   http://taskwarrior.org/projects/taskwarrior/wiki/Vit
+   http://taskwarrior.org/download/vit-1.2.tar.gz
 
  If you actually use this program, feel free to send me a msg and let me know.
  
