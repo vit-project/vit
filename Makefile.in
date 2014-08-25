@@ -38,8 +38,8 @@ install:
 	cp vit.1 $(DESTDIR)/@prefix@/share/man/man1/
 	mkdir -p $(DESTDIR)/@prefix@/share/man/man5
 	cp vitrc.5 $(DESTDIR)/@prefix@/share/man/man5/
-	mkdir -p $(DESTDIR)/etc/
-	cp commands $(DESTDIR)/etc/vit-commands
+	mkdir -p $(DESTDIR)/@prefix@/share/vit
+	cp commands $(DESTDIR)/@prefix@/share/vit/commands
 
 autoconf:
 	@make -f .makefile autoconf

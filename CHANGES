@@ -1,3 +1,4 @@
+ Sun Aug 24 2014 - store commands file in %prefix%/share/vit/
  Wed Jul 30 2014 - update documentation URLs
  Fri Jun 27 2014 - add prompt history scrolling with arrows (VT-32, VT-36)
  Thu Jun 26 2014 - install files in more conventional paths (VT-96)
