@@ -129,14 +129,8 @@ sub getch_loop {
         last CASE;
       }
 
-      if ( $ch eq 'N' && $input_mode eq 'search' ) {
-        &do_search('N');
-        $refresh_needed = 1;
-        last CASE;
-      }
-
-      if ( $ch eq 'n' && $input_mode eq 'search' ) {
-        &do_search('n');
+      if ( $ch eq 'n' || $ch eq 'N') {
+        &do_search($ch);
         $refresh_needed = 1;
         last CASE;
       }
