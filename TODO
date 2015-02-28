@@ -1,7 +1,0 @@
-
-summary mode: improve selection by making the bar graph bar visable
-
-summary mode: <enter> and '=' should use $default_command (currently hardcoded to "ls")
-
-add rc for report header effects (workaround for bug #1222)
-
