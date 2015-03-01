@@ -1,3 +1,4 @@
+ Sun Mar  1 2015 - update display after sync
  Tue Aug 26 2014 - 'n'/'N' now work when not right after search
  Sun Aug 24 2014 - store commands file in %prefix%/share/vit/
  Wed Jul 30 2014 - update documentation URLs

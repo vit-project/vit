@@ -158,6 +158,7 @@ sub getch_loop {
         my $majmin = &task_version('major.minor');
         if ( $majmin >= 2.3 ) {
           &shell_exec("task sync",'wait');
+          $reread_needed = 1;
         }
         else {
           $error_msg = "'sync' was introduced in Taskwarrior 2.3.0";
