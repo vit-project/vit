@@ -1,4 +1,5 @@
- Sun Mar  1 2015 - In screen, VIT now highlights the entire line (VT-59, VT-108)
+ Sun Mar  1 2015 - allow Taskwarrior cmds to parse for 'a' and 'm' (VT-111, VT-114)
+ Sun Mar  1 2015 - in screen, VIT now highlights the entire line (VT-59, VT-108)
  Sun Mar  1 2015 - update display after sync (VT-90)
  Tue Aug 26 2014 - 'n'/'N' now work when not right after search
  Sun Aug 24 2014 - store commands file in %prefix%/share/vit/

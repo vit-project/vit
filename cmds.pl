@@ -22,7 +22,7 @@ sub task_add {
     &draw_prompt_line('');
     return;
   }
-  my ($es,$result) = &task_exec("add \"$str\"");
+  my ($es,$result) = &task_exec("add $str");
   if ( $es != 0 ) {
     $error_msg = $result;
     &draw_error_msg();
@@ -41,6 +41,10 @@ sub task_annotate {
     &draw_prompt_line('');
     return;
   }
+  # This task_exec is different (from, e.g., the one in task_add)
+  # because for annotatate we embed quotes sinece there is nothing
+  # else for Taskwarrior to interpret. The advantage is that the
+  # user does not need to worry about proper quoting.
   my ($es,$result) = &task_exec("$id annotate \"$str\"");
   if ( $es != 0 ) {
     $error_msg = $result;
@@ -132,7 +136,7 @@ sub task_filter {
 sub task_modify {
   my $args = $_[0];
   my $id = $report2taskid[$task_selected_idx];
-  &shell_exec("$task $id modify \"$args\"",'wait');
+  &shell_exec("$task $id modify $args",'wait');
   $reread_needed = 1;
 }
 
