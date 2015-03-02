@@ -187,6 +187,16 @@ sub prompt_str {
       $str = $histories{$prompt}[$history_idx];
       &draw_prompt("$prompt$str");
     }
+    # Put hardcoded keys down here since they are the most fragile
+    # and could be platform-dependent. If they are defined differently,
+    # hopefully they will be matched above first.
+    if ( $ch eq 330 ) { # KEY_DELETE is not defined
+      if ( $cur_pos >= $prompt_len ) {
+        substr($str, $cur_pos - $prompt_len, 1, "");
+        &draw_prompt_cur("$prompt$str");
+        next;
+      }
+    }
     if ( ! &is_printable($ch) ) {
       next;
     }
