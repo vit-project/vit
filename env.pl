@@ -2,9 +2,10 @@
 # Copyright 2013 - 2014, Scott Kostyshak
 
 sub init_shell_env {
-  if ( $ENV{'TERM'} =~ /^xterm/ || $ENV{'TERM'} =~ /^screen/ ) {
-    &audit("ENV TERM=xterm-256color");
-    $ENV{'TERM'} = 'xterm-256color';
+  if ( $ENV{'TERM'} =~ /^(xterm|screen)/ ) {
+    my $TERM_newval = "$1-256color";
+    &audit("setting ENV TERM=$TERM_newval");
+    $ENV{'TERM'} = "$TERM_newval";
   }
   if ( $titlebar ) {
     &audit("ENV set titlebar");
