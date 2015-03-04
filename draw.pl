@@ -52,7 +52,6 @@ sub draw_error_msg {
   $prompt_win->addstr(0, 0, $error_msg);
   $prompt_win->attroff(A_BOLD);
   $prompt_win->attroff(COLOR_PAIR($COLOR_ERRORS));
-  $prompt_win->attron(COLOR_PAIR($COLOR_HEADER));
   $prompt_win->addstr(0, $COLS - length($cursor_position) - 1, $cursor_position);
   $prompt_win->refresh();
 }
