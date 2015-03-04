@@ -19,7 +19,7 @@ sub getch_loop {
         last CASE;
       }
 
-      if ( $ch eq '0' || ( $ch eq 'g' && $prev_ch eq 'g' ) ) {
+      if ( $ch eq '0' || $ch eq KEY_HOME || ( $ch eq 'g' && $prev_ch eq 'g' ) ) {
         $task_selected_idx = 0;
         $display_start_idx = 0;
         $refresh_needed = 1;
@@ -67,7 +67,7 @@ sub getch_loop {
         last CASE;
       }
 
-      if ( $ch eq 'G' ) {
+      if ( $ch eq 'G' || $ch eq KEY_END ) {
         $task_selected_idx = $#report_tokens;
         if ( $display_start_idx + $REPORT_LINES <= $#report_tokens ) {
           $display_start_idx = $task_selected_idx - $REPORT_LINES + 1;

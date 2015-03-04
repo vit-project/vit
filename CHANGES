@@ -1,3 +1,4 @@
+ Wed Mar  4 2015 - add support for End and Home keys (VT-116)
  Mon Mar  2 2015 - add support for Del key in prompts (VT-98)
  Sun Mar  1 2015 - allow Taskwarrior cmds to parse for 'a' and 'm' (VT-111, VT-114)
  Sun Mar  1 2015 - in screen, VIT now highlights the entire line (VT-59, VT-108)

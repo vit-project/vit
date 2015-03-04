@@ -187,6 +187,14 @@ sub prompt_str {
       $str = $histories{$prompt}[$history_idx];
       &draw_prompt("$prompt$str");
     }
+    if ( $ch eq KEY_HOME ) {
+      $cur_pos = $prompt_len;
+      &draw_prompt_cur("$prompt$str");
+    }
+    if ( $ch eq KEY_END ) {
+      $cur_pos = length("$prompt$str");
+      &draw_prompt_cur("$prompt$str");
+    }
     # Put hardcoded keys down here since they are the most fragile
     # and could be platform-dependent. If they are defined differently,
     # hopefully they will be matched above first.

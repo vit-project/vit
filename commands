@@ -27,8 +27,10 @@
  nav   :N              move to task number N
  nav   0               move to the first line
  nav   gg              move to the first line
+ nav   Home            move to the first line or beginning of prompt
  nav   H               move to the first line on screen
  nav   G               move to the last line
+ nav   End             move to the last line or end of prompt
  nav   L               move to the last line on screen
  nav   M               move to the middle line on screen
  nav   k               move up one line
