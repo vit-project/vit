@@ -1,3 +1,4 @@
+ Sun Mar  8 2015 - do not beep on a 'g' keystroke
  Sat Mar  7 2015 - fix a bug where prompt text was invisible
  Wed Mar  4 2015 - add support for End and Home keys (VT-116)
  Mon Mar  2 2015 - add support for Del key in prompts (VT-98)
