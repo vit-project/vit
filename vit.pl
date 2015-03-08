@@ -5,7 +5,7 @@
 # %BUILD%
 #
 # Copyright 2012 - 2013, Steve Rader
-# Copyright 2013 - 2014, Scott Kostyshak
+# Copyright 2013 - 2015, Scott Kostyshak
 
 use strict;
 use Curses;
