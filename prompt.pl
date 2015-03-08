@@ -205,6 +205,14 @@ sub prompt_str {
         next;
       }
     }
+    if ( $ch eq "410" ) {
+      # FIXME resize
+      # This code chunk is also in getch.pl, except the call to draw_prompt_cur.
+      &init_curses('refresh');
+      &draw_screen();
+      &draw_prompt_cur("$prompt$str");
+      next;
+    }
     if ( ! &is_printable($ch) ) {
       next;
     }

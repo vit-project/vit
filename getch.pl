@@ -248,6 +248,7 @@ sub getch_loop {
       if ( $ch eq 'Z' ) { last CASE; }
       if ( $ch eq "410" ) {
         # FIXME resize
+        # this code chunk is also in prompt.pl
         &init_curses('refresh');
         &draw_screen();
         last CASE;
