@@ -17,6 +17,14 @@ sub prompt_chr {
   curs_set(1);
   &draw_prompt($prompt);
   $ch = $prompt_win->getch();
+  if ( $ch eq "410" ) {
+    # FIXME resize
+    # This code chunk is also in getch.pl, except the call to draw_prompt_cur.
+    &audit("Received character 410. Going to refresh");
+    &init_curses('refresh');
+    &draw_screen();
+    $ch = &prompt_chr($prompt);
+  }
   noecho();
   curs_set(0);
   return $ch;
@@ -208,6 +216,7 @@ sub prompt_str {
     if ( $ch eq "410" ) {
       # FIXME resize
       # This code chunk is also in getch.pl, except the call to draw_prompt_cur.
+      &audit("Received character 410. Going to refresh");
       &init_curses('refresh');
       &draw_screen();
       &draw_prompt_cur("$prompt$str");

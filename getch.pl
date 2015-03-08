@@ -249,6 +249,7 @@ sub getch_loop {
       if ( $ch eq "410" ) {
         # FIXME resize
         # this code chunk is also in prompt.pl
+        &audit("Received character 410. Going to refresh");
         &init_curses('refresh');
         &draw_screen();
         last CASE;
