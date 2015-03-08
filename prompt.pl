@@ -220,6 +220,7 @@ sub prompt_str {
       &init_curses('refresh');
       &draw_screen();
       &draw_prompt_cur("$prompt$str");
+      curs_set(1);
       next;
     }
     if ( ! &is_printable($ch) ) {
