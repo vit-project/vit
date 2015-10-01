@@ -64,7 +64,7 @@ sub task_den_or_del {
   for my $t (0 .. $#{ $report_tokens[$task_selected_idx] } ) {
     $str .= "$report_tokens[$task_selected_idx][$t]";
   }
-  my $target = ( $str !~ s/^\s*\d+\/\d+\/\d+\s+// )
+  my $target = ( $str !~ s/^\s*\d+[\/-]\d+[\/-]\d+\s+// )
              ? "task"
              : "annotation";
   $str =~ s/\s+$//;

@@ -1,3 +1,4 @@
+ Wed Sep 30 2015 - improve detection of annotations (VT-123)
  Sun Mar  8 2015 - do not beep on a 'g' keystroke
  Sat Mar  7 2015 - fix a bug where prompt text was invisible
  Wed Mar  4 2015 - add support for End and Home keys (VT-116)
