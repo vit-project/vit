@@ -282,7 +282,12 @@ sub getch_loop {
         }
         last CASE;
       }
-      if ( $ch eq '-1' ) { last CASE; }
+
+      if ( $ch eq '-1' ) {
+        $reread_needed = 1;
+        last CASE;
+      }
+
       # before beeping, rule out the first 'g' in a 'gg' sequence
       # (which is not handled above)
       if ( $ch ne 'g' ) {

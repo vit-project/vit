@@ -21,6 +21,7 @@ sub init_curses {
   $prompt_win = newwin(1, $COLS, $LINES-1, 0);
   keypad($report_win, 1);
   keypad($prompt_win, 1);
+  $report_win->timeout(1000*60*30);
 }
 
 #------------------------------------------------------------------
