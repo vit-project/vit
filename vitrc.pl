@@ -6,11 +6,11 @@ sub parse_vitrc {
     while (<IN>) {
       chop;
       my $parse_error = "ERROR: incorrect key bind line in .vitrc:\n $_\n";
-      if ( $_ =~ s/^map// ) {
+      if ( $_ =~ s/^map // ) {
         my($scut, $cmd) = split(/=/, $_, 2);
 
         my $skey;
-        if ($scut =~ s/ ([^ ]+)$//) {
+        if ($scut =~ s/([^ ]+)$//) {
           $skey = $1;
         }
         else {
