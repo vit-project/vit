@@ -85,6 +85,8 @@ our %shortcuts;
 our $cur_pos;
 our %histories;
 
+# vitrc settings
+
 require 'args.pl';
 require 'cmdline.pl';
 require 'cmds.pl';

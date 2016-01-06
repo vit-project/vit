@@ -25,6 +25,18 @@ sub parse_vitrc {
 
         $shortcuts{$skey} = $cmd;
       }
+      elsif ( $_ =~ s/^set // ) {
+        my($configname, $configval) = split(/=/, $_, 2);
+        &audit("CONFIG: user requests to set '$configname' to '$configval'");
+        if ($configname eq "burndown") {
+          if (!&sanitycheck_bool($configval)) {
+            print STDERR "ERROR: boolean config variable '$configname' must ".
+                         "be set to 'yes' or 'no'.\n";
+            exit(1);
+          }
+          $burndown = $configval;
+        }
+      }
     }
     close(IN);
   }
@@ -71,6 +83,18 @@ sub replace_keycodes {
   $str_ =~ s/<Esc>/\e/;
 
   return $str_;
+}
+
+#------------------------------------------------------------------
+
+sub sanitycheck_bool {
+  my $bool_ = $_[0];
+  if ($bool_ ne "yes" && $bool_ ne "no") {
+    return 0;
+  }
+  else {
+    return 1;
+  }
 }
 
 return 1;

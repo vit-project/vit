@@ -13,7 +13,15 @@ obtains its configuration data from a file called
 \&. This file must be located in the user's home directory.
 
 Except for comments (lines starting with "#"), currently the only acceptable
-commands in .vitrc are map commands. They take the form
+commands in .vitrc are
+.B map
+commands and
+.B set
+commands.
+
+.SS MAP COMMANDS
+.B map
+commands take the form
 
 .RS
 map <KEY>=<KEY-SEQUENCE>
@@ -42,6 +50,18 @@ Navigation keys: <Home> <End> <PageUp> <PageDown> <Up> <Down> <Right> <Left>
 Editing keys: <Insert> <Del> <Backspace> <Space> <Tab> <Return>
 
 Modifier combinations: \\ca for Ctrl + "a" combination.
+
+.SS SET COMMANDS
+.B set
+commands take the form
+
+.RS
+set <VAR NAME>=<VAR VAL>
+.RE
+
+where valid variable names (<VAR NAME>) and their acceptable values (<VAR VAL>)
+are listed below. Note that the default value is listed immediately after the
+variable name.
 
 .SH EXAMPLES
 .SS EXTERNAL COMMANDS
