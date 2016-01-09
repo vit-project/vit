@@ -86,6 +86,7 @@ our $cur_pos;
 our %histories;
 
 # vitrc settings
+my $burndown = "no";
 
 require 'args.pl';
 require 'cmdline.pl';

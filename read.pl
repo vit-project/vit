@@ -64,24 +64,26 @@ sub inner_read_report {
   }
   close(IN);
 
-  $args = "rc.defaultwidth=$REPORT_COLS rc.defaultheight=$REPORT_LINES burndown";
-  &audit("EXEC $task $args 2>&1");
-  open(IN,"$task $args 2>&1 |");
-  while(<IN>) {
-    if ( $_ =~ /Estimated completion: No convergence/ ) {
-      $convergence = "no convergence";
-      last;
+  if ( $burndown eq "yes" ) {
+    $args = "rc.defaultwidth=$REPORT_COLS rc.defaultheight=$REPORT_LINES burndown";
+    &audit("EXEC $task $args 2>&1");
+    open(IN,"$task $args 2>&1 |");
+    while(<IN>) {
+      if ( $_ =~ /Estimated completion: No convergence/ ) {
+        $convergence = "no convergence";
+        last;
+      }
+      if ( $_ =~ /Estimated completion: .* \((.*)\)/ ) {
+        $convergence = "convergence in $1";
+        last;
+      }
     }
-    if ( $_ =~ /Estimated completion: .* \((.*)\)/ ) {
-      $convergence = "convergence in $1";
-      last;
+    close(IN);
+    if ( $convergence ne $prev_convergence && $prev_convergence ne '' ) {
+      $flash_convergence = 1;
+    } else {
+      $flash_convergence = 0;
     }
-  }
-  close(IN);
-  if ( $convergence ne $prev_convergence && $prev_convergence ne '' ) {
-    $flash_convergence = 1;
-  } else {
-    $flash_convergence = 0;
   }
 
   &audit("EXEC $task projects 2>&1");

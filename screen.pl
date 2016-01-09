@@ -101,9 +101,11 @@ sub draw_screen {
     &draw_prompt_line('');
   }
   if ( $flash_convergence ) {
-    &flash_convergence();
-    $flash_convergence = 0;
-    $prev_convergence = $convergence;
+    if ( $burndown eq "yes" ) {
+      &flash_convergence();
+      $flash_convergence = 0;
+      $prev_convergence = $convergence;
+    }
   }
 
 }

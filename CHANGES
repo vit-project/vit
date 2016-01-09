@@ -1,3 +1,5 @@
+ Fri Jan  8 2016 - do not run 'task burndown' by default
+ Fri Jan  8 2016 - add config variable for 'task burndown'
  Tue Jan  5 2016 - add support for config variables. See 'man vitrc'
  Wed Sep 30 2015 - improve detection of annotations (VT-123)
  Sun Mar  8 2015 - do not beep on a 'g' keystroke
