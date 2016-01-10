@@ -106,9 +106,21 @@ sub do_search {
 
 sub do_inner_search {
   my $ch = $_[0];
+  $during_try = 1;
+  my $search_pat_run;
+  try {
+    "dummytext" =~ /$search_pat/i;
+    $search_pat_run = $search_pat;
+  } catch {
+    # print search_pat but run search_pat_run so the user sees original input. e.g.
+    # search_pat = "abc\"
+    # search_pat_actual = "abc\\"
+    $search_pat_run = quotemeta($search_pat);
+  };
+  $during_try = 0;
   if ( $search_direction == 1 && $ch eq 'n' || $search_direction == 0 && $ch eq 'N' ) {
     for ( my $i = $task_selected_idx + 1; $i <= $#report_lines; $i++ ) {
-      if ( $report_lines[$i] =~ /$search_pat/i ) {
+      if ( $report_lines[$i] =~ /$search_pat_run/i ) {
          $task_selected_idx = $i;
          return 1;
       }
@@ -116,17 +128,17 @@ sub do_inner_search {
     &draw_prompt('Search hit BOTTOM, continuing at TOP');
     usleep($error_delay);
     for ( my $i = 0; $i < $task_selected_idx; $i++ ) {
-      if ( $report_lines[$i] =~ /$search_pat/i ) {
+      if ( $report_lines[$i] =~ /$search_pat_run/i ) {
         $task_selected_idx = $i;
         return 1;
       }
     }
-    if ( $report_lines[$task_selected_idx] =~ /$search_pat/i ) { return 1; }
+    if ( $report_lines[$task_selected_idx] =~ /$search_pat_run/i ) { return 1; }
     return 0;
   }
   if ( $search_direction == 1 && $ch eq 'N' || $search_direction == 0 && $ch eq 'n' ) {
     for ( my $i = $task_selected_idx - 1; $i >= 0; $i-- ) {
-      if ( $report_lines[$i] =~ /$search_pat/i ) {
+      if ( $report_lines[$i] =~ /$search_pat_run/i ) {
          $task_selected_idx = $i;
         return 1;
       }
@@ -134,12 +146,12 @@ sub do_inner_search {
     &draw_prompt('Search hit TOP, continuing at BOTTOM');
     usleep($error_delay);
     for ( my $i = $#report_lines; $i > $task_selected_idx; $i-- ) {
-      if ( $report_lines[$i] =~ /$search_pat/i ) {
+      if ( $report_lines[$i] =~ /$search_pat_run/i ) {
         $task_selected_idx = $i;
         return 1;
       }
     }
-    if ( $report_lines[$task_selected_idx] =~ /$search_pat/i ) { return 1; }
+    if ( $report_lines[$task_selected_idx] =~ /$search_pat_run/i ) { return 1; }
     return 0;
   }
   return -1;

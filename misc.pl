@@ -26,6 +26,10 @@ sub clean_exit {
 #------------------------------------------------------------------
 
 sub error_exit {
+  # do not exit VIT if we are in a try/catch block
+  if ( $during_try ) {
+    return
+  }
   unless( $audit ) {
     &shell_exec("clear", 'no-wait');
   }

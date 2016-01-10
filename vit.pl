@@ -10,6 +10,7 @@
 use strict;
 use Curses;
 use Time::HiRes qw(usleep);
+use Try::Tiny;
 
 # Clean up terminal on a Perl error or warning. This makes it more clear what
 # the error or warning message is and it leaves the terminal in a usable state.
@@ -90,6 +91,9 @@ our $next_color_pair = 6;
 our %shortcuts;
 our $cur_pos;
 our %histories;
+
+# are we in a "try" block? If so, quick return from END block
+our $during_try = 0;
 
 # vitrc settings
 my $burndown = "no";

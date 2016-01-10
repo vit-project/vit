@@ -1,3 +1,4 @@
+ Sun Jan 10 2016 - do not exit when invalid regex for search string (VT-127)
  Sat Jan  9 2016 - clean up terminal on a Perl error or warning (part of VT-127)
  Fri Jan  8 2016 - do not run 'task burndown' by default
  Fri Jan  8 2016 - add config variable for 'task burndown'
