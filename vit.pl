@@ -11,6 +11,12 @@ use strict;
 use Curses;
 use Time::HiRes qw(usleep);
 
+# Clean up terminal on a Perl error or warning. This makes it more clear what
+# the error or warning message is and it leaves the terminal in a usable state.
+$SIG{__DIE__} = sub { &error_exit(@_); };
+# Exit even on Perl warning
+$SIG{__WARN__} = sub { &error_exit("(converted from warning) "."@_"); };
+
 our $commands_file = '%prefix%/share/vit/commands';
 our $task = '%TASK%';
 our $clear = '%CLEAR%';
@@ -115,4 +121,3 @@ require 'search.pl';
 &draw_screen();
 &getch_loop();
 &clean_exit();
-
