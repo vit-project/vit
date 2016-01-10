@@ -45,7 +45,15 @@ sub task_annotate {
   # because for annotatate we embed quotes since there is nothing
   # else for Taskwarrior to interpret. The advantage is that the
   # user does not need to worry about proper quoting.
-  my ($es,$result) = &task_exec("$id annotate \"$str\"");
+  #
+  # Because single quotes are the enclosing characters, they must be escaped.
+  # This replaces each single quote inside $str with (1) a single quote to end
+  # the single-quoting, a double quote to begin a new type of quoting, a single
+  # quote (which is now embedded in a double quote so does not need escaping),
+  # an end double-quote, and a begin-single-quote that will begin the rest of
+  # the quoting. In summary, we rely on the sh and bash feature of stringing together multiple types of quotes
+  $str =~ s/'/'"'"'/g;
+  my ($es,$result) = &task_exec("$id annotate '$str'");
   if ( $es != 0 ) {
     $error_msg = $result;
     &draw_error_msg();
