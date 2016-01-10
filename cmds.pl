@@ -42,7 +42,7 @@ sub task_annotate {
     return;
   }
   # This task_exec is different (from, e.g., the one in task_add)
-  # because for annotatate we embed quotes sinece there is nothing
+  # because for annotatate we embed quotes since there is nothing
   # else for Taskwarrior to interpret. The advantage is that the
   # user does not need to worry about proper quoting.
   my ($es,$result) = &task_exec("$id annotate \"$str\"");
