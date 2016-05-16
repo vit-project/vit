@@ -94,7 +94,27 @@ sub draw_report_line {
     }
     $x += length($report_tokens[$i][$t]);
   }
-  $str = ' ' x ($REPORT_COLS - $x);
+  my $repeat_count=($REPORT_COLS - $x);
+  if ( $repeat_count < 0 ) {
+    # FIXME
+    # I added this "if" block when VIT exited with a Perl warning that
+    # "VIT fatal error: (converted from warning) Negative repeat count does
+    # nothing..."
+    # Note that warnings are (purposefully) converted to errors because of
+    # using "strict'. There is likely a bug in the algorithm as I'm guessing
+    # the original author of this code never intended for the value to be
+    # negative. I do not think this is a serious bug, and thus I leave this
+    # note as a reminder for if someone takes an in-depth look at the algorithm
+    # or decides for other reasons that a refactoring is needed. I can only
+    # reproduce this issue with a private dataset and unfortunately it is not
+    # the normal case for bugs where one can whittle the dataset down and
+    # easily anonymize it. I will keep the dataset to test in the future in
+    # case a fix is proposed. The tar where will I keep my private
+    # reproduceable dataset is named "vit_negative_repeat.tar.gz".
+    # scott k, 2016-05-15
+    $repeat_count = 0;
+  }
+  $str = ' ' x $repeat_count;
   if ( $mode eq 'without-selection' || $i != $task_selected_idx ) {
     $report_win->attron(COLOR_PAIR($cp));
   }
