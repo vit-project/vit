@@ -1,3 +1,4 @@
+ Mon Jun 20 2016 - work around another instance of the Perl warning
  Mon May 16 2016 - work around a warning from Perl versions >= v5.21.1
  Sun Jan 10 2016 - annotations now correctly escape any character
  Sun Jan 10 2016 - do not exit when invalid regex for search string (VT-127)

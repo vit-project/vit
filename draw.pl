@@ -111,6 +111,8 @@ sub draw_report_line {
     # easily anonymize it. I will keep the dataset to test in the future in
     # case a fix is proposed. The tar where will I keep my private
     # reproduceable dataset is named "vit_negative_repeat.tar.gz".
+    # There are other similar situations in the code. To see the FIXMEs that
+    # are associated with them, do "git grep bd4a905c".
     # scott k, 2016-05-15
     $repeat_count = 0;
   }

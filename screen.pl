@@ -50,7 +50,17 @@ sub draw_screen {
     &set_attroff($header_win,$report_header_attrs[$t]);
     $x += length($report_header_tokens[$t]);
   }
-  $str = ' ' x ($REPORT_COLS - $x + 1);
+
+  my $repeat_count=($REPORT_COLS - $x + 1);
+  if ( $repeat_count < 0 ) {
+    # FIXME
+    # see commit bd4a905c
+    # I triggered this possibility (that is, that $repeat_count is negative)
+    # by zooming out and then zooming in very close, on gnome-terminal.
+    $repeat_count = 0;
+  }
+  $str = ' ' x $repeat_count;
+
   &set_attron($header_win,$report_header_attrs[$#report_header_attrs]);
   $header_win->addstr(2,$x,$str);
   &set_attroff($header_win,$report_header_attrs[$#report_header_attrs]);
