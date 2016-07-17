@@ -20,9 +20,14 @@ sub prompt_chr {
   if ( $ch eq "410" ) {
     # FIXME resize
     # This code chunk is also in getch.pl, except the call to draw_prompt_cur.
-    &audit("Received character 410. Going to refresh");
-    &init_curses('refresh');
-    &draw_screen();
+    if ( $LINES > 1 ) {
+      &audit("Received character 410. Going to refresh.");
+      &init_curses('refresh');
+      &draw_screen();
+    } else {
+      &audit("Received character 410, but terminal height ($LINES) too small to
+        refresh.");
+    }
     $ch = &prompt_chr($prompt);
   }
   noecho();
