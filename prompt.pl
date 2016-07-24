@@ -9,6 +9,35 @@ sub prompt_y {
 }
 
 #------------------------------------------------------------------
+# The following function is, with minor modifications, from
+#   https://cpan.rt.develooper.com/Public/Bug/Display.html?id=27335
+# TODO:
+#   Is there a normal Perl way of doing the following more simple?
+sub prompt_u8getch() {
+  my $chr = $prompt_win->getch();
+
+  my $cpt = ord($chr);
+  if ($chr =~ /\A\d+\z/ || $cpt <= 127) {
+    return $chr;
+  }
+  my $len=1;
+     if (($cpt & 0xe0) == 0xc0) { $len = 2; }
+  elsif (($cpt & 0xf0) == 0xe0) { $len = 3; }
+  elsif (($cpt & 0xf8) == 0xf0) { $len = 4; }
+  elsif (($cpt & 0xfc) == 0xf8) { $len = 5; }
+  elsif (($cpt & 0xfe) == 0xfc) { $len = 6; }
+  else {
+    return $chr;
+  }
+  for my $i (2..$len) {
+    my $chri = $prompt_win->getch();
+    return $chri if ((ord($chri) & 0xc0) != 0x80);
+    $chr .= $chri;
+  }
+  return decode_utf8($chr);
+}
+
+#------------------------------------------------------------------
 
 sub prompt_chr {
   my ($prompt) = @_;
@@ -65,7 +94,7 @@ sub prompt_str {
   curs_set(1);
   &draw_prompt("$prompt$str");
   while (1) {
-    my $ch = $prompt_win->getch();
+    my $ch = prompt_u8getch();
     #debug("TOP str=\"$str\" ch=\"$ch\"");
 # tab completion is broken and undocumented
 #    if ( $ch eq "\b" || $ch eq "\c?" ) {
