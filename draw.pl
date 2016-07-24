@@ -87,12 +87,13 @@ sub draw_report_line {
     }
     #if ( $t == 0 ) { debug("DRAW tok=$line.$t cp=$cp \"$report_tokens[$i][$t]\""); }
     &set_attron($report_win,$report_attrs[$i][$t]);
-    $report_win->addstr($line,$x,$report_tokens[$i][$t]);
+    my $tok = decode_utf8($report_tokens[$i][$t]);
+    $report_win->addstr($line,$x,$tok);
     &set_attroff($report_win,$report_attrs[$i][$t]);
     if ( $mode eq 'without-selection' || $i != $task_selected_idx ) {
       $report_win->attroff(COLOR_PAIR($cp));
     }
-    $x += length($report_tokens[$i][$t]);
+    $x += length($tok);
   }
   my $repeat_count=($REPORT_COLS - $x);
   if ( $repeat_count < 0 ) {

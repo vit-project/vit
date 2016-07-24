@@ -1,3 +1,4 @@
+ Sun Jul 24 2016 - fix display of multi-byte report data
  Sun Jul 17 2016 - do not exit if terminal resized to small height
  Mon Jun 20 2016 - work around another instance of the Perl warning
  Mon May 16 2016 - work around a warning from Perl versions >= v5.21.1

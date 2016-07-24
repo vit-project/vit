@@ -11,6 +11,10 @@ use strict;
 use Curses;
 use Time::HiRes qw(usleep);
 use Try::Tiny;
+use utf8;
+use POSIX qw(setlocale LC_CTYPE);
+use I18N::Langinfo qw(langinfo CODESET);
+use Encode;
 
 # Clean up terminal on a Perl error or warning. This makes it more clear what
 # the error or warning message is and it leaves the terminal in a usable state.
