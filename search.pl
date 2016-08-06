@@ -13,7 +13,7 @@ sub start_search {
   curs_set(1);
   $cur_pos = 1;
   GETCH: while (1) {
-    my $ch = $prompt_win->getch();
+    my $ch = prompt_u8getch();
     if ( $ch eq "\ch" || $ch eq KEY_BACKSPACE ) {
       if ( $cur_pos > 1 ) {
         $cur_pos--;

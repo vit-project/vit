@@ -108,6 +108,7 @@ sub inner_read_report {
   my $prev_id;
   while(<IN>) {
     chop;
+    $_ = &decode_utf8($_);
     if ( $_ =~ /^\s*$/ ) { next; }
     if ( $_ =~ /^(\d+) tasks?$/ ||
          $_ =~ /^\x1b.*?m(\d+) tasks?\x1b\[0m$/ ||

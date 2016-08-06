@@ -1,3 +1,4 @@
+ Sat Aug  6 2016 - fix for multi-byte searches
  Sun Jul 24 2016 - fix for multi-byte prompt input
  Sun Jul 24 2016 - fix display of multi-byte report data
  Sun Jul 17 2016 - do not exit if terminal resized to small height
