@@ -10,8 +10,7 @@ sub prompt_quit {
     &draw_prompt_line('');
     return;
   }
-  endwin();
-  exit();
+  &clean_exit()
 }
 
 #------------------------------------------------------------------
