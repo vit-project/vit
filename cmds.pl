@@ -218,6 +218,39 @@ sub task_set_project {
 
 #------------------------------------------------------------------
 
+sub task_set_tag {
+  my $id = $report2taskid[$task_selected_idx];
+  my $tags = &prompt_str("Tag: ");
+  if ( $tags eq '' ) {
+    &draw_prompt_line('');
+    return;
+  }
+  #my $tag = &task_info('Tag');
+  #if ( $p eq $proj ) {
+  #  beep();
+  #  return;
+  #}
+
+  foreach my $t (split(/\s\+/,$tags)) {
+    next if $t =~ m/^\s+$/;
+    my $fc = substr($t,0,1);
+    $t = "+$t"  unless  $fc eq '+' or $fc eq '-';
+
+    my ($es,$result) = &task_exec("$id modify $t");
+    if ( $es != 0 ) {
+      $error_msg = $result;
+      &draw_error_msg();
+      return;
+    }
+  }
+
+  $feedback_msg = "Modified task $id.";
+  &flash_current_task();
+  $reread_needed = 1;
+}
+
+#------------------------------------------------------------------
+
 sub shell_command {
   my $args = $_[0];
   my ($opts, $cmd);
