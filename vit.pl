@@ -58,6 +58,7 @@ our $prev_command = 'next';
 our $prev_convergence = '';
 our $prev_task_selected_idx;
 our @project_types = ();
+our @tag_types = ();
 our $prompt_win;
 our $refresh_needed = 0;
 our $reread_needed = 0;

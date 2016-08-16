@@ -89,6 +89,8 @@ sub prompt_str {
     $mode =~ s/:.*$//;
     if ( $mode eq 'project' ) {
       @match_types = @project_types;
+    } elsif ( $mode eq 'tag' ) {
+      @match_types = @tag_types;
     }
   }
   curs_set(1);
@@ -127,7 +129,7 @@ sub prompt_str {
       last;
     }
     if ( $ch eq "\t" ) {
-      if ( $mode ne 'cmd' && $mode ne 'project' ) {
+      if ( $mode ne 'cmd' and $mode ne 'project' and $mode ne 'tag' ) {
         beep();
         next;
       }
@@ -137,13 +139,20 @@ sub prompt_str {
         my $idx = $tab_cnt % ($#match_types + 1) - 1;
         $str = $match_types[$idx];
       } else {
-        my @matches = (grep(/^$tab_match_str/,@match_types));
+        # remove prefix + or - when matching tags
+        my $fc = '';
+        if ($mode eq 'tag') {
+          $fc = substr($tab_match_str,0,1);
+          $tab_match_str = substr($tab_match_str,1)  if  ($fc eq '-' or $fc eq '+');
+        }
+
+        my @matches = (grep(/^\Q$tab_match_str\E/,@match_types));
         if ( $#matches == -1 ) {
           $tab_cnt = 0;
           beep();
         } else  {
           my $idx = $tab_cnt % ($#matches + 1) - 1;
-          $str = $matches[$idx];
+          $str = $fc . $matches[$idx];
         }
       }
       &draw_prompt("$prompt$str");

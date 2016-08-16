@@ -101,6 +101,19 @@ sub inner_read_report {
   }
   close(IN);
 
+  &audit("EXEC $task tags 2>&1");
+  open(IN,"$task tags 2>&1 |");
+  while(<IN>) {
+    chop;
+    if ( $_ =~ /^\s*$/ ) { next; }
+    $_ =~ s/\x1b.*?m//g;
+    if ( $_ =~ /^Tag/ ) { next; }
+    if ( $_ =~ /^\d+ tags/ ) { last; }
+    my $t = (split(/\s+/,$_))[0];
+    push(@tag_types, $t);
+  }
+  close(IN);
+
   $args = "rc.defaultwidth=$REPORT_COLS rc.defaultheight=0 rc._forcecolor=on $current_command";
   &audit("EXEC $task $args 2> /dev/null");
   open(IN,"$task $args 2> /dev/null |");
