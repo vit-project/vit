@@ -79,12 +79,15 @@ sub draw_report_line {
   my ($i,$line,$mode) = @_;
   my ($x, $t, $cp, $str);
   $x = 0;
-  if ( $mode eq 'with-selection' && $i == $task_selected_idx ) {
+  my $task_is_selected = ( $taskid2report[$report2taskid[$i]]==$task_selected_idx );
+  audit(sprintf("draw_report_line: i=%d, r2t=%d, r2t2r=%d, selected=%d, is_selected=%d", 
+    $i, $report2taskid[$i], $taskid2report[$report2taskid[$i]], $task_selected_idx, $task_is_selected));
+  if ( $mode eq 'with-selection' and $task_is_selected ) {
     $report_win->attron(COLOR_PAIR($COLOR_SELECTION));
     &set_attron($report_win,$selection_attrs);
   }
   for $t (0 .. $#{ $report_tokens[$i] } ) {
-    if ( $mode eq 'without-selection' || $i != $task_selected_idx ) {
+    if ( $mode eq 'without-selection'  or not $task_is_selected ) {
       my $fg = $report_colors_fg[$i][$t];
       my $bg = $report_colors_bg[$i][$t];
       $cp = &get_color_pair($fg,$bg);
@@ -95,7 +98,7 @@ sub draw_report_line {
     my $tok = $report_tokens[$i][$t];
     $report_win->addstr($line,$x,$tok);
     &set_attroff($report_win,$report_attrs[$i][$t]);
-    if ( $mode eq 'without-selection' || $i != $task_selected_idx ) {
+    if ( $mode eq 'without-selection' or not $task_is_selected ) {
       $report_win->attroff(COLOR_PAIR($cp));
     }
     $x += mbswidth($tok);
@@ -123,13 +126,13 @@ sub draw_report_line {
     $repeat_count = 0;
   }
   $str = ' ' x $repeat_count;
-  if ( $mode eq 'without-selection' || $i != $task_selected_idx ) {
+  if ( $mode eq 'without-selection' or not $task_is_selected ) {
     $report_win->attron(COLOR_PAIR($cp));
   }
   &set_attron($report_win,$report_attrs[$i][$#{ $report_tokens[$i] }]);
   $report_win->addstr($line,$x,$str);
   &set_attroff($report_win,$report_attrs[$i][$#{ $report_tokens[$i] }]);
-  if ( $mode eq 'with-selection' && $i == $task_selected_idx ) {
+  if ( $mode eq 'with-selection' and $task_is_selected ) {
     $report_win->attroff(COLOR_PAIR($COLOR_SELECTION));
     &set_attroff($report_win,$selection_attrs);
   } else {

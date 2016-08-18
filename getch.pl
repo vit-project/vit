@@ -68,7 +68,7 @@ sub getch_loop {
       }
 
       if ( $ch eq 'G' || $ch eq KEY_END ) {
-        $task_selected_idx = $#report_tokens;
+        $task_selected_idx = $taskid2report[$report2taskid[$#report_tokens]];
         if ( $display_start_idx + $REPORT_LINES <= $#report_tokens ) {
           $display_start_idx = $task_selected_idx - $REPORT_LINES + 1;
         }
@@ -83,13 +83,16 @@ sub getch_loop {
       }
 
       if ( $ch eq 'j' || $ch eq KEY_DOWN || $ch eq ' ' ) {
-        if ( $task_selected_idx >= $#report_tokens ) {
-          beep;
-          last CASE;
-        }
-        $task_selected_idx++;
+        my $selected_prev = $task_selected_idx;
+        do { # advance until we read the first line of the next task
+            if ( $task_selected_idx >= $#report_tokens ) {
+              beep;
+              last CASE;
+            }
+            $task_selected_idx++;
+        } while ( $taskid2report[$report2taskid[$task_selected_idx]]==$selected_prev );
         if ( $task_selected_idx - $REPORT_LINES >= $display_start_idx ) {
-          $display_start_idx++;
+          $display_start_idx += $task_selected_idx - $selected_prev;
         }
         $refresh_needed = 1;
         last CASE;
@@ -100,9 +103,11 @@ sub getch_loop {
           beep;
           last CASE;
         }
-        $task_selected_idx--;
+        my $selected_prev = $task_selected_idx;
+        # skip to the first line of the previous task
+        $task_selected_idx = $taskid2report[$report2taskid[$task_selected_idx-1]];
         if ( $task_selected_idx < $display_start_idx ) {
-          $display_start_idx--;
+          $display_start_idx -= 1+$selected_prev-$task_selected_idx;
         }
         $refresh_needed = 1;
         last CASE;
@@ -111,6 +116,7 @@ sub getch_loop {
       if ( $ch eq 'L' ) {
         $task_selected_idx = $display_start_idx + $REPORT_LINES - 1;
         if ( $task_selected_idx >= $#report_tokens-1 ) { $task_selected_idx = $#report_tokens; }
+        $task_selected_idx = $taskid2report[$report2taskid[$task_selected_idx]];
         $refresh_needed = 1;
         last CASE;
       }
@@ -120,6 +126,7 @@ sub getch_loop {
         if ( $display_start_idx + $REPORT_LINES > $#report_tokens ) {
           $task_selected_idx = $display_start_idx + int(($#report_tokens - $display_start_idx) / 2);
         }
+        $task_selected_idx = $taskid2report[$report2taskid[$task_selected_idx]];
         $refresh_needed = 1;
         last CASE;
       }
@@ -208,21 +215,29 @@ sub getch_loop {
       }
 
       if ( $ch eq "\cb" || $ch eq KEY_PPAGE ) {
-        $display_start_idx -= $REPORT_LINES;
         $task_selected_idx -= $REPORT_LINES;
-        if ( $display_start_idx < 0 ) { $display_start_idx = 0; }
         if ( $task_selected_idx < 0 ) { $task_selected_idx = 0; }
+
+        my $prev_selected = $task_selected_idx;
+        $task_selected_idx = $taskid2report[$report2taskid[$task_selected_idx]];
+
+        $display_start_idx -= $REPORT_LINES + ($prev_selected-$task_selected_idx);
+        if ( $display_start_idx < 0 ) { $display_start_idx = 0; }
+
         $refresh_needed = 1;
         last CASE;
       }
 
       if ( $ch eq "\cf" || $ch eq KEY_NPAGE ) {
-        $display_start_idx += $REPORT_LINES;
         $task_selected_idx += $REPORT_LINES;
         if ( $task_selected_idx > $#report_tokens ) {
-          $display_start_idx = $#report_tokens;
+          # don't scroll display but simply select the last entry on the page
           $task_selected_idx = $#report_tokens;
+        } else {
+          # scroll to next page
+          $display_start_idx += $REPORT_LINES;
         }
+        $task_selected_idx = $taskid2report[$report2taskid[$task_selected_idx]];
         $refresh_needed = 1;
         last CASE;
       }
