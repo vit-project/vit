@@ -128,9 +128,10 @@ sub inner_read_report {
     if ( $_ =~ /^\s*(\d+) / ) {
       $report2taskid[$i] = $1;
       $taskid2report[$1] = $i;
+      audit("inner_read_report: report2taskid[$i]=$1, taskid2report[$1]=$i")
     } else {
       $report2taskid[$i] = $prev_id;
-      $taskid2report[$i] = $prev_id;
+      audit("inner_read_report: report2taskid[$i]=$prev_id")
     }
     $prev_id = $report2taskid[$i];
     $i++;
@@ -138,6 +139,7 @@ sub inner_read_report {
   close(IN);
 
   if ( $#report_tokens > -1 ) {
+    # WHY?!!!!
     @report_header_tokens = @{ $report_tokens[$report_header_idx] };
     @report_header_attrs = @{ $report_attrs[$report_header_idx] };
     splice(@report_tokens,$report_header_idx,1);
@@ -146,6 +148,9 @@ sub inner_read_report {
     splice(@report_colors_bg,$report_header_idx,1);
     splice(@report_attrs,$report_header_idx,1);
     splice(@report2taskid,$report_header_idx,1);
+    for (0..$#taskid2report) {
+      $taskid2report[$_]-- if ($_>=$report_header_idx)
+    }
     if ( $task_selected_idx > $#report_tokens ) {
       $task_selected_idx = $#report_tokens;
     }
