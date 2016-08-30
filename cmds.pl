@@ -5,10 +5,12 @@
 
 sub prompt_quit {
   my $yes;
-  $yes = &prompt_y("Quit?");
-  if ( ! $yes ) {
-    &draw_prompt_line('');
-    return;
+  if ($pedantic) {
+    $yes = &prompt_y("Quit?");
+    if ( ! $yes ) {
+      &draw_prompt_line('');
+      return;
+    }
   }
   endwin();
   exit();
@@ -76,10 +78,12 @@ sub task_den_or_del {
              ? "task"
              : "annotation";
   $str =~ s/\s+$//;
-  $yes = &prompt_y("Delete current $target? ");
-  if ( ! $yes ) {
-    &draw_prompt_line('');
-    return;
+  if ($pedantic) {
+    $yes = &prompt_y("Delete current $target? ");
+    if ( ! $yes ) {
+      &draw_prompt_line('');
+      return;
+    }
   }
   my ($es,$result) = ($target eq "annotation")
                    ? &task_exec("$id denotate \"$str\"")
@@ -100,10 +104,12 @@ sub task_den_or_del {
 sub task_done {
   my ($ch, $str, $yes);
   my $id = $report2taskid[$task_selected_idx];
-  $yes = &prompt_y("Mark task $id done? ");
-  if ( ! $yes ) {
-    &draw_prompt_line('');
-    return;
+  if ($pedantic) {
+    $yes = &prompt_y("Mark task $id done? ");
+    if ( ! $yes ) {
+      &draw_prompt_line('');
+      return;
+    }
   }
   my ($es,$result) = &task_exec("$id done");
   if ( $es != 0 ) {

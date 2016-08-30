@@ -21,6 +21,7 @@ sub parse_vitrc {
         $skey = &replace_keycodes("$skey");
         $cmd = &replace_keycodes("$cmd");
 
+        # TODO: EVILness from hell
         $skey = eval "\"$skey\"";
 
         $shortcuts{$skey} = $cmd;
@@ -35,6 +36,15 @@ sub parse_vitrc {
             exit(1);
           }
           $burndown = $configval;
+        }
+        elsif ($configname eq "pedantic") {
+          # TODO: fix code duplication evilness
+          if (!&sanitycheck_bool($configval)) {
+            print STDERR "ERROR: boolean config variable '$configname' must ".
+                         "be set to 'yes' or 'no'.\n";
+            exit(1);
+          }
+          $pedantic = ( $configval eq "yes" ? 1 : undef );
         }
       }
     }

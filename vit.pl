@@ -102,6 +102,7 @@ our $during_try = 0;
 
 # vitrc settings
 my $burndown = "no";
+my $pedantic = 1;
 
 require 'args.pl';
 require 'cmdline.pl';
