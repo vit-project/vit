@@ -174,7 +174,7 @@ sub task_set_priority {
     if ( $p eq 'N' ) {
       $p = '';
     }
-    my ($es,$result) = &task_exec("$id modify prio:$p");
+    my ($es,$result) = &task_exec("$id modify 'prio:$p'");
     if ( $es != 0 ) {
       $error_msg = $result;
       &draw_error_msg();
@@ -204,7 +204,7 @@ sub task_set_project {
     beep();
     return;
   }
-  my ($es,$result) = &task_exec("$id modify proj:$p");
+  my ($es,$result) = &task_exec("$id modify 'proj:$p'");
   if ( $es != 0 ) {
     $error_msg = $result;
     &draw_error_msg();
