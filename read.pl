@@ -125,7 +125,7 @@ sub inner_read_report {
       $i++;
       next;
     }
-    if ( $_ =~ /^\s*(\d+) / ) {
+    if ( $_ =~ /^\s{0,5}(\d+) / ) {
       $report2taskid[$i] = $1;
       $taskid2report[$1] = $i;
       audit("inner_read_report: report2taskid[$i]=$1, taskid2report[$1]=$i")
