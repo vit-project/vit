@@ -98,7 +98,7 @@ sub draw_report_line {
     if ( $mode eq 'without-selection' || $i != $task_selected_idx ) {
       $report_win->attroff(COLOR_PAIR($cp));
     }
-    $x += length($tok);
+    $x += mbswidth($tok);
   }
   my $repeat_count=($REPORT_COLS - $x);
   if ( $repeat_count < 0 ) {
