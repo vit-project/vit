@@ -15,6 +15,7 @@ use utf8;
 use POSIX qw(setlocale LC_CTYPE);
 use I18N::Langinfo qw(langinfo CODESET);
 use Encode;
+use Text::CharWidth qw(mbswidth);
 
 # Clean up terminal on a Perl error or warning. This makes it more clear what
 # the error or warning message is and it leaves the terminal in a usable state.

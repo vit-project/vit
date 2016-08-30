@@ -36,7 +36,12 @@ sub draw_prompt_cur {
   my ($lhs) = @_;
   $prompt_win->addstr(0, 0, $lhs);
   $prompt_win->clrtoeol();
-  $prompt_win->move(0, $cur_pos);
+  # the next line calculates the terminal column from the
+  # current position in the prompt string; this calculation
+  # is *not* the identity if there are characters that
+  # occupy more than 1 terminal column (e.g., CJK characters)
+  my $terminal_pos = mbswidth(substr($lhs, 0, $cur_pos));
+  $prompt_win->move(0, $terminal_pos);
   $prompt_win->refresh();
 }
 
