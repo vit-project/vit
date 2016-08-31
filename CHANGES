@@ -1,3 +1,4 @@
+ Sat Aug 30 2016 - fix handling of CJK characters (VT-121)
  Sat Aug  6 2016 - fix for multi-byte searches
  Sun Jul 24 2016 - fix for multi-byte prompt input
  Sun Jul 24 2016 - fix display of multi-byte report data
