@@ -21,6 +21,8 @@ sub task_add {
     &draw_prompt_line('');
     return;
   }
+  # TODO: fix this evilness
+  $str =~ s{[&^\\]}{\\\&}g;
   my ($es,$result) = &task_exec("add $str");
   if ( $es != 0 ) {
     $error_msg = $result;
