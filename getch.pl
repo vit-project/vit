@@ -177,6 +177,11 @@ sub getch_loop {
         last CASE;
       }
 
+      if ( $ch eq 'w' ) {
+        &task_set_wait();
+        last CASE;
+      }
+
       if ( $ch eq '/' ) {
         $search_direction = 1;
         &start_search();

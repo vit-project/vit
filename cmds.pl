@@ -218,6 +218,26 @@ sub task_set_project {
 
 #------------------------------------------------------------------
 
+sub task_set_wait {
+  my $id = $report2taskid[$task_selected_idx];
+  my $w = &prompt_str("Wait: ");
+  if ( $w eq '' ) {
+    &draw_prompt_line('');
+    return;
+  }
+  my ($es,$result) = &task_exec("$id modify 'wait:$w'");
+  if ( $es != 0 ) {
+    $error_msg = $result;
+    &draw_error_msg();
+    return;
+  }
+  $feedback_msg = "Modified task $id.";
+  &flash_current_task();
+  $reread_needed = 1;
+}
+
+#------------------------------------------------------------------
+
 sub shell_command {
   my $args = $_[0];
   my ($opts, $cmd);
