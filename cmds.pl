@@ -236,7 +236,7 @@ sub task_set_tag {
     my $fc = substr($t,0,1);
     $t = "+$t"  unless  $fc eq '+' or $fc eq '-';
 
-    my ($es,$result) = &task_exec("$id modify $t");
+    my ($es,$result) = &task_exec("$id modify '$t'");
     if ( $es != 0 ) {
       $error_msg = $result;
       &draw_error_msg();
