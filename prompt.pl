@@ -152,7 +152,8 @@ sub prompt_str {
           beep();
         } else  {
           my $idx = $tab_cnt % ($#matches + 1) - 1;
-          $str = $fc . $matches[$idx];
+          $str = $matches[$idx];
+          $str = $fc . $str  if  ($fc eq '-' or $fc eq '+');
         }
       }
       &draw_prompt("$prompt$str");
