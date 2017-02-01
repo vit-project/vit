@@ -21,7 +21,8 @@ sub task_add {
     &draw_prompt_line('');
     return;
   }
-  # TODO: fix this evilness
+  # TODO: get rid off escaping by replacing the shell call in task_exec() by something like IPC::Open2().
+  #       That would allow us to get rid of all shell expansions, quotations and escaping. [BaZo]
   $str =~ s{[&^\\]}{\\\&}g;
   my ($es,$result) = &task_exec("add $str");
   if ( $es != 0 ) {

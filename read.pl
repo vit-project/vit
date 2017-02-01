@@ -139,7 +139,8 @@ sub inner_read_report {
   close(IN);
 
   if ( $#report_tokens > -1 ) {
-    # WHY?!!!!
+    # TODO: this code is quite hard to understand; should probably be rewritten
+    #       or at least needs explanation of what is happening here. [BaZo]
     @report_header_tokens = @{ $report_tokens[$report_header_idx] };
     @report_header_attrs = @{ $report_attrs[$report_header_idx] };
     splice(@report_tokens,$report_header_idx,1);
