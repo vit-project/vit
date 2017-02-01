@@ -130,7 +130,7 @@ sub inner_read_report {
       # determine the size of the first column
       $_ =~ m/^ID\s\+/;
       $len_firstcol = length($&);
-      audit("inner_read_report: len_firstcol=$len_firstcol");
+      &audit("inner_read_report: len_firstcol=$len_firstcol");
 
       next;
     }
@@ -138,12 +138,12 @@ sub inner_read_report {
     # if the first column is empty (contains only spaces, this is a continuation of the previous line)
     if ( $_ =~ m/^ {$len_firstcol}/ ) {
       $report2taskid[$i] = $prev_id;
-      audit("inner_read_report: report2taskid[$i]=$prev_id")
+      &audit("inner_read_report: report2taskid[$i]=$prev_id")
     } else {
       $_ =~ m/^\s*(\d+) /;
       $report2taskid[$i] = $1;
       $taskid2report[$1] = $i;
-      audit("inner_read_report: report2taskid[$i]=$1, taskid2report[$1]=$i")
+      &audit("inner_read_report: report2taskid[$i]=$1, taskid2report[$1]=$i")
     }
     $prev_id = $report2taskid[$i];
     $i++;
