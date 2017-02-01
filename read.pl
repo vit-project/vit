@@ -135,7 +135,7 @@ sub inner_read_report {
       next;
     }
 
-    # if the first column is empty (contains only spaces, this is a continuation of the previous line
+    # if the first column is empty (contains only spaces, this is a continuation of the previous line)
     if ( $_ =~ m/^ {$len_firstcol}/ ) {
       $report2taskid[$i] = $prev_id;
       audit("inner_read_report: report2taskid[$i]=$prev_id")
