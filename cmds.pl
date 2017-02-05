@@ -227,11 +227,6 @@ sub task_set_tag {
     &draw_prompt_line('');
     return;
   }
-  #my $tag = &task_info('Tag');
-  #if ( $p eq $proj ) {
-  #  beep();
-  #  return;
-  #}
 
   foreach my $t (split(/\s\+/,$tags)) {
     next if $t =~ m/^\s+$/;
