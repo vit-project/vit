@@ -19,7 +19,7 @@ sub clean_exit {
       close(AUDIT) or die "$!";
   }
 
-  endwin();
+  endwin() unless isendwin();
   exit();
 }
 
