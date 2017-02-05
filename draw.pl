@@ -80,7 +80,7 @@ sub draw_report_line {
   my ($x, $t, $cp, $str);
   $x = 0;
   my $task_is_selected = ( $taskid2report[$report2taskid[$i]]==$task_selected_idx );
-  audit(sprintf("draw_report_line: i=%d, r2t=%d, r2t2r=%d, selected=%d, is_selected=%d", 
+  &audit(sprintf("draw_report_line: i=%d, r2t=%d, r2t2r=%d, selected=%d, is_selected=%d", 
     $i, $report2taskid[$i], $taskid2report[$report2taskid[$i]], $task_selected_idx, $task_is_selected));
   if ( $mode eq 'with-selection' and $task_is_selected ) {
     $report_win->attron(COLOR_PAIR($COLOR_SELECTION));
