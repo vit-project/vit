@@ -12,8 +12,7 @@ sub prompt_quit {
       return;
     }
   }
-  endwin();
-  exit();
+  &clean_exit()
 }
 
 #------------------------------------------------------------------
@@ -24,6 +23,9 @@ sub task_add {
     &draw_prompt_line('');
     return;
   }
+  # TODO: get rid off escaping by replacing the shell call in task_exec() by something like IPC::Open2().
+  #       That would allow us to get rid of all shell expansions, quotations and escaping. [BaZo]
+  $str =~ s{[&^\\]}{\\\&}g;
   my ($es,$result) = &task_exec("add $str");
   if ( $es != 0 ) {
     $error_msg = $result;
@@ -181,7 +183,7 @@ sub task_set_priority {
     if ( $p eq 'N' ) {
       $p = '';
     }
-    my ($es,$result) = &task_exec("$id modify prio:$p");
+    my ($es,$result) = &task_exec("$id modify 'prio:$p'");
     if ( $es != 0 ) {
       $error_msg = $result;
       &draw_error_msg();
@@ -211,7 +213,7 @@ sub task_set_project {
     beep();
     return;
   }
-  my ($es,$result) = &task_exec("$id modify proj:$p");
+  my ($es,$result) = &task_exec("$id modify 'proj:$p'");
   if ( $es != 0 ) {
     $error_msg = $result;
     &draw_error_msg();

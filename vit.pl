@@ -8,6 +8,7 @@
 # Copyright 2013 - 2016, Scott Kostyshak
 
 use strict;
+use sigtrap qw{ handler clean_exit normal-signals };
 use Curses;
 use Time::HiRes qw(usleep);
 use Try::Tiny;
