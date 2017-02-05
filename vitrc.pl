@@ -21,7 +21,8 @@ sub parse_vitrc {
         $skey = &replace_keycodes("$skey");
         $cmd = &replace_keycodes("$cmd");
 
-        # TODO: EVILness from hell
+        # TODO: get rid of the eval().  
+        # This shouldn't be too hard, but I need to figure out what exactly is happening here.
         $skey = eval "\"$skey\"";
 
         $shortcuts{$skey} = $cmd;
