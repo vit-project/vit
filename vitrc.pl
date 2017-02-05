@@ -31,6 +31,7 @@ sub parse_vitrc {
         my($configname, $configval) = split(/=/, $_, 2);
         &audit("CONFIG: user requests to set '$configname' to '$configval'");
         if ($configname eq "burndown") {
+          # TODO: fix code duplication (see below)
           if (!&sanitycheck_bool($configval)) {
             print STDERR "ERROR: boolean config variable '$configname' must ".
                          "be set to 'yes' or 'no'.\n";
@@ -39,7 +40,7 @@ sub parse_vitrc {
           $burndown = $configval;
         }
         elsif ($configname eq "pedantic") {
-          # TODO: fix code duplication evilness
+          # TODO: fix code duplication (see above)
           if (!&sanitycheck_bool($configval)) {
             print STDERR "ERROR: boolean config variable '$configname' must ".
                          "be set to 'yes' or 'no'.\n";
