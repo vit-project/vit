@@ -29,6 +29,7 @@ sub inner_read_report {
   my @prev_report_attrs = @report_attrs;
   my @prev_report_header_tokens = @report_header_tokens;
   my @prev_report_header_attrs = @report_header_attrs;
+  my $len_firstcol = 0;
   $prev_convergence = $convergence;
 
   $prev_display_start_idx = $display_start_idx;
@@ -120,18 +121,29 @@ sub inner_read_report {
     &parse_report_line($i,$_);
     $_ =~ s/\x1b.*?m//g;
     $report_lines[$i] =  $_;
+
+    # check if this is the header line
     if ( $_ =~ /^ID / ) {
       $report_header_idx = $i;
       $i++;
+
+      # determine the size of the first column
+      $_ =~ m/^ID\s\+/;
+      $len_firstcol = length($&);
+      &audit("inner_read_report: len_firstcol=$len_firstcol");
+
       next;
     }
-    if ( $_ =~ /^\s*(\d+) / ) {
+
+    # if the first column is empty (contains only spaces, this is a continuation of the previous line)
+    if ( $_ =~ m/^ {$len_firstcol}/ ) {
+      $report2taskid[$i] = $prev_id;
+      &audit("inner_read_report: report2taskid[$i]=$prev_id")
+    } else {
+      $_ =~ m/^\s*(\d+) /;
       $report2taskid[$i] = $1;
       $taskid2report[$1] = $i;
-      audit("inner_read_report: report2taskid[$i]=$1, taskid2report[$1]=$i")
-    } else {
-      $report2taskid[$i] = $prev_id;
-      audit("inner_read_report: report2taskid[$i]=$prev_id")
+      &audit("inner_read_report: report2taskid[$i]=$1, taskid2report[$1]=$i")
     }
     $prev_id = $report2taskid[$i];
     $i++;
@@ -139,7 +151,8 @@ sub inner_read_report {
   close(IN);
 
   if ( $#report_tokens > -1 ) {
-    # WHY?!!!!
+    # TODO: this code is quite hard to understand; should probably be rewritten
+    #       or at least needs explanation of what is happening here. [BaZo]
     @report_header_tokens = @{ $report_tokens[$report_header_idx] };
     @report_header_attrs = @{ $report_attrs[$report_header_idx] };
     splice(@report_tokens,$report_header_idx,1);
