@@ -243,7 +243,7 @@ sub getch_loop {
         last CASE;
       }
 
-      if ( $ch eq "\e" ) {
+      if ( $ch eq "\e" || $ch eq "\cg" ) {
         $error_msg = '';
         $feedback_msg = '';
         $refresh_needed = 1;

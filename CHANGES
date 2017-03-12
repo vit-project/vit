@@ -1,3 +1,4 @@
+ Sun Mar 12 2017 - add ctrl+g synonym for escape
  Sun Mar 12 2017 - add start/stop toggle bound to 'b' (VT-131, part of VT-104)
  Sat Aug 30 2016 - fix handling of CJK characters (VT-121)
  Sat Aug  6 2016 - fix for multi-byte searches

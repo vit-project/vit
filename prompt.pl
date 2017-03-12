@@ -118,7 +118,7 @@ sub prompt_str {
       &draw_prompt_cur("$prompt$str");
       next;
     }
-    if ( $ch eq "\e" ) {
+    if ( $ch eq "\e" || $ch eq "\cg" ) {
       noecho();
       curs_set(0);
       return '';
