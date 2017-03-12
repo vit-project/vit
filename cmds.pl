@@ -103,7 +103,7 @@ sub task_start_stop {
     my ($ch, $str, $yes);
     my $id = $report2taskid[$task_selected_idx];
 
-    my ($state, $_) = &task_exec("$id active");
+    my ($state, $result1) = &task_exec("$id active");
     my $prompt = "stop";
     $feedback_msg = "Stopped Task";
 
@@ -119,9 +119,9 @@ sub task_start_stop {
         return;
     }
 
-    my ($es, $result) = &task_exec("$id $prompt");
+    my ($es, $result2) = &task_exec("$id $prompt");
     if ( $es != 0 ) {
-        $error_msg = $result;
+        $error_msg = $result2;
         &draw_error_msg();
         return;
     }
