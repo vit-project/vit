@@ -99,6 +99,39 @@ sub task_den_or_del {
 
 #------------------------------------------------------------------
 
+sub task_start_stop {
+    my ($ch, $str, $yes);
+    my $id = $report2taskid[$task_selected_idx];
+
+    my ($state, $result1) = &task_exec("$id active");
+    my $prompt = "stop";
+    $feedback_msg = "Stopped task";
+
+    if ($state != 0) {
+        $prompt = "start";
+        $feedback_msg = "Started task";
+    }
+
+    $yes = &prompt_y("$prompt task?");
+
+    if (! $yes ) {
+        &draw_prompt_line('');
+        return;
+    }
+
+    my ($es, $result2) = &task_exec("$id $prompt");
+    if ( $es != 0 ) {
+        $error_msg = $result2;
+        &draw_error_msg();
+        return;
+    }
+
+    &draw_feedback_msg();
+    $reread_needed = 1;
+}
+
+#------------------------------------------------------------------
+
 sub task_done {
   my ($ch, $str, $yes);
   my $id = $report2taskid[$task_selected_idx];
