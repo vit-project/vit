@@ -109,7 +109,7 @@ sub task_start_stop {
 
     if ($state != 0) {
         $prompt = "start";
-        $feedback_msg = "Started Task"
+        $feedback_msg = "Started Task";
     }
 
     $yes = &prompt_y("$prompt task?");
