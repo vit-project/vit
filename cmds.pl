@@ -103,13 +103,16 @@ sub task_start_stop {
     my ($ch, $str, $yes);
     my $id = $report2taskid[$task_selected_idx];
 
-    my ($es, $result) = &task_exec("$id active");
+    my ($state, $_) = &task_exec("$id active");
     my $prompt = "stop";
-    if ($es != 0) {
+    $feedback_msg = "Stopped Task";
+
+    if ($state != 0) {
         $prompt = "start";
+        $feedback_msg = "Started Task"
     }
 
-    $yes = &prompt_y("$prompt task $id?");
+    $yes = &prompt_y("$prompt task?");
 
     if (! $yes ) {
         &draw_prompt_line('');
@@ -122,7 +125,7 @@ sub task_start_stop {
         &draw_error_msg();
         return;
     }
-    $feedback_msg = "Marked task $prompt ed.";
+
     &draw_feedback_msg();
     $reread_needed = 1;
 }
