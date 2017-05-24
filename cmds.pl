@@ -16,7 +16,25 @@ sub prompt_quit {
 #------------------------------------------------------------------
 
 sub task_add {
-  my $str = &prompt_str("Add: ");
+  &task_cmd_parseable_with_prompt("add", "Add")
+}
+
+#------------------------------------------------------------------
+
+sub task_log {
+  &task_cmd_parseable_with_prompt("log", "Log")
+}
+
+#------------------------------------------------------------------
+
+# General function for invoking task commands with a prompt and
+# where the input provided at the prompt shall be parseable, i.e.,
+# be a sequence of strings. Examples are the commands "add" and
+# "log", while non-examples are "annotate" or "done".
+sub task_cmd_parseable_with_prompt {
+  my $cmd = $_[0];
+  my $prompt = $_[1];
+  my $str = &prompt_str("$prompt: ");
   if ( $str eq '' ) {
     &draw_prompt_line('');
     return;
@@ -24,7 +42,7 @@ sub task_add {
   # TODO: get rid off escaping by replacing the shell call in task_exec() by something like IPC::Open2().
   #       That would allow us to get rid of all shell expansions, quotations and escaping. [BaZo]
   $str =~ s{[&^\\]}{\\\&}g;
-  my ($es,$result) = &task_exec("add $str");
+  my ($es,$result) = &task_exec("$cmd $str");
   if ( $es != 0 ) {
     $error_msg = $result;
     &draw_error_msg();

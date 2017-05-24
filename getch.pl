@@ -113,6 +113,11 @@ sub getch_loop {
         last CASE;
       }
 
+      if ( $ch eq 'l' ) {
+        &task_log();
+        last CASE;
+      }
+
       if ( $ch eq 'L' ) {
         $task_selected_idx = $display_start_idx + $REPORT_LINES - 1;
         if ( $task_selected_idx >= $#report_tokens-1 ) { $task_selected_idx = $#report_tokens; }
