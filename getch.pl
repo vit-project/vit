@@ -56,6 +56,11 @@ sub getch_loop {
         last CASE;
       }
 
+      if ( $ch eq 'b' ) {
+          &task_start_stop();
+          last CASE;
+      }
+
       if ( $ch eq "e" ) {
         &shell_exec("task $report2taskid[$task_selected_idx] edit",'wait');
         $reread_needed = 1;
@@ -238,7 +243,7 @@ sub getch_loop {
         last CASE;
       }
 
-      if ( $ch eq "\e" ) {
+      if ( $ch eq "\e" || $ch eq "\cg" ) {
         $error_msg = '';
         $feedback_msg = '';
         $refresh_needed = 1;
