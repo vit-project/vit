@@ -39,14 +39,14 @@ sub parse_vitrc {
           }
           $burndown = $configval;
         }
-        elsif ($configname eq "pedantic") {
+        elsif ($configname eq "confirmation") {
           # TODO: fix code duplication (see above)
           if (!&sanitycheck_bool($configval)) {
             print STDERR "ERROR: boolean config variable '$configname' must ".
                          "be set to 'yes' or 'no'.\n";
             exit(1);
           }
-          $pedantic = ( $configval eq "yes" ? 1 : undef );
+          $confirmation = ( $configval eq "yes" ? 1 : undef );
         }
       }
     }

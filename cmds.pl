@@ -5,7 +5,7 @@
 
 sub prompt_quit {
   my $yes;
-  if ($pedantic) {
+  if ($confirmation) {
     $yes = &prompt_y("Quit?");
     if ( ! $yes ) {
       &draw_prompt_line('');
@@ -80,7 +80,7 @@ sub task_den_or_del {
              ? "task"
              : "annotation";
   $str =~ s/\s+$//;
-  if ($pedantic) {
+  if ($confirmation) {
     $yes = &prompt_y("Delete current $target? ");
     if ( ! $yes ) {
       &draw_prompt_line('');
@@ -139,7 +139,7 @@ sub task_start_stop {
 sub task_done {
   my ($ch, $str, $yes);
   my $id = $report2taskid[$task_selected_idx];
-  if ($pedantic) {
+  if ($confirmation) {
     $yes = &prompt_y("Mark task $id done? ");
     if ( ! $yes ) {
       &draw_prompt_line('');
