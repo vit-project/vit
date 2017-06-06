@@ -70,10 +70,10 @@ sub prompt_str {
   my ($prompt) = @_;
   $cur_pos = length($prompt);
   my $str = '';
-  my $tab_cnt = 0;
+  my $tab_cnt = 0;# number of subsequent tab presses (for iterating through completions)
+  my $tab_match_str = '';# value of $str upon first press of tab
   my $history_idx = 0;
   my $addedPromptStr = 0;
-  my $tab_match_str = '';
   my $mode;
   my @match_types;
   if ( $prompt =~ /^(:)(.*)/ || $prompt =~ /^(.*?: )(.*)/ || $prompt =~ /^(.*?:)(.*)/ ) {
@@ -95,25 +95,17 @@ sub prompt_str {
   &draw_prompt("$prompt$str");
   while (1) {
     my $ch = prompt_u8getch();
-    #debug("TOP str=\"$str\" ch=\"$ch\"");
-# tab completion is broken and undocumented
-#    if ( $ch eq "\b" || $ch eq "\c?" ) {
-#      if ( $str ne '' ) {
-#        chop $str;
-#        if ( length($str) < length($tab_match_str) ) {
-#          chop $tab_match_str;
-#        }
-#      } else {
-#        $tab_match_str = '';
-#        $tab_cnt = 0;
-#      }
-#      &draw_prompt("$prompt$str");
-#      next;
-#    }
+    if ( $tab_cnt > 0 && $ch ne "\t" && $ch ne "410" ) {
+      # When another key than tab is pressed, then the counter is reset.
+      # That is, only uninterrupted tab keys cycle through completions.
+      # The only exceptions, which allow the continuation of tab cycling, are:
+      #   - "410" (resize)
+      $tab_cnt = 0;
+      $tab_match_str = '';
+      #NOTE: no "next" here on purpose
+    }
     if ( $ch eq "\cu" ) {
       $str = substr($str, $cur_pos - $prompt_len);
-      $tab_match_str = '';
-      $tab_cnt = 0;
       $cur_pos = $prompt_len;
       &draw_prompt_cur("$prompt$str");
       next;
