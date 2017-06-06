@@ -1,6 +1,7 @@
 
  cmd   a STRING        add a new task
  cmd   A STRING        add an annotation to the current task
+ cmd   b STRING        start/stop a task
  cmd   m STRING        modify the current task
  cmd   :![rw] STRING   execute "STRING" in shell. 'r' rereads, 'w' waits
  cmd   t               prepend the command prompt with ":!rw task "

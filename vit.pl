@@ -8,7 +8,6 @@
 # Copyright 2013 - 2016, Scott Kostyshak
 
 use strict;
-use sigtrap qw{ handler clean_exit normal-signals };
 use Curses;
 use Time::HiRes qw(usleep);
 use Try::Tiny;
@@ -20,6 +19,10 @@ use Text::CharWidth qw(mbswidth);
 
 # Clean up terminal on a Perl error or warning. This makes it more clear what
 # the error or warning message is and it leaves the terminal in a usable state.
+$SIG{HUP} = sub { &error_exit("Received signal HUP"); };
+$SIG{INT} = sub { &error_exit("Received signal INT"); };
+$SIG{PIPE} = sub { &error_exit("Received signal PIPE"); };
+$SIG{TERM} = sub { &error_exit("Received signal TERM"); };
 $SIG{__DIE__} = sub { &error_exit(@_); };
 # Exit even on Perl warning
 $SIG{__WARN__} = sub { &error_exit("(converted from warning) "."@_"); };
