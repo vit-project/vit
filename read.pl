@@ -29,7 +29,6 @@ sub inner_read_report {
   my @prev_report_attrs = @report_attrs;
   my @prev_report_header_tokens = @report_header_tokens;
   my @prev_report_header_attrs = @report_header_attrs;
-  my $len_firstcol = 0;
   $prev_convergence = $convergence;
 
   $prev_display_start_idx = $display_start_idx;
@@ -126,24 +125,16 @@ sub inner_read_report {
     if ( $_ =~ /^ID / ) {
       $report_header_idx = $i;
       $i++;
-
-      # determine the size of the first column
-      $_ =~ m/^ID\s\+/;
-      $len_firstcol = length($&);
-      &audit("inner_read_report: len_firstcol=$len_firstcol");
-
       next;
     }
 
-    # if the first column is empty (contains only spaces, this is a continuation of the previous line)
-    if ( $_ =~ m/^ {$len_firstcol}/ ) {
-      $report2taskid[$i] = $prev_id;
-      &audit("inner_read_report: report2taskid[$i]=$prev_id")
-    } else {
-      $_ =~ m/^\s*(\d+) /;
+    if ( $_ =~ /^\s{0,5}(\d+) / ) {
       $report2taskid[$i] = $1;
       $taskid2report[$1] = $i;
       &audit("inner_read_report: report2taskid[$i]=$1, taskid2report[$1]=$i")
+    } else {
+      $report2taskid[$i] = $prev_id;
+      audit("inner_read_report: report2taskid[$i]=$prev_id")
     }
     $prev_id = $report2taskid[$i];
     $i++;
