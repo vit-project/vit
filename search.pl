@@ -34,7 +34,7 @@ sub start_search {
       &draw_prompt_cur($search_pat);
       next GETCH;
     }
-    if ( $ch eq "\e" ) {
+    if ( $ch eq "\e" || $ch eq "\cg" ) {
       &draw_prompt('');
       noecho();
       curs_set(0);
