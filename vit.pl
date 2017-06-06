@@ -29,10 +29,8 @@ $SIG{__WARN__} = sub { &error_exit("(converted from warning) "."@_"); };
 
 our $commands_file = '%prefix%/share/vit/commands';
 our $task = '%TASK%';
-our $clear = '%CLEAR%';
 if ( $commands_file =~ /^%/ ) { $commands_file = "./commands"; }
 if ( $task =~ /^%/ ) { $task = '/usr/local/bin/task'; }
-if ( $clear =~ /^%/ ) { $clear = '/usr/bin/clear'; }
 
 our $cli_args = '';
 our $audit = 0;

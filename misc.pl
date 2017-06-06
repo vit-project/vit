@@ -13,7 +13,7 @@ sub audit {
 
 sub clean_exit {
   unless( $audit ) {
-    &shell_exec("clear", 'no-wait');
+    clear();
   }
   if ( $audit ) {
       close(AUDIT) or die "$!";
@@ -31,7 +31,7 @@ sub error_exit {
     return
   }
   unless( $audit ) {
-    &shell_exec("clear", 'no-wait');
+    clear();
   }
 
   endwin();
