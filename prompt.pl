@@ -187,6 +187,7 @@ sub prompt_str {
         $cur_pos--;
         substr($str, $cur_pos - $prompt_len, 1, "");
         &draw_prompt_cur("$prompt$str");
+        $tab_cnt = 0;
         next;
       }
     }
@@ -195,6 +196,7 @@ sub prompt_str {
         $cur_pos -= 1;
       }
       &draw_prompt_cur("$prompt$str");
+      $tab_cnt = 0;
       next;
     }
     if ( $ch eq KEY_RIGHT ) {
@@ -202,6 +204,7 @@ sub prompt_str {
         $cur_pos += 1;
       }
       &draw_prompt_cur("$prompt$str");
+      $tab_cnt = 0;
       next;
     }
     if ( $ch eq KEY_UP ) {
@@ -229,6 +232,7 @@ sub prompt_str {
       }
       $history_idx++;
       $str = $histories{$prompt}[$history_idx];
+      $tab_cnt = 0;
       &draw_prompt("$prompt$str");
     }
     if ( $ch eq KEY_DOWN ) {
@@ -237,14 +241,17 @@ sub prompt_str {
       }
       $history_idx--;
       $str = $histories{$prompt}[$history_idx];
+      $tab_cnt = 0;
       &draw_prompt("$prompt$str");
     }
     if ( $ch eq KEY_HOME ) {
       $cur_pos = $prompt_len;
+      $tab_cnt = 0;
       &draw_prompt_cur("$prompt$str");
     }
     if ( $ch eq KEY_END ) {
       $cur_pos = length("$prompt$str");
+      $tab_cnt = 0;
       &draw_prompt_cur("$prompt$str");
     }
     # Put hardcoded keys down here since they are the most fragile
@@ -254,6 +261,7 @@ sub prompt_str {
       if ( $cur_pos >= $prompt_len ) {
         substr($str, $cur_pos - $prompt_len, 1, "");
         &draw_prompt_cur("$prompt$str");
+        $tab_cnt = 0;
         next;
       }
     }
