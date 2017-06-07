@@ -139,11 +139,16 @@ sub prompt_str {
         my $idx = ($tab_cnt-1) % @match_types;
         $str = $match_types[$idx];
       } else {
-        # remove prefix + or - when matching tags
+        # when matching tags, be sure to not include the prefix + or i in the matching
+        # so, strip off the +- if present, and save it to put back lateron
         my $fc = '';
         if ($mode eq 'tag') {
           $fc = substr($tab_match_str,0,1);
-          $tab_match_str = substr($tab_match_str,1)  if  ($fc eq '-' or $fc eq '+');
+          if  ($fc eq '-' or $fc eq '+') {
+            $tab_match_str = substr($tab_match_str,1);
+          } else {
+            $fc = '';
+          }
         }
 
         my @matches = (grep(/^\Q$tab_match_str\E/,@match_types));
@@ -152,8 +157,10 @@ sub prompt_str {
           beep();
         } else  {
           my $idx = ($tab_cnt-1) % @matches;
-          $str = $matches[$idx];
-          $str = $fc . $str  if  ($fc eq '-' or $fc eq '+');
+
+          # put back a potential + or - prefix
+          $str = $fc . $matches[$idx];
+          $tab_match_str = $fc . $tab_match_str;
         }
       }
       &draw_prompt("$prompt$str");
