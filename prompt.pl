@@ -136,7 +136,7 @@ sub prompt_str {
       $tab_cnt++;
       if ( $tab_cnt == 1 ) { $tab_match_str = $str; }
       if ( $tab_match_str eq '' ) {
-        my $idx = $tab_cnt % ($#match_types + 1) - 1;
+        my $idx = ($tab_cnt-1) % @match_types;
         $str = $match_types[$idx];
       } else {
         # remove prefix + or - when matching tags
@@ -151,7 +151,7 @@ sub prompt_str {
           $tab_cnt = 0;
           beep();
         } else  {
-          my $idx = $tab_cnt % ($#matches + 1) - 1;
+          my $idx = ($tab_cnt-1) % @matches;
           $str = $matches[$idx];
           $str = $fc . $str  if  ($fc eq '-' or $fc eq '+');
         }
