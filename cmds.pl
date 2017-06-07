@@ -261,10 +261,22 @@ sub task_set_tag {
     return;
   }
 
-  foreach my $t (split(/\s\+/,$tags)) {
-    next if $t =~ m/^\s+$/;
+  # multiple tags can be specified separated by spaces
+  # keep track of the current modifier (default:+) and use it for subsequent tags
+  # so "+a b c" means "+a +b +c" and "+a -b c" means "+a -b -c"
+  my $mod='+';
+  foreach my $t (split(/\s+/,$tags)) {
+    next if $t =~ m/^\s*$/;
+
+    # check if a + or - was specified
     my $fc = substr($t,0,1);
-    $t = "+$t"  unless  $fc eq '+' or $fc eq '-';
+    if ( $fc eq '+'  or  $fc eq '-' ) {
+      # if so, save the current modifier
+      $mod = $fc;
+    } else {
+      # if not, add the current modifier
+      $t = $mod . $t;
+    }
 
     my ($es,$result) = &task_exec("$id modify '$t'");
     if ( $es != 0 ) {
