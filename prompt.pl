@@ -74,6 +74,7 @@ sub prompt_str {
   my $history_idx = 0;
   my $addedPromptStr = 0;
   my $tab_match_str = '';
+  my $tab_started = undef;
   my $mode;
   my @match_types;
   if ( $prompt =~ /^(:)(.*)/ || $prompt =~ /^(.*?: )(.*)/ || $prompt =~ /^(.*?:)(.*)/ ) {
@@ -97,7 +98,7 @@ sub prompt_str {
   &draw_prompt("$prompt$str");
   while (1) {
     my $ch = prompt_u8getch();
-    #debug("TOP str=\"$str\" ch=\"$ch\"");
+    debug("TOP str=\"$str\" ch=\"$ch\" stab=\"".KEY_STAB."\"");
 # tab completion is broken and undocumented
 #    if ( $ch eq "\b" || $ch eq "\c?" ) {
 #      if ( $str ne '' ) {
@@ -128,13 +129,21 @@ sub prompt_str {
     if ( $ch eq "\n" ) {
       last;
     }
-    if ( $ch eq "\t" ) {
+    if ( $ch eq "\t" or $ch eq KEY_STAB or $ch eq KEY_BTAB ) {
       if ( $mode ne 'cmd' and $mode ne 'project' and $mode ne 'tag' ) {
         beep();
         next;
       }
-      $tab_cnt++;
-      if ( $tab_cnt == 1 ) { $tab_match_str = $str; }
+      if ( not $tab_started ) {
+        $tab_match_str = $str;
+        $tab_started = 1;
+        $tab_cnt = 0;
+      }
+      if ( $ch eq "\t") {
+        $tab_cnt++;
+      } else {
+        $tab_cnt--;
+      }
       if ( $tab_match_str eq '' ) {
         my $idx = ($tab_cnt-1) % @match_types;
         $str = $match_types[$idx];
@@ -194,7 +203,7 @@ sub prompt_str {
         $cur_pos--;
         substr($str, $cur_pos - $prompt_len, 1, "");
         &draw_prompt_cur("$prompt$str");
-        $tab_cnt = 0;
+        $tab_started=undef;
         next;
       }
     }
@@ -203,7 +212,7 @@ sub prompt_str {
         $cur_pos -= 1;
       }
       &draw_prompt_cur("$prompt$str");
-      $tab_cnt = 0;
+      $tab_started=undef;
       next;
     }
     if ( $ch eq KEY_RIGHT ) {
@@ -211,7 +220,7 @@ sub prompt_str {
         $cur_pos += 1;
       }
       &draw_prompt_cur("$prompt$str");
-      $tab_cnt = 0;
+      $tab_started=undef;
       next;
     }
     if ( $ch eq KEY_UP ) {
@@ -239,7 +248,7 @@ sub prompt_str {
       }
       $history_idx++;
       $str = $histories{$prompt}[$history_idx];
-      $tab_cnt = 0;
+      $tab_started=undef;
       &draw_prompt("$prompt$str");
     }
     if ( $ch eq KEY_DOWN ) {
@@ -248,17 +257,17 @@ sub prompt_str {
       }
       $history_idx--;
       $str = $histories{$prompt}[$history_idx];
-      $tab_cnt = 0;
+      $tab_started=undef;
       &draw_prompt("$prompt$str");
     }
     if ( $ch eq KEY_HOME ) {
       $cur_pos = $prompt_len;
-      $tab_cnt = 0;
+      $tab_started=undef;
       &draw_prompt_cur("$prompt$str");
     }
     if ( $ch eq KEY_END ) {
       $cur_pos = length("$prompt$str");
-      $tab_cnt = 0;
+      $tab_started=undef;
       &draw_prompt_cur("$prompt$str");
     }
     # Put hardcoded keys down here since they are the most fragile
@@ -268,7 +277,7 @@ sub prompt_str {
       if ( $cur_pos >= $prompt_len ) {
         substr($str, $cur_pos - $prompt_len, 1, "");
         &draw_prompt_cur("$prompt$str");
-        $tab_cnt = 0;
+        $tab_started=undef;
         next;
       }
     }
