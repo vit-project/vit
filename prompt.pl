@@ -98,7 +98,7 @@ sub prompt_str {
   &draw_prompt("$prompt$str");
   while (1) {
     my $ch = prompt_u8getch();
-    debug("TOP str=\"$str\" ch=\"$ch\" stab=\"".KEY_STAB."\"");
+#    debug("TOP str=\"$str\" ch=\"$ch\" stab=\"".KEY_STAB."\"");
 # tab completion is broken and undocumented
 #    if ( $ch eq "\b" || $ch eq "\c?" ) {
 #      if ( $str ne '' ) {
