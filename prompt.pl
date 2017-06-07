@@ -179,7 +179,7 @@ sub prompt_str {
         my @matches = (grep(/^\Q$tab_match_str\E/,@match_types));
         if ( $#matches == -1 ) {
           # no match, so reset
-          $tab_started = undef
+          $tab_started = undef;
           beep();
         } else  {
           my $idx = ($tab_cnt-1) % @matches;
