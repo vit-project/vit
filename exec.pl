@@ -30,7 +30,7 @@ sub task_exec {
 sub shell_exec {
   my ($cmd,$mode) = @_;
   endwin();
-  if ( $clear ne 'NOT_FOUND' ) { system("$clear"); }
+  clear();
   if ( $audit ) {
     print "$_[0]\r\n";
   }
