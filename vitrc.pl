@@ -36,6 +36,14 @@ sub parse_vitrc {
           }
           $burndown = $configval;
         }
+        elsif ($configname eq "nowait") {
+          if (!&sanitycheck_bool($configval)) {
+            print STDERR "ERROR: boolean config variable '$configname' must ".
+                         "be set to 'yes' or 'no'.\n";
+            exit(1);
+          }
+          $nowait = $configval;
+        }
       }
     }
     close(IN);
