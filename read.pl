@@ -101,6 +101,28 @@ sub inner_read_report {
   }
   close(IN);
 
+  {
+    &audit("EXEC $task tags 2>&1");
+    @tag_types=();
+    open(IN,"$task tags 2>&1 |");
+    my $_started = undef;
+    while (my $line=<IN>) {
+      # list of tasks startes after a line containing "--- -----"
+      if ($line =~ /^-+ -+$/) {
+        $_started = 1;
+        next;
+      }
+      next unless $_started;
+
+      # save tag in first field of line
+      chomp $line;
+      last if $line eq '';
+      my $t = ( split(/\s+/,$line) )[0];
+      push(@tag_types, $t);
+    }
+    close(IN);
+  }
+
   $args = "rc.defaultwidth=$REPORT_COLS rc.defaultheight=0 rc._forcecolor=on $current_command";
   &audit("EXEC $task $args 2> /dev/null");
   open(IN,"$task $args 2> /dev/null |");
