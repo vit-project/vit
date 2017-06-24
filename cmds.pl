@@ -279,6 +279,46 @@ sub task_set_wait {
 
 #------------------------------------------------------------------
 
+sub task_set_tag {
+  my $id = $report2taskid[$task_selected_idx];
+  my $tags = &prompt_str("Tag: ");
+  if ( $tags eq '' ) {
+    &draw_prompt_line('');
+    return;
+  }
+
+  # multiple tags can be specified separated by spaces
+  # keep track of the current modifier (default:+) and use it for subsequent tags
+  # so "+a b c" means "+a +b +c" and "+a -b c" means "+a -b -c"
+  my $mod='+';
+  foreach my $t (split(/\s+/,$tags)) {
+    next if $t =~ m/^\s*$/;
+
+    # check if a + or - was specified
+    my $fc = substr($t,0,1);
+    if ( $fc eq '+'  or  $fc eq '-' ) {
+      # if so, save the current modifier
+      $mod = $fc;
+    } else {
+      # if not, add the current modifier
+      $t = $mod . $t;
+    }
+
+    my ($es,$result) = &task_exec("$id modify '$t'");
+    if ( $es != 0 ) {
+      $error_msg = $result;
+      &draw_error_msg();
+      return;
+    }
+  }
+
+  $feedback_msg = "Modified task $id.";
+  &flash_current_task();
+  $reread_needed = 1;
+}
+
+#------------------------------------------------------------------
+
 sub shell_command {
   my $args = $_[0];
   my ($opts, $cmd);

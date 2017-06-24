@@ -50,6 +50,9 @@
  cmd   p STRING        set the current task's project to STRING
  cmd   p STRING<tab>   set the current task's project to STRING using tab completion
  cmd   p <tab>         set the current task's project using tab completion
+ cmd   T +STRING       add the tag STRING to the current task
+ cmd   T -STRING       remove the tag STRING from the current task
+ cmd   T <tab>         add tags to the current task using tab completion
  help  :h              view the whole help file
  help  :h cmd          view help about commands
  help  :h help         view help about help
