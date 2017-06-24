@@ -48,6 +48,15 @@ sub parse_vitrc {
           }
           $confirmation = ( $configval eq "yes" ? 1 : undef );
         }
+        elsif ($configname eq "nowait") {
+          # TODO: more code duplication
+          if (!&sanitycheck_bool($configval)) {
+            print STDERR "ERROR: boolean config variable '$configname' must ".
+                         "be set to 'yes' or 'no'.\n";
+            exit(1);
+          }
+          $nowait = $configval;
+        }
       }
     }
     close(IN);

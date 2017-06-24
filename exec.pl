@@ -27,6 +27,12 @@ sub task_exec {
 
 #------------------------------------------------------------------
 
+sub exited_successfully {
+  my $status = shift || 0;
+  return 1  if  WIFEXITED($status) and WEXITSTATUS($status)==0;
+  return undef;
+}
+
 sub shell_exec {
   my ($cmd,$mode) = @_;
   endwin();
@@ -40,7 +46,14 @@ sub shell_exec {
     exit();
   }
   wait();
-  if ( $mode eq 'wait' ) {
+  my $success = &exited_successfully($?);
+  # two reason to wait:
+  # - an error occurred
+  # - $mode is wait and the user didn't specify nowait in config file
+  if ( not $success or ( $mode eq 'wait' and not $nowait ) ) {
+    if (not $success) {
+      print "Error while executing command `$cmd'\n";
+    }
     print "Press return to continue.\r\n";
     <STDIN>;
   }

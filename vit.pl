@@ -12,7 +12,7 @@ use Curses;
 use Time::HiRes qw(usleep);
 use Try::Tiny;
 use utf8;
-use POSIX qw(setlocale LC_CTYPE);
+use POSIX qw(setlocale LC_CTYPE WIFSIGNALED WIFEXITED WEXITSTATUS);
 use I18N::Langinfo qw(langinfo CODESET);
 use Encode;
 use Text::CharWidth qw(mbswidth);
@@ -107,6 +107,7 @@ our $during_try = 0;
 # vitrc settings
 my $burndown = "no";
 my $confirmation = 1;
+my $nowait = undef;
 
 require 'args.pl';
 require 'cmdline.pl';
