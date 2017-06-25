@@ -1,3 +1,4 @@
+ Sat Jun 24 2017 - introduce feature for adding/removing tags (GH#5)
  Sat Jun 24 2017 - add config option to disable wait prompts (GH#12)
  Fri Jun 23 2017 - add config option to disable confirmation (GH#4)
  Fri Jun 23 2017 - add "wait" command bound to 'w' (GH#3)
