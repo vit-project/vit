@@ -246,7 +246,7 @@ sub task_set_project {
     beep();
     return;
   }
-  my ($es,$result) = &task_exec("$id modify 'proj:$p'");
+  my ($es,$result) = &task_exec("$id modify 'project:$p'");
   if ( $es != 0 ) {
     $error_msg = $result;
     &draw_error_msg();

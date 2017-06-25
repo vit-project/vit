@@ -214,7 +214,7 @@ sub getch_loop {
           my $p = $report_tokens[$task_selected_idx][0];
           $p =~ s/(.*?)\s+.*/$1/;
           $p =~ s/\(none\)//;
-          $current_command = "ls proj:$p";
+          $current_command = "ls project:$p";
           $reread_needed = 1;
         } else {
           &shell_exec("task $report2taskid[$task_selected_idx] info",'wait');
