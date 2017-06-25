@@ -49,15 +49,15 @@ sub prompt_chr {
   curs_set(1);
   &draw_prompt($prompt);
   $ch = $prompt_win->getch();
-  if ( $ch eq "410" ) {
+  if ( $ch eq KEY_RESIZE ) {
     # FIXME resize
     # This code chunk is also in getch.pl, except the call to draw_prompt_cur.
     if ( $LINES > 1 ) {
-      &audit("Received character 410. Going to refresh.");
+      &audit("Received KEY_RESIZE. Going to refresh.");
       &init_curses('refresh');
       &draw_screen();
     } else {
-      &audit("Received character 410, but terminal height ($LINES) too small to
+      &audit("Received KEY_RESIZE, but terminal height ($LINES) too small to
         refresh.");
     }
     $ch = &prompt_chr($prompt);
@@ -293,7 +293,7 @@ sub prompt_str {
     if ( $ch eq KEY_RESIZE ) {
       # FIXME resize
       # This code chunk is also in getch.pl, except the call to draw_prompt_cur.
-      &audit("Received character 410. Going to refresh");
+      &audit("Received KEY_RESIZE. Going to refresh.");
       &init_curses('refresh');
       &draw_screen();
       &draw_prompt_cur("$prompt$str");

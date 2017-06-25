@@ -261,15 +261,15 @@ sub getch_loop {
         last CASE;
       }
       if ( $ch eq 'Z' ) { last CASE; }
-      if ( $ch eq "410" ) {
+      if ( $ch eq KEY_RESIZE ) {
         # FIXME resize
         # this code chunk is also in prompt.pl
         if ( $LINES > 1 ) {
-          &audit("Received character 410. Going to refresh.");
+          &audit("Received KEY_RESIZE. Going to refresh.");
           &init_curses('refresh');
           &draw_screen();
         } else {
-          &audit("Received character 410, but terminal height ($LINES) too
+          &audit("Received KEY_RESIZE, but terminal height ($LINES) too
             small to refresh.");
         }
         last CASE;
