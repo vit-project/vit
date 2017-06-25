@@ -113,7 +113,7 @@ sub prompt_str {
 
     if ( $tab_started and $ch ne "\t"     and $ch ne KEY_BTAB
                       and $ch ne KEY_STAB and $ch ne KEY_RESIZE ) {
-      # When another key than tab is pressed, then stop the tabbing cycle.
+      # When a key other than tab is pressed, then stop the tabbing cycle.
       # That is, only uninterrupted tab keys cycle through completions.
       # The only exceptions, which allow the continuation of tab cycling, are
       # resize events, backtabs, shift-tabs and (obviously) regular tabs
@@ -143,7 +143,7 @@ sub prompt_str {
         next;
       }
       if ( not $tab_started ) {
-        # this is the first time the users presses tab (possibly after editing
+        # this is the first time the user presses tab (possibly after editing
         # so reset the tab completion
         $tab_match_str = $str;
         $tab_started = 1;
@@ -168,7 +168,7 @@ sub prompt_str {
         my $fc = ''; # (optional) prefix is saved here
         if ($mode eq 'tag') {
           $fc = substr($tab_match_str,0,1);
-          if  ($fc eq '-' or $fc eq '+') {
+          if ($fc eq '-' or $fc eq '+') {
             $tab_match_str = substr($tab_match_str,1);
           } else {
             $fc = '';

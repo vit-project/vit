@@ -107,7 +107,7 @@ sub inner_read_report {
     open(IN,"$task tags 2>&1 |");
     my $_started = undef;
     while (my $line=<IN>) {
-      # list of tasks startes after a line containing "--- -----"
+      # list of tasks starts after a line containing "--- -----"
       if ($line =~ /^-+ -+$/) {
         $_started = 1;
         next;
