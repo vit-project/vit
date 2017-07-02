@@ -135,9 +135,17 @@ sub getch_loop {
       }
 
       if ( $ch eq 'n' || $ch eq 'N' ) {
-        &do_search($ch);
-        $refresh_needed = 1;
-        last CASE;
+        if ( defined $search_pat ) {
+          &do_search($ch);
+          $refresh_needed = 1;
+          last CASE;
+        }
+        else {
+          # do nothing: the user has mistakenly requested a search next/previous
+          # before doing an initial search.
+          # Alternative: give a search prompt (this is what mutt does).
+          last CASE;
+        }
       }
 
       if ( $ch eq 'P' ) {
