@@ -134,7 +134,7 @@ sub getch_loop {
         last CASE;
       }
 
-      if ( $ch eq 'n' || $ch eq 'N') {
+      if ( $ch eq 'n' || $ch eq 'N' ) {
         &do_search($ch);
         $refresh_needed = 1;
         last CASE;
