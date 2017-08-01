@@ -207,7 +207,7 @@ sub getch_loop {
           $current_command = "ls proj:$p";
           $reread_needed = 1;
         } else {
-          &shell_exec("task $report2taskid[$task_selected_idx] info",'wait');
+          &shell_exec("task $report2taskid[$task_selected_idx] info",'forcewait');
         }
         last CASE;
       }
