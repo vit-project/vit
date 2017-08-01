@@ -13,6 +13,9 @@ sub prompt_y {
 #   https://cpan.rt.develooper.com/Public/Bug/Display.html?id=27335
 # TODO:
 #   Is there a normal Perl way of doing the following more simple?
+#   - [BaZo] I think modern Curses can handle multibyte input
+#            with the getchar() function
+#            See http://search.cpan.org/~giraffed/Curses-1.36/Curses.pm#getchar
 sub prompt_u8getch() {
   my $chr = $prompt_win->getch();
 
@@ -46,15 +49,15 @@ sub prompt_chr {
   curs_set(1);
   &draw_prompt($prompt);
   $ch = $prompt_win->getch();
-  if ( $ch eq "410" ) {
+  if ( $ch eq KEY_RESIZE ) {
     # FIXME resize
     # This code chunk is also in getch.pl, except the call to draw_prompt_cur.
     if ( $LINES > 1 ) {
-      &audit("Received character 410. Going to refresh.");
+      &audit("Received KEY_RESIZE. Going to refresh.");
       &init_curses('refresh');
       &draw_screen();
     } else {
-      &audit("Received character 410, but terminal height ($LINES) too small to
+      &audit("Received KEY_RESIZE, but terminal height ($LINES) too small to
         refresh.");
     }
     $ch = &prompt_chr($prompt);
@@ -69,18 +72,26 @@ sub prompt_chr {
 sub prompt_str {
   my ($prompt) = @_;
   $cur_pos = length($prompt);
-  my $str = '';
-  my $tab_cnt = 0;
+  my $str = ''; # current user input
   my $history_idx = 0;
   my $addedPromptStr = 0;
-  my $tab_match_str = '';
-  my $mode;
-  my @match_types;
+
+  my $mode; # type of completion to use (tags, command, projects)
+  my @match_types; # array containing strings to match against
+  my $tab_cnt = 0; # number of subsequent tab presses (for iterating through completions);
+                   # shift-tabs can make this negative
+  my $tab_started = undef; # whether the user has pressed tab before
+  my $tab_match_str = ''; # value of $str upon first press of tab
+
+
+  # split prompt into prompt text and user input
   if ( $prompt =~ /^(:)(.*)/ || $prompt =~ /^(.*?: )(.*)/ || $prompt =~ /^(.*?:)(.*)/ ) {
     $prompt = $1;
     $str = $2;
   }
   my $prompt_len = length($prompt);
+
+  # determine mode from prompt text
   if ( $prompt eq ':' ) {
     $mode = 'cmd';
     @match_types = @report_types;
@@ -89,31 +100,29 @@ sub prompt_str {
     $mode =~ s/:.*$//;
     if ( $mode eq 'project' ) {
       @match_types = @project_types;
+    } elsif ( $mode eq 'tag' ) {
+      @match_types = @tag_types;
     }
   }
+
   curs_set(1);
   &draw_prompt("$prompt$str");
+
   while (1) {
     my $ch = prompt_u8getch();
-    #debug("TOP str=\"$str\" ch=\"$ch\"");
-# tab completion is broken and undocumented
-#    if ( $ch eq "\b" || $ch eq "\c?" ) {
-#      if ( $str ne '' ) {
-#        chop $str;
-#        if ( length($str) < length($tab_match_str) ) {
-#          chop $tab_match_str;
-#        }
-#      } else {
-#        $tab_match_str = '';
-#        $tab_cnt = 0;
-#      }
-#      &draw_prompt("$prompt$str");
-#      next;
-#    }
+
+    if ( $tab_started and $ch ne "\t"     and $ch ne KEY_BTAB
+                      and $ch ne KEY_STAB and $ch ne KEY_RESIZE ) {
+      # When a key other than tab is pressed, then stop the tabbing cycle.
+      # That is, only uninterrupted tab keys cycle through completions.
+      # The only exceptions, which allow the continuation of tab cycling, are
+      # resize events, backtabs, shift-tabs and (obviously) regular tabs
+      $tab_started = undef;
+      #NOTE: no "next" here on purpose
+    }
+
     if ( $ch eq "\cu" ) {
       $str = substr($str, $cur_pos - $prompt_len);
-      $tab_match_str = '';
-      $tab_cnt = 0;
       $cur_pos = $prompt_len;
       &draw_prompt_cur("$prompt$str");
       next;
@@ -126,24 +135,58 @@ sub prompt_str {
     if ( $ch eq "\n" ) {
       last;
     }
-    if ( $ch eq "\t" ) {
-      if ( $mode ne 'cmd' && $mode ne 'project' ) {
+    if ( $ch eq "\t" or $ch eq KEY_STAB or $ch eq KEY_BTAB ) {
+      # handle tab completion
+      if ( $mode ne 'cmd' and $mode ne 'project' and $mode ne 'tag' ) {
+        # tab completion only makes sense for enumerable fields
         beep();
         next;
       }
-      $tab_cnt++;
-      if ( $tab_cnt == 1 ) { $tab_match_str = $str; }
+      if ( not $tab_started ) {
+        # this is the first time the user presses tab (possibly after editing
+        # so reset the tab completion
+        $tab_match_str = $str;
+        $tab_started = 1;
+        $tab_cnt = 0;
+      }
+      # move forward or backwards in the list based on the key press (tab or backtab)
+      if ( $ch eq "\t") {
+        $tab_cnt++;
+      } else {
+        $tab_cnt--;
+      }
+
+      # check string to match
       if ( $tab_match_str eq '' ) {
-        my $idx = $tab_cnt % ($#match_types + 1) - 1;
+        # empty string, so cycle through all possible options
+        my $idx = ($tab_cnt-1) % @match_types;
         $str = $match_types[$idx];
       } else {
-        my @matches = (grep(/^$tab_match_str/,@match_types));
+        # match based on the user input
+
+        # first we need to strip off a possible + or - prefix, which are used for tags
+        my $fc = ''; # (optional) prefix is saved here
+        if ($mode eq 'tag') {
+          $fc = substr($tab_match_str,0,1);
+          if ($fc eq '-' or $fc eq '+') {
+            $tab_match_str = substr($tab_match_str,1);
+          } else {
+            $fc = '';
+          }
+        }
+
+        # do the actual match.  note the \Q\E to stop possible expansion of user input
+        my @matches = (grep(/^\Q$tab_match_str\E/,@match_types));
         if ( $#matches == -1 ) {
-          $tab_cnt = 0;
+          # no match, so reset
+          $tab_started = undef;
           beep();
         } else  {
-          my $idx = $tab_cnt % ($#matches + 1) - 1;
-          $str = $matches[$idx];
+          my $idx = ($tab_cnt-1) % @matches;
+
+          # put back a potential + or - prefix
+          $str = $fc . $matches[$idx];
+          $tab_match_str = $fc . $tab_match_str;
         }
       }
       &draw_prompt("$prompt$str");
@@ -247,10 +290,10 @@ sub prompt_str {
         next;
       }
     }
-    if ( $ch eq "410" ) {
+    if ( $ch eq KEY_RESIZE ) {
       # FIXME resize
       # This code chunk is also in getch.pl, except the call to draw_prompt_cur.
-      &audit("Received character 410. Going to refresh");
+      &audit("Received KEY_RESIZE. Going to refresh.");
       &init_curses('refresh');
       &draw_screen();
       &draw_prompt_cur("$prompt$str");

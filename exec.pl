@@ -47,7 +47,7 @@ sub shell_exec {
   }
   wait();
   my $success = &exited_successfully($?);
-  # two reason to wait:
+  # two reasons to wait:
   # - an error occurred
   # - $mode is wait and the user didn't specify nowait in config file
   if ( not $success or ( $mode eq 'wait' and not $nowait ) or $mode eq 'forcewait' ) {

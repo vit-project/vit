@@ -62,6 +62,7 @@ our $prev_command = 'next';
 our $prev_convergence = '';
 our $prev_task_selected_idx;
 our @project_types = ();
+our @tag_types = ();
 our $prompt_win;
 our $refresh_needed = 0;
 our $reread_needed = 0;
@@ -79,7 +80,7 @@ our @report_colors_bg = ();
 our @report_attrs = ();
 our @report2taskid = ();
 our $search_direction = 1;
-our $search_pat = '';
+our $search_pat = undef;
 our $selection_attrs = '';
 our @taskid2report = ();
 our $tasks_completed = 0;
@@ -106,6 +107,7 @@ our $during_try = 0;
 
 # vitrc settings
 my $burndown = "no";
+my $confirmation = 1;
 my $nowait = undef;
 
 require 'args.pl';

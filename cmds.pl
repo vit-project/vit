@@ -5,10 +5,12 @@
 
 sub prompt_quit {
   my $yes;
-  $yes = &prompt_y("Quit?");
-  if ( ! $yes ) {
-    &draw_prompt_line('');
-    return;
+  if ($confirmation) {
+    $yes = &prompt_y("Quit?");
+    if ( ! $yes ) {
+      &draw_prompt_line('');
+      return;
+    }
   }
   &clean_exit()
 }
@@ -78,10 +80,12 @@ sub task_den_or_del {
              ? "task"
              : "annotation";
   $str =~ s/\s+$//;
-  $yes = &prompt_y("Delete current $target? ");
-  if ( ! $yes ) {
-    &draw_prompt_line('');
-    return;
+  if ($confirmation) {
+    $yes = &prompt_y("Delete current $target? ");
+    if ( ! $yes ) {
+      &draw_prompt_line('');
+      return;
+    }
   }
   my ($es,$result) = ($target eq "annotation")
                    ? &task_exec("$id denotate \"$str\"")
@@ -135,10 +139,12 @@ sub task_start_stop {
 sub task_done {
   my ($ch, $str, $yes);
   my $id = $report2taskid[$task_selected_idx];
-  $yes = &prompt_y("Mark task $id done? ");
-  if ( ! $yes ) {
-    &draw_prompt_line('');
-    return;
+  if ($confirmation) {
+    $yes = &prompt_y("Mark task $id done? ");
+    if ( ! $yes ) {
+      &draw_prompt_line('');
+      return;
+    }
   }
   my ($es,$result) = &task_exec("$id done");
   if ( $es != 0 ) {
@@ -210,7 +216,7 @@ sub task_set_priority {
     if ( $p eq 'N' ) {
       $p = '';
     }
-    my ($es,$result) = &task_exec("$id modify 'prio:$p'");
+    my ($es,$result) = &task_exec("$id modify 'priority:$p'");
     if ( $es != 0 ) {
       $error_msg = $result;
       &draw_error_msg();
@@ -240,12 +246,72 @@ sub task_set_project {
     beep();
     return;
   }
-  my ($es,$result) = &task_exec("$id modify 'proj:$p'");
+  my ($es,$result) = &task_exec("$id modify 'project:$p'");
   if ( $es != 0 ) {
     $error_msg = $result;
     &draw_error_msg();
     return;
   }
+  $feedback_msg = "Modified task $id.";
+  &flash_current_task();
+  $reread_needed = 1;
+}
+
+#------------------------------------------------------------------
+
+sub task_set_wait {
+  my $id = $report2taskid[$task_selected_idx];
+  my $w = &prompt_str("Wait: ");
+  if ( $w eq '' ) {
+    &draw_prompt_line('');
+    return;
+  }
+  my ($es,$result) = &task_exec("$id modify 'wait:$w'");
+  if ( $es != 0 ) {
+    $error_msg = $result;
+    &draw_error_msg();
+    return;
+  }
+  $feedback_msg = "Modified task $id.";
+  &flash_current_task();
+  $reread_needed = 1;
+}
+
+#------------------------------------------------------------------
+
+sub task_set_tag {
+  my $id = $report2taskid[$task_selected_idx];
+  my $tags = &prompt_str("Tag: ");
+  if ( $tags eq '' ) {
+    &draw_prompt_line('');
+    return;
+  }
+
+  # multiple tags can be specified separated by spaces
+  # keep track of the current modifier (default:+) and use it for subsequent tags
+  # so "+a b c" means "+a +b +c" and "+a -b c" means "+a -b -c"
+  my $mod='+';
+  foreach my $t (split(/\s+/,$tags)) {
+    next if $t =~ m/^\s*$/;
+
+    # check if a + or - was specified
+    my $fc = substr($t,0,1);
+    if ( $fc eq '+'  or  $fc eq '-' ) {
+      # if so, save the current modifier
+      $mod = $fc;
+    } else {
+      # if not, add the current modifier
+      $t = $mod . $t;
+    }
+
+    my ($es,$result) = &task_exec("$id modify '$t'");
+    if ( $es != 0 ) {
+      $error_msg = $result;
+      &draw_error_msg();
+      return;
+    }
+  }
+
   $feedback_msg = "Modified task $id.";
   &flash_current_task();
   $reread_needed = 1;

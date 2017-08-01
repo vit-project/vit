@@ -21,6 +21,8 @@ sub parse_vitrc {
         $skey = &replace_keycodes("$skey");
         $cmd = &replace_keycodes("$cmd");
 
+        # TODO: get rid of the eval().
+        # This shouldn't be too hard, but I need to figure out what exactly is happening here.
         $skey = eval "\"$skey\"";
 
         $shortcuts{$skey} = $cmd;
@@ -29,6 +31,7 @@ sub parse_vitrc {
         my($configname, $configval) = split(/=/, $_, 2);
         &audit("CONFIG: user requests to set '$configname' to '$configval'");
         if ($configname eq "burndown") {
+          # TODO: fix code duplication (see below)
           if (!&sanitycheck_bool($configval)) {
             print STDERR "ERROR: boolean config variable '$configname' must ".
                          "be set to 'yes' or 'no'.\n";
@@ -36,7 +39,17 @@ sub parse_vitrc {
           }
           $burndown = $configval;
         }
+        elsif ($configname eq "confirmation") {
+          # TODO: fix code duplication (see above)
+          if (!&sanitycheck_bool($configval)) {
+            print STDERR "ERROR: boolean config variable '$configname' must ".
+                         "be set to 'yes' or 'no'.\n";
+            exit(1);
+          }
+          $confirmation = ( $configval eq "yes" ? 1 : undef );
+        }
         elsif ($configname eq "wait") {
+          # TODO: more code duplication
           if (!&sanitycheck_bool($configval)) {
             print STDERR "ERROR: boolean config variable '$configname' must ".
                          "be set to 'yes' or 'no'.\n";

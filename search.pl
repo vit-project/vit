@@ -95,7 +95,6 @@ sub do_search {
     return 1;
   } else {
     $error_msg = "Pattern not found: $search_pat";
-    $search_pat = '';
     beep();
     return 0;
   }

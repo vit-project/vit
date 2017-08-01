@@ -71,9 +71,14 @@ obtain (from running 'task burndown' in the background. This variable was
 essentially set to "yes" for VIT versions 1.2 and below.
 
 .TP
+.B confirmation=yes
+When set to "yes" (default), VIT will ask for confirmation before marking a task as
+done, deleting a task, or quitting VIT. Set to "no" to disable the prompts.
+
+.TP
 .B wait=yes
 When set to "no", VIT will not show output of the task command after
-modifications to a task are made.  By default, vit will show the output of the
+modifications to a task are made.  By default, VIT will show the output of the
 task command and wait for enter.
 
 .SH EXAMPLES

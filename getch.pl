@@ -134,10 +134,18 @@ sub getch_loop {
         last CASE;
       }
 
-      if ( $ch eq 'n' || $ch eq 'N') {
-        &do_search($ch);
-        $refresh_needed = 1;
-        last CASE;
+      if ( $ch eq 'n' || $ch eq 'N' ) {
+        if ( defined $search_pat ) {
+          &do_search($ch);
+          $refresh_needed = 1;
+          last CASE;
+        }
+        else {
+          # do nothing: the user has mistakenly requested a search next/previous
+          # before doing an initial search.
+          # Alternative: give a search prompt (this is what mutt does).
+          last CASE;
+        }
       }
 
       if ( $ch eq 'P' ) {
@@ -176,9 +184,19 @@ sub getch_loop {
         &ungetstr(':!rw task ')
       }
 
+      if ( $ch eq 'T' ) {
+        &task_set_tag();
+        last CASE;
+      }
+
       if ( $ch eq 'u' ) {
         &shell_exec('task undo','wait');
         $reread_needed = 1;
+        last CASE;
+      }
+
+      if ( $ch eq 'w' ) {
+        &task_set_wait();
         last CASE;
       }
 
@@ -204,10 +222,10 @@ sub getch_loop {
           my $p = $report_tokens[$task_selected_idx][0];
           $p =~ s/(.*?)\s+.*/$1/;
           $p =~ s/\(none\)//;
-          $current_command = "ls proj:$p";
+          $current_command = "ls project:$p";
           $reread_needed = 1;
         } else {
-          &shell_exec("task $report2taskid[$task_selected_idx] info",'forcewait');
+          &shell_exec("task $report2taskid[$task_selected_idx] information",'forcewait');
         }
         last CASE;
       }
@@ -251,15 +269,15 @@ sub getch_loop {
         last CASE;
       }
       if ( $ch eq 'Z' ) { last CASE; }
-      if ( $ch eq "410" ) {
+      if ( $ch eq KEY_RESIZE ) {
         # FIXME resize
         # this code chunk is also in prompt.pl
         if ( $LINES > 1 ) {
-          &audit("Received character 410. Going to refresh.");
+          &audit("Received KEY_RESIZE. Going to refresh.");
           &init_curses('refresh');
           &draw_screen();
         } else {
-          &audit("Received character 410, but terminal height ($LINES) too
+          &audit("Received KEY_RESIZE, but terminal height ($LINES) too
             small to refresh.");
         }
         last CASE;
