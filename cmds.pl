@@ -116,11 +116,12 @@ sub task_start_stop {
     $feedback_msg = "Started task";
   }
 
-  $yes = &prompt_y("$prompt task?");
-
-  if (! $yes ) {
-    &draw_prompt_line('');
-    return;
+  if ($confirmation) {
+    $yes = &prompt_y("$prompt task?");
+    if ( ! $yes ) {
+      &draw_prompt_line('');
+      return;
+    }
   }
 
   my ($es, $result2) = &task_exec("$id $prompt");
