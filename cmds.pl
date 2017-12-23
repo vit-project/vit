@@ -289,7 +289,7 @@ sub task_set_tag {
   }
 
   # multiple tags can be specified separated by spaces
-  # keep track of the current modifier (default:+) and use it for subsequent tags
+  # keep track of current modifier (default:+) and use it for subsequent tags
   # so "+a b c" means "+a +b +c" and "+a -b c" means "+a -b -c"
   my $mod='+';
   foreach my $t (split(/\s+/,$tags)) {
