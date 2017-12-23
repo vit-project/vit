@@ -288,11 +288,13 @@ sub task_set_tag {
     return;
   }
 
-  # multiple tags can be specified separated by spaces
+  # multiple tags can be input separated by a combination of spaces and commas
+  # note that this input format precludes inputting a comma as part of a tag
+  #
   # keep track of current modifier (default:+) and use it for subsequent tags
   # so "+a b c" means "+a +b +c" and "+a -b c" means "+a -b -c"
   my $mod='+';
-  foreach my $t (split(/\s+/,$tags)) {
+  foreach my $t (split(/,?\s+|,/,$tags)) {
     next if $t =~ m/^\s*$/;
 
     # check if a + or - was specified
