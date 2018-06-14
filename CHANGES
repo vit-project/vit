@@ -1,3 +1,4 @@
+ Sat Jun 14 2018 - fix "Negative repeat count does nothing" errors (GH#153)
  Sat Jun 24 2017 - introduce feature for adding/removing tags (GH#5)
  Sat Jun 24 2017 - add config option to disable wait prompts (GH#12)
  Fri Jun 23 2017 - add config option to disable confirmation (GH#4)
