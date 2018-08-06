@@ -4,8 +4,8 @@
  Fri Jun 23 2017 - add config option to disable confirmation (GH#4)
  Fri Jun 23 2017 - add "wait" command bound to 'w' (GH#3)
  Sun Mar 12 2017 - add ctrl+g synonym for escape
- Sun Mar 12 2017 - add start/stop toggle bound to 'b' (VT-131, part of VT-104)
- Sat Aug 30 2016 - fix handling of CJK characters (VT-121)
+ Sun Mar 12 2017 - add start/stop toggle bound to 'b' (GH#152, part of GH#126)
+ Sat Aug 30 2016 - fix handling of CJK characters (GH#142)
  Sat Aug  6 2016 - fix for multi-byte searches
  Sun Jul 24 2016 - fix for multi-byte prompt input
  Sun Jul 24 2016 - fix display of multi-byte report data
@@ -13,34 +13,34 @@
  Mon Jun 20 2016 - work around another instance of the Perl warning
  Mon May 16 2016 - work around a warning from Perl versions >= v5.21.1
  Sun Jan 10 2016 - annotations now correctly escape any character
- Sun Jan 10 2016 - do not exit when invalid regex for search string (VT-127)
- Sat Jan  9 2016 - clean up terminal on a Perl error or warning (part of VT-127)
+ Sun Jan 10 2016 - do not exit when invalid regex for search string (GH#148)
+ Sat Jan  9 2016 - clean up terminal on a Perl error or warning (part of GH#148)
  Fri Jan  8 2016 - do not run 'task burndown' by default
  Fri Jan  8 2016 - add config variable for 'task burndown'
  Tue Jan  5 2016 - add support for config variables. See 'man vitrc'
- Wed Sep 30 2015 - improve detection of annotations (VT-123)
+ Wed Sep 30 2015 - improve detection of annotations (GH#144)
  Sun Mar  8 2015 - do not beep on a 'g' keystroke
  Sat Mar  7 2015 - fix a bug where prompt text was invisible
- Wed Mar  4 2015 - add support for End and Home keys (VT-116)
- Mon Mar  2 2015 - add support for Del key in prompts (VT-98)
- Sun Mar  1 2015 - allow Taskwarrior cmds to parse for 'a' and 'm' (VT-111, VT-114)
- Sun Mar  1 2015 - in screen, VIT now highlights the entire line (VT-59, VT-108)
- Sun Mar  1 2015 - update display after sync (VT-90)
+ Wed Mar  4 2015 - add support for End and Home keys (GH#137)
+ Mon Mar  2 2015 - add support for Del key in prompts (GH#120)
+ Sun Mar  1 2015 - allow Taskwarrior cmds to parse for 'a' and 'm' (GH#132, GH#135)
+ Sun Mar  1 2015 - in screen, VIT now highlights the entire line (GH#81, GH#129)
+ Sun Mar  1 2015 - update display after sync (GH#112)
  Tue Aug 26 2014 - 'n'/'N' now work when not right after search
  Sun Aug 24 2014 - store commands file in %prefix%/share/vit/
  Wed Jul 30 2014 - update documentation URLs
- Fri Jun 27 2014 - add prompt history scrolling with arrows (VT-32, VT-36)
- Thu Jun 26 2014 - install files in more conventional paths (VT-96)
- Wed Jun 25 2014 - fix vitrc man file (VT-97)
- Wed Jun 25 2014 - Makefile no longer requires sudo (VT-96)
+ Fri Jun 27 2014 - add prompt history scrolling with arrows (GH#54, GH#58)
+ Thu Jun 26 2014 - install files in more conventional paths (GH#118)
+ Wed Jun 25 2014 - fix vitrc man file (GH#119)
+ Wed Jun 25 2014 - Makefile no longer requires sudo (GH#118)
  Sat Jun 21 2014 - '-version' prints the git hash if available
  Fri Jun 20 2014 - all of vit's options work with two dashes
  Fri Jun 20 2014 - 'vit -help' has 0 exit code
- Fri Jun 20 2014 - 'vit -version' prints the version (VT-92)
+ Fri Jun 20 2014 - 'vit -version' prints the version (GH#114)
 
  Sun Apr  6 2014 - released v1.2
  Tue Apr  1 2014 - the <Esc> key can now be used in shortcuts
- Tue Apr  1 2014 - exit with informative error if shortcut too long (see VT-81)
+ Tue Apr  1 2014 - exit with informative error if shortcut too long (see GH#103)
  Thu Mar 13 2014 - fix colors for running VIT in tmux
  Sat Mar  8 2014 - do not print control characters to prompts
  Thu Mar  6 2014 - fix recognition of backspace in tmux
