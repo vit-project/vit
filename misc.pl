@@ -1,5 +1,5 @@
 # Copyright 2012 - 2013, Steve Rader
-# Copyright 2013 - 2016, Scott Kostyshak
+# Copyright 2013 - 2018, Scott Kostyshak
 
 sub audit {
   if ( $audit ) {
