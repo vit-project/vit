@@ -67,7 +67,7 @@ sub cmd_line {
   }
   if ( grep(/^$str$/,@report_types) ) {
     $prev_command = $current_command;
-    $current_command = $str;
+    $current_command = "$default_tags $str";
     &read_report('init');
     &draw_screen();
     return;
@@ -76,7 +76,7 @@ sub cmd_line {
     my $s = $1;
     if ( grep(/^$s/,@report_types) ) {
       $prev_command = $current_command;
-      $current_command = $str;
+      $current_command = "$default_tags $str";
       &read_report('init');
       &draw_screen();
       return;
