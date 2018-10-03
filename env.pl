@@ -80,6 +80,7 @@ sub init_task_env {
     chop $cli_args;
     $default_command = $cli_args;
   }
+  $default_command = "$default_tags $default_command";
   &audit("EXEC $task rc._forcecolor=on rc.verbose=on $default_command 2>&1");
   open(IN,"$task rc._forcecolor=on rc.verbose=on $default_command 2>&1 |");
   while(<IN>) {
