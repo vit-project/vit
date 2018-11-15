@@ -125,6 +125,11 @@ require 'read.pl';
 require 'screen.pl';
 require 'search.pl';
 
+# Reload report and redraw screen when SIGUSR1 is received. This will only work
+# on curses implementations that interrupt getch() when a signal is received
+# (getch will return -1, which is already handled in getch_loop). 
+$SIG{'USR1'} = sub { $reread_needed = 1; };
+
 ###################################################################
 ## main...
 

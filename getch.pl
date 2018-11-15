@@ -5,8 +5,6 @@ sub getch_loop {
   while (1) {
     my $ch = $report_win->getch();
     &audit("Received key: $ch");
-    $refresh_needed = 0;
-    $reread_needed = 0;
     $error_msg = '';
     $feedback_msg = '';
 
@@ -295,6 +293,8 @@ sub getch_loop {
     $prev_ch = $ch;
     if ( $reread_needed ) { &read_report('refresh'); }
     if ( $refresh_needed || $reread_needed ) { &draw_screen(); }
+    $refresh_needed = 0;
+    $reread_needed = 0;
 
   }
 }
