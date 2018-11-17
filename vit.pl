@@ -24,6 +24,7 @@ our @colors2pair;
 our $convergence = '';
 our $current_command = 'unknown';
 our $cursor_position = 'unknown';
+our $vitrc_path = defined $ENV{'VITRC'} ? $ENV{'VITRC'} : "$ENV{'HOME'}/.vitrc";
 our $default_command = 'next';
 our $display_start_idx = 0;
 our $error_delay = 500000;

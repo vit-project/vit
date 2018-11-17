@@ -1,8 +1,7 @@
 # Copyright 2013 - 2014, Scott Kostyshak
 
 sub parse_vitrc {
-  my $vitrc = glob("~/.vitrc");
-  if ( open(IN,"<$vitrc") ) {
+  if ( open(IN,"<$vitrc_path") ) {
     while (<IN>) {
       chop;
       my $parse_error = "ERROR: incorrect key bind line in .vitrc:\n $_\n";
