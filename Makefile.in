@@ -18,7 +18,7 @@ build:
 	fi && \
 	cat vit.pl | grep -v ^require \
 	  | sed "s:%prefix%:$(PREFIX):" \
-	  | sed "s/%BUILD%/$(VERSION) built after `date -r CHANGES`/" \
+	  | sed "s/%BUILD%/$(VERSION) built after `date -u -r CHANGES`/" \
 	  | sed "s/%VERSION%/$(VERSION)$${GITHASH}/" \
 	  | sed "s:%TASK%:$(TASK):" \
 	  | sed "s:%CLEAR%:$(CLEAR):" \
