@@ -61,6 +61,11 @@ sub getch_loop {
           last CASE;
       }
 
+      if ( $ch eq 'c' ) {
+        &task_set_due();
+        last CASE;
+      }
+
       if ( $ch eq "e" ) {
         &shell_exec("task $report2taskid[$task_selected_idx] edit",'wait');
         $reread_needed = 1;

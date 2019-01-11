@@ -137,6 +137,27 @@ sub task_start_stop {
 
 #------------------------------------------------------------------
 
+sub task_set_due {
+  my $id = $report2taskid[$task_selected_idx];
+  my $p = &prompt_str("Due: ");
+  my $proj = &task_info('Due');
+  if ( $p eq $proj ) {
+    beep();
+    return;
+  }
+  my ($es,$result) = &task_exec("$id modify 'due:$p'");
+  if ( $es != 0 ) {
+    $error_msg = $result;
+    &draw_error_msg();
+    return;
+  }
+  $feedback_msg = "Modified task $id.";
+  &flash_current_task();
+  $reread_needed = 1;
+}
+
+#------------------------------------------------------------------
+
 sub task_done {
   my ($ch, $str, $yes);
   my $id = $report2taskid[$task_selected_idx];
