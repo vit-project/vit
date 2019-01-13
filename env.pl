@@ -54,6 +54,10 @@ sub init_task_env {
       push(@reports, $1);
       next;
     }
+    if ( $_ =~ /taskd\.server\s/ ) {
+      $taskd_server = 1;
+      next;
+    }
     if ( $_ =~ /The color .* is not recognized/ ) {
       endwin();
       print "$_\r\n";

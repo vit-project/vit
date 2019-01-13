@@ -82,6 +82,7 @@ our @report2taskid = ();
 our $search_direction = 1;
 our $search_pat = undef;
 our $selection_attrs = '';
+our $taskd_server = 0;
 our @taskid2report = ();
 our $tasks_completed = 0;
 our $tasks_pending = 0;
