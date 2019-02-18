@@ -81,6 +81,13 @@ When set to "no", VIT will not show output of the task command after
 modifications to a task are made.  By default, VIT will show the output of the
 task command and wait for enter.
 
+.TP
+.B show_empty_report=no
+When set to "no" (default), VIT will not show a task report if there are no
+tasks in it. It will show the last non-empty report.
+When set to "yes", VIT will display "NO MATCHES" instead of the table.
+
+
 .SH EXAMPLES
 .SS EXTERNAL COMMANDS
 Note that for many of the examples, you need to have the appropriate extension

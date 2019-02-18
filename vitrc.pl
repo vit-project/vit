@@ -39,6 +39,15 @@ sub parse_vitrc {
           }
           $burndown = $configval;
         }
+        if ($configname eq "show_empty_report") {
+          # TODO: fix code duplication (see below)
+          if (!&sanitycheck_bool($configval)) {
+            print STDERR "ERROR: boolean config variable '$configname' must ".
+                         "be set to 'yes' or 'no'.\n";
+            exit(1);
+          }
+          $show_empty_report = $configval;
+        }
         elsif ($configname eq "confirmation") {
           # TODO: fix code duplication (see above)
           if (!&sanitycheck_bool($configval)) {

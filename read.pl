@@ -182,18 +182,25 @@ sub inner_read_report {
     }
   } else {
     $error_msg = "Error: task $current_command: no matches";
-    $current_command = $prev_command;
-    $display_start_idx = $prev_display_start_idx;
-    $task_selected_idx = $prev_task_selected_idx;
-    @report_header_tokens = @prev_report_header_tokens;
-    @report_header_attrs = @prev_report_header_attrs;
-    @report_tokens = @prev_report_tokens;
-    @report_lines = @prev_report_lines;
-    @report_colors_fg = @prev_report_colors_fg;
-    @report_colors_bg = @prev_report_colors_bg;
-    @report_attrs = @prev_report_attrs;
-    @report2taskid = @prev_report2taskid;
-    $convergence = $prev_convergence;
+
+    if ( $show_empty_report eq "yes" ) {
+      @report_header_tokens = ("NO MATCHES");
+    }
+    else {
+      $current_command = $prev_command;
+      $display_start_idx = $prev_display_start_idx;
+      $task_selected_idx = $prev_task_selected_idx;
+      @report_header_tokens = @prev_report_header_tokens;
+      @report_header_attrs = @prev_report_header_attrs;
+      @report_tokens = @prev_report_tokens;
+      @report_lines = @prev_report_lines;
+      @report_colors_fg = @prev_report_colors_fg;
+      @report_colors_bg = @prev_report_colors_bg;
+      @report_attrs = @prev_report_attrs;
+      @report2taskid = @prev_report2taskid;
+      $convergence = $prev_convergence;
+    }
+
     return;
   }
 

@@ -107,6 +107,7 @@ our $during_try = 0;
 
 # vitrc settings
 my $burndown = "no";
+my $show_empty_report = "no";
 my $confirmation = 1;
 my $nowait = undef;
 
