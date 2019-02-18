@@ -20,6 +20,7 @@ sub init_shell_env {
 sub init_task_env {
   my @reports;
   my $id_column = 0;
+  my $empty_report = 0;
   my ($header_color,$task_header_color,$vit_header_color);
   &audit("EXEC $task show 2>&1");
   open(IN,"$task show 2>&1 |");
@@ -94,9 +95,12 @@ sub init_task_env {
       init_pair($COLOR_REPORT_HEADER,$parsed_colors_fg[0],$parsed_colors_bg[0]);
       $id_column = 1;
     }
+    if ( $_ =~ /No matches./ ) {
+      $empty_report = 1;
+    }
   }
   close(IN);
-  if ( ! $id_column && $default_command ne 'summary' ) {
+  if ( ! $empty_report && ! $id_column && $default_command ne 'summary' ) {
     endwin();
     print "Fatal error: default.command (\"$default_command\") must print an \"ID\" column\n";
     exit(1);

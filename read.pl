@@ -4,7 +4,7 @@
 sub read_report {
   my ($mode) = @_;
   &inner_read_report($mode);
-  if ( $prev_ch eq 'd' && $error_msg =~ /Error: task .*: no matches/ ) {
+  if ( $error_msg =~ /Error: task .*: no matches/ ) {
     # take care of marking last done...
     &inner_read_report('init');
   }
