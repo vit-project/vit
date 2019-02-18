@@ -26,9 +26,9 @@ sub task_add {
   # TODO: get rid off escaping by replacing the shell call in task_exec() by something like IPC::Open2().
   #       That would allow us to get rid of all shell expansions, quotations and escaping. [BaZo]
   # escape special characters, adapted from https://unix.stackexchange.com/a/418869/153926
-  $str =~ s{[\002-\011\013-\032\\\(\)\^\*\<\=\>\~ \!\202-\377]}{\\$&}go;
+  $str =~ s{[\002-\011\013-\032\\\#\?\`\(\)\{\}\[\]\^\*\<\=\>\~\|\;\"\!\$\&\'\202-\377]}{\\$&}go;
   $str =~ s{[\']}{'"'"'}go;
-  my ($es,$result) = &task_exec("add '$str'");
+  my ($es,$result) = &task_exec("add $str");
   if ( $es != 0 ) {
     $error_msg = $result;
     &draw_error_msg();
