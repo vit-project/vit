@@ -1,4 +1,4 @@
-#!/usr/bin/perl -w
+#!/usr/bin/env perl
 #
 # VIT - Visual Interactive Taskwarrior
 #
@@ -8,6 +8,7 @@
 # Copyright 2013 - 2018, Scott Kostyshak
 
 use strict;
+use warnings;
 use Curses;
 use Time::HiRes qw(usleep);
 use Try::Tiny;
