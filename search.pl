@@ -1,5 +1,5 @@
 # Copyright 2012 - 2013, Steve Rader
-# Copyright 2013 - 2018, Scott Kostyshak
+# Copyright 2013 - 2019, Scott Kostyshak
 
 sub start_search {
   my $ch = $_[0];

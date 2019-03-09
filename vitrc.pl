@@ -1,4 +1,4 @@
-# Copyright 2013 - 2018, Scott Kostyshak
+# Copyright 2013 - 2019, Scott Kostyshak
 
 sub parse_vitrc {
   my $vitrc = glob("~/.vitrc");
