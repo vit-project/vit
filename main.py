@@ -10,7 +10,7 @@ def main():
   task_config = config_parser.parse()
   reports = report.generate_all(task_config)
   #pp.pprint(reports)
-  default_report = 'scheduled'
+  default_report = 'hot'
   tw = TaskWarrior()
   tasks = tw.tasks.filter(*reports[default_report]['filter'])
   #pp.pprint(tasks)
