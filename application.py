@@ -1,4 +1,5 @@
 from __future__ import unicode_literals
+import re
 from prompt_toolkit.application import Application
 from prompt_toolkit.application.current import get_app
 from prompt_toolkit.key_binding import KeyBindings
@@ -51,6 +52,13 @@ def hot_report(event):
   app.exit()
   init_app(tasks)
 
+def wrap_line(text, length=40):
+  output = ''
+  for x in text.splitlines():
+    output += '\n'.join(line.strip() for line in re.findall(r".{1,%s}(?:\s+|$)" % length, x))
+  print(output)
+  return output
+
 def build_task_row(task):
   key_bindings = KeyBindings()
   key_bindings.add('enter')(partial(view_task, task['uuid']))
@@ -59,7 +67,7 @@ def build_task_row(task):
   desc_width = get_app_width() - 6
   return VSplit([
     Window(FormattedTextControl(text=str(task['id'])), width=4, align=WindowAlign.LEFT),
-    Window(FormattedTextControl(text=task['description'], focusable=True, key_bindings=key_bindings, show_cursor=True), width=desc_width, align=WindowAlign.LEFT, wrap_lines=True),
+    Window(FormattedTextControl(text=wrap_line(task['description'], desc_width), focusable=True, key_bindings=key_bindings, show_cursor=True), width=desc_width, align=WindowAlign.LEFT, wrap_lines=True),
     Window(FormattedTextControl(text=task_date(task, 'scheduled')), width=10, align=WindowAlign.LEFT),
   ], padding=Dimension(preferred=2))
 
