@@ -8,13 +8,16 @@ from prompt_toolkit.layout.controls import FormattedTextControl
 from prompt_toolkit.layout.dimension import Dimension
 from prompt_toolkit.styles import Style
 from functools import partial
+from tasklib import TaskWarrior
 
 import pprint
 
 pp = pprint.PrettyPrinter()
 
-def exit_clicked(key):
-    get_app().exit()
+application = None
+
+def exit(event):
+    event.app.exit()
 
 def view_task(task_uuid, event):
   get_app().run_system_command('clear && task %s' % task_uuid)
@@ -25,6 +28,28 @@ def edit_task(task_uuid, event):
 def get_app_width():
   return 80
 
+def task_date(task, attr, fmt=''):
+  try:
+    return task[attr].strftime(fmt)
+  except AttributeError:
+    return ''
+
+def header_row():
+  width = get_app_width()
+  desc_width = get_app_width() - 6
+  return VSplit([
+    Window(FormattedTextControl(text='ID', style='fg:ansiblack'), width=4, align=WindowAlign.LEFT, dont_extend_height=True),
+    Window(FormattedTextControl('Description', style='fg:ansiblack'), width=desc_width, align=WindowAlign.LEFT, dont_extend_height=True),
+    Window(FormattedTextControl(text='Starts', style='fg:ansiblack'), width=10, align=WindowAlign.LEFT, dont_extend_height=True),
+  ], padding=Dimension(preferred=2), style='bg:ansigray')
+
+def hot_report(event):
+  app = event.app
+  tw = TaskWarrior()
+  tasks = tw.tasks.filter('+PENDING', 'priority:H')
+  pp.pprint("HOT")
+  app.exit()
+  init_app(tasks)
 
 def build_task_row(task):
   key_bindings = KeyBindings()
@@ -33,37 +58,32 @@ def build_task_row(task):
   width = get_app_width()
   desc_width = get_app_width() - 6
   return VSplit([
-    Window(FormattedTextControl(text=str(task['id'])), width=4, align=WindowAlign.LEFT, dont_extend_height=True),
-    Window(FormattedTextControl(text=task['description'], focusable=True, key_bindings=key_bindings, show_cursor=True), width=desc_width, align=WindowAlign.LEFT, wrap_lines=True, dont_extend_height=True),
-    Window(FormattedTextControl(text='scheduled' in task and task['scheduled'].strftime('%x') or ''), width=10, align=WindowAlign.LEFT, dont_extend_height=True),
+    Window(FormattedTextControl(text=str(task['id'])), width=4, align=WindowAlign.LEFT),
+    Window(FormattedTextControl(text=task['description'], focusable=True, key_bindings=key_bindings, show_cursor=True), width=desc_width, align=WindowAlign.LEFT, wrap_lines=True),
+    Window(FormattedTextControl(text=task_date(task, 'scheduled')), width=10, align=WindowAlign.LEFT),
   ], padding=Dimension(preferred=2))
 
 def build_task_list(tasks):
-  width = get_app_width()
-  desc_width = get_app_width() - 6
   task_list = [
-      VSplit([
-        Window(FormattedTextControl(text='ID', style='fg:ansiblack'), width=4, align=WindowAlign.LEFT, dont_extend_height=True),
-        Window(FormattedTextControl('Description', style='fg:ansiblack'), width=desc_width, align=WindowAlign.LEFT, dont_extend_height=True),
-        Window(FormattedTextControl(text='Starts', style='fg:ansiblack'), width=10, align=WindowAlign.LEFT, dont_extend_height=True),
-      ], padding=Dimension(preferred=2), style='bg:ansigray')
+    header_row(),
   ]
   for task in tasks:
     task_list.append(build_task_row(task))
-  root_container = HSplit(task_list)
+  return HSplit(task_list)
 
+def init_app(tasks):
   layout = Layout(
-      container=root_container,
+      container=build_task_list(tasks),
   )
-
 
   # Key bindings.
   kb = KeyBindings()
-  kb.add('escape')(exit_clicked)
+  kb.add('escape')(exit)
   kb.add('tab')(focus_next)
   kb.add('j')(focus_next)
   kb.add('s-tab')(focus_previous)
   kb.add('k')(focus_previous)
+  kb.add('h')(hot_report)
 
 
   # Styling.
