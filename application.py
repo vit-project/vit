@@ -29,7 +29,7 @@ def edit_task(task_uuid, event):
 def get_app_width():
   return 80
 
-def task_date(task, attr, fmt=''):
+def task_date(task, attr, fmt='%Y-%m-%d'):
   try:
     return task[attr].strftime(fmt)
   except AttributeError:
