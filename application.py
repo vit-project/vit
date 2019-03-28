@@ -38,6 +38,7 @@ pp = pprint.PrettyPrinter()
 pf = pprint.PrettyPrinter(stream=open("/tmp/test",'w'))
 
 PALETTE = [
+    ('list-header', 'black', 'white'),
     ('reveal focus', 'black', 'dark cyan', 'standout'),
 ]
 
@@ -184,15 +185,18 @@ def init_app(reports, report):
 
     #titles=self._model.active_report()['labels'],
     contents = []
-    #contents.append(SelectableRow([
-    #    (6, "ID"),
-    #    (60, "Description"),
-    #    (10, "Starts"),
-    #]))
     for task in model.tasks:
         contents.append(SelectableRow(TaskRow(task), on_select=on_select))
 
-    header = urwid.Text('Welcome to PYT')
+    list_header = urwid.Columns([
+        (6, urwid.Text("ID", align='left')),
+        (60, urwid.Text("Description", align='left')),
+        (10, urwid.Text("Starts", align='left')),
+    ])
+    header = urwid.Pile([
+        urwid.Text('Welcome to PYT'),
+        urwid.AttrMap(list_header, 'list-header'),
+    ])
     footer = urwid.Text('Status: ready')
 
     listbox = urwid.ListBox(urwid.SimpleFocusListWalker(contents))
