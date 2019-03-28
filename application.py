@@ -49,6 +49,39 @@ clear_screen_seq = curses.tigetstr('clear') or b''
 def clear_screen():
     os.write(sys.stdout.fileno(), e3_seq + clear_screen_seq)
 
+class TaskListBox(urwid.ListBox):
+    """Maps task list shortcuts to default ListBox class.
+    """
+    def keypress(self, size, key):
+        """Overrides ListBox.keypress method.
+        """
+        if key in ['j', ' ']:
+            self.keypress(size, 'down')
+            return True
+        if key in ['ctrl f']:
+            self.keypress(size, 'page down')
+            return True
+        if key in ['k']:
+            self.keypress(size, 'up')
+            return True
+        if key in ['ctrl b']:
+            self.keypress(size, 'page up')
+            return True
+        # TODO: Can make 'g' 'gg'?
+        if key in ['g', '0']:
+            self.set_focus(0)
+            return True
+        if key in ['G']:
+            self.set_focus(len(self.body) - 1)
+            self.set_focus_valign('bottom')
+            return True
+        # TODO: This is wrong, should go to middle line on screen.
+        if key in ['M']:
+            self.set_focus(self.focus_position)
+            self.set_focus_valign('middle')
+            return True
+        return super().keypress(size, key)
+
 class TaskRow():
     def __init__(self, task):
         self.task = task
@@ -199,7 +232,7 @@ def init_app(reports, report):
     ])
     footer = urwid.Text('Status: ready')
 
-    listbox = urwid.ListBox(urwid.SimpleFocusListWalker(contents))
+    listbox = TaskListBox(urwid.SimpleFocusListWalker(contents))
 
     widget = urwid.Frame(
         listbox,
