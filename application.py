@@ -26,6 +26,7 @@ import subprocess
 
 import re
 import urwid
+import curses, sys, os
 
 from functools import partial
 from tasklib import TaskWarrior
@@ -39,6 +40,13 @@ pf = pprint.PrettyPrinter(stream=open("/tmp/test",'w'))
 PALETTE = [
     ('reveal focus', 'black', 'dark cyan', 'standout'),
 ]
+
+curses.setupterm()
+e3_seq = curses.tigetstr('E3') or b''
+clear_screen_seq = curses.tigetstr('clear') or b''
+
+def clear_screen():
+    os.write(sys.stdout.fileno(), e3_seq + clear_screen_seq)
 
 class SelectableRow(urwid.WidgetWrap):
     """Wraps 'urwid.Columns' to make it selectable.
@@ -139,13 +147,19 @@ def init_app(reports, report):
             raise urwid.ExitMainLoop()
         elif key == 'e':
             loop.stop()
-            subprocess.call(["clear"])
+            clear_screen()
             subprocess.call(["task", "1", "edit"])
+            clear_screen()
             loop.start()
         elif key == 'enter':
             loop.stop()
-            subprocess.call(["clear"])
+            clear_screen()
             subprocess.call(["task", "1", "info"])
+            try:
+                input("Press Enter to continue...")
+            except:
+                raw_input("Press Enter to continue...")
+            clear_screen()
             loop.start()
 
     tasks = TaskModel(reports, report)
