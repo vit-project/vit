@@ -29,8 +29,9 @@ import urwid
 import curses, sys, os
 
 from functools import partial
-from tasklib import TaskWarrior
-tw = TaskWarrior()
+
+from util import clear_screen
+from task import TaskCommand, TaskModel
 
 import pprint
 
@@ -41,13 +42,6 @@ PALETTE = [
     ('list-header', 'black', 'white'),
     ('reveal focus', 'black', 'dark cyan', 'standout'),
 ]
-
-curses.setupterm()
-e3_seq = curses.tigetstr('E3') or b''
-clear_screen_seq = curses.tigetstr('clear') or b''
-
-def clear_screen():
-    os.write(sys.stdout.fileno(), e3_seq + clear_screen_seq)
 
 class TaskListBox(urwid.ListBox):
     """Maps task list shortcuts to default ListBox class.
@@ -148,52 +142,9 @@ def task_date(task, attr, fmt='%Y-%m-%d'):
   except AttributeError:
     return ''
 
-class TaskModel(object):
-    def __init__(self, reports, report=None):
+def init_app(task_config, reports, report):
 
-        self.current_task_id = None
-        self.reports = reports
-        self.report = report
-        if report:
-            self.update_report(report)
-
-    def add(self, contact):
-        pass
-
-    def active_report(self):
-        return self.reports[self.report]
-
-    def update_report(self, report):
-        self.report = report
-        tasks = tw.tasks.filter(*self.active_report()['filter'])
-        self.tasks = tasks
-
-#    def get_summary(self, report=None):
-#        report = report or self.report
-#        self.update_report(report)
-#        summary = []
-#        for task in self.tasks:
-#            summary.append(self.build_task_row(task))
-#        return summary
-#
-#    def _reload_list(self, new_value=None):
-#        self._list_view.options = self._model.get_summary()
-#        self._list_view.value = new_value
-
-def user_output(command_args, confirm="Press Enter to continue...", clear=True):
-    if clear:
-        clear_screen()
-    output = subprocess.check_output(command_args)
-    print(output.decode("utf-8"))
-    if confirm:
-        try:
-            input(confirm)
-        except:
-            raw_input(confirm)
-    if clear:
-        clear_screen()
-
-def init_app(reports, report):
+    command = TaskCommand()
 
     def key_pressed(key):
         if key in ('q', 'Q', 'esc'):
@@ -209,12 +160,12 @@ def init_app(reports, report):
             key = None
         elif key == 'enter':
             loop.stop()
-            user_output(["task", row.uuid, "info"])
+            command.result(["task", row.uuid, "info"])
             loop.start()
             key = None
         return key
 
-    model = TaskModel(reports, report)
+    model = TaskModel(task_config, reports, report)
 
     #titles=self._model.active_report()['labels'],
     contents = []

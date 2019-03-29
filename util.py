@@ -1,0 +1,18 @@
+import os
+import sys
+import curses
+
+import version
+
+curses.setupterm()
+e3_seq = curses.tigetstr('E3') or b''
+clear_screen_seq = curses.tigetstr('clear') or b''
+
+def clear_screen():
+    os.write(sys.stdout.fileno(), e3_seq + clear_screen_seq)
+
+def is_string(obj):
+    if version.PY3:
+        return isinstance(obj, str)
+    else:
+        return isinstance(obj, basestring)

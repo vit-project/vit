@@ -3,7 +3,7 @@ import re
 
 def generate_all(task_config):
   reports = {}
-  subtree = config_parser.subtree(task_config, r'^report\.')
+  subtree = task_config.subtree(r'^report\.')
   for report, attrs in list(subtree['report'].items()):
     reports[report] = {}
     if 'columns' in attrs:

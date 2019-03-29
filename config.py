@@ -1,0 +1,1 @@
+TASKRC = '~/.taskdebugrc'
