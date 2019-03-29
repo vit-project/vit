@@ -1,7 +1,11 @@
 import os
 import re
+import shlex
 
 from task import TaskCommand
+
+SORT_ORDER_CHARACTERS = ['+', '-']
+SORT_COLLATE_CHARACTERS = ['/']
 
 class Parser(object):
     def __init__(self):
@@ -43,6 +47,24 @@ class Parser(object):
       else:
         return full_tree
 
+    def parse_sort_column(self, column_string):
+        order = collate = None
+        parts = list(column_string)
+        while True:
+            if len(parts):
+                letter = parts.pop()
+                if letter in SORT_ORDER_CHARACTERS:
+                    order = letter == '+' and 'ascending' or 'descending'
+                elif letter in SORT_COLLATE_CHARACTERS:
+                    collate = True
+                else:
+                    parts.append(letter)
+                    break
+            else:
+                break
+        column = ''.join(parts)
+        return (column, order, collate)
+
     def reports(self):
       reports = {}
       subtree = self.subtree(r'^report\.')
@@ -54,9 +76,11 @@ class Parser(object):
           reports[report]['description'] = attrs['description']
         if 'filter' in attrs:
           # Allows quoted strings.
-          reports[report]['filter'] = [p for p in re.split("( |\\\".*?\\\"|'.*?')", attrs['filter']) if p.strip()]
+          filters = shlex.split(attrs['filter'])
+          reports[report]['filter'] = [f for f in filters]
         if 'labels' in attrs:
           reports[report]['labels'] = attrs['labels'].split(',')
         if 'sort' in attrs:
-          reports[report]['sort'] = attrs['sort'].split(',')
+          columns = attrs['sort'].split(',')
+          reports[report]['sort'] = [self.parse_sort_column(c) for c in columns]
       return reports
