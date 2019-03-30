@@ -32,8 +32,8 @@ class Application():
             clear_screen()
             subprocess.run(["task", row.uuid, "edit"])
             clear_screen()
-            self.loop.start()
             self.update_report()
+            self.loop.start()
             key = None
         elif key == 'enter':
             self.loop.stop()
@@ -53,6 +53,10 @@ class Application():
         self.footer = urwid.Text('Status: ready')
 
     def update_report(self, report=None):
+        self.build_main_widget(report)
+        self.loop.widget = self.widget
+
+    def build_main_widget(self, report=None):
         if report:
             self.report = report
         self.build_report()
@@ -63,6 +67,6 @@ class Application():
         )
 
     def run(self, report):
-        self.update_report(report)
+        self.build_main_widget(report)
         self.loop = urwid.MainLoop(self.widget, PALETTE, unhandled_input=self.key_pressed)
         self.loop.run()
