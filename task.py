@@ -46,7 +46,7 @@ class TaskCommand(object):
         if clear:
             clear_screen()
 
-class TaskModel(object):
+class TaskListModel(object):
     def __init__(self, task_config, reports, report=None, data_location=None):
 
         if not data_location:
