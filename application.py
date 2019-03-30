@@ -30,7 +30,12 @@ class Application():
         if key == 'e':
             self.loop.stop()
             clear_screen()
-            subprocess.run(["task", row.uuid, "edit"])
+            proc = subprocess.Popen(
+                ["task", row.uuid, "edit"],
+                env=self.command.env,
+            )
+            # TODO: How to get output from TaskWarrior from this command?
+            stdout, stderr = proc.communicate()
             clear_screen()
             self.update_report()
             self.loop.start()
