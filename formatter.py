@@ -13,22 +13,19 @@ class Formatter(object):
 
 class Number(Formatter):
     def format(self, number):
-        return str(number)
+        return str(number) if number else ''
 
 class String(Formatter):
     def format(self, string):
-        return string
+        return string if string else ''
 
 class DateTime(Formatter):
     def format(self, datetime):
-        return datetime.strftime('%Y-%m-%d') if datetime else None
+        return datetime.strftime('%Y-%m-%d') if datetime else ''
 
 class List(Formatter):
     def format(self, obj):
-        if obj:
-            return ','.join(obj)
-        else:
-            return ''
+        return ','.join(obj) if obj else ''
 
 class Id(Number):
     pass
