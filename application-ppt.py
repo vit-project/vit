@@ -11,10 +11,6 @@ from prompt_toolkit.styles import Style
 from functools import partial
 from tasklib import TaskWarrior
 
-import pprint
-
-pp = pprint.PrettyPrinter()
-
 application = None
 
 def exit(event):

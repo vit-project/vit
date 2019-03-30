@@ -1,42 +1,12 @@
 #!/usr/bin/env python
-#
-# Urwid example lazy directory browser / tree view
-#    Copyright (C) 2004-2011  Ian Ward
-#    Copyright (C) 2010  Kirk McDonald
-#    Copyright (C) 2010  Rob Lanphier
-#
-#    This library is free software; you can redistribute it and/or
-#    modify it under the terms of the GNU Lesser General Public
-#    License as published by the Free Software Foundation; either
-#    version 2.1 of the License, or (at your option) any later version.
-#
-#    This library is distributed in the hope that it will be useful,
-#    but WITHOUT ANY WARRANTY; without even the implied warranty of
-#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-#    Lesser General Public License for more details.
-#
-#    You should have received a copy of the GNU Lesser General Public
-#    License along with this library; if not, write to the Free Software
-#    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
-#
-# Urwid web site: http://excess.org/urwid/
 
-from __future__ import print_function
 import subprocess
 
-import re
 import urwid
-import curses, sys, os
-
-from functools import partial
 
 from util import clear_screen
 from task import TaskCommand, TaskModel
-
-import pprint
-
-pp = pprint.PrettyPrinter()
-pf = pprint.PrettyPrinter(stream=open("/tmp/test",'w'))
+from report import TaskTable
 
 PALETTE = [
     ('list-header', 'black', 'white'),
@@ -76,34 +46,18 @@ class TaskListBox(urwid.ListBox):
             return True
         return super().keypress(size, key)
 
-class TaskRow():
-    def __init__(self, task):
-        self.task = task
-        self.uuid = self.task['uuid']
-        self.columns = self.build_columns()
-
-    def build_columns(self):
-        width = get_app_width()
-        desc_width = get_app_width() - 6
-        columns = [
-          (6, str(self.task['id'])),
-          (60, self.task['description']),
-          (10, task_date(self.task, 'scheduled')),
-        ]
-        return columns
-
 
 class SelectableRow(urwid.WidgetWrap):
     """Wraps 'urwid.Columns' to make it selectable.
     This class has been slightly modified, but essentially corresponds to this class posted on stackoverflow.com:
     https://stackoverflow.com/questions/52106244/how-do-you-combine-multiple-tui-forms-to-write-more-complex-applications#answer-52174629"""
 
-    def __init__(self, task_row, *, align="left", on_select=None, space_between=2):
+    def __init__(self, columns, row, *, align="left", on_select=None, space_between=2):
         # A list-like object, where each element represents the value of a column.
-        self.task = task_row.task
-        self.uuid = task_row.uuid
+        self.task = row.task
+        self.uuid = row.uuid
 
-        self._columns = urwid.Columns([(w, urwid.Text(c, align=align)) for (w, c) in task_row.columns],
+        self._columns = urwid.Columns([(metadata['width'], urwid.Text(row.data[column], align=align)) for column, metadata in list(columns.items())],
                                        dividechars=space_between)
         self._focusable_columns = urwid.AttrMap(self._columns, '', 'reveal focus')
 
@@ -133,15 +87,6 @@ class SelectableRow(urwid.WidgetWrap):
         for t, (w, _) in zip(contents, self._columns.contents):
             w.set_text(t)
 
-def get_app_width():
-  return 80
-
-def task_date(task, attr, fmt='%Y-%m-%d'):
-  try:
-    return task[attr].strftime(fmt)
-  except AttributeError:
-    return ''
-
 def init_app(task_config, reports, report):
 
     command = TaskCommand()
@@ -166,17 +111,11 @@ def init_app(task_config, reports, report):
         return key
 
     model = TaskModel(task_config, reports, report)
+    table = TaskTable(task_config, reports[report], model.tasks)
 
-    #titles=self._model.active_report()['labels'],
-    contents = []
-    for task in model.tasks:
-        contents.append(SelectableRow(TaskRow(task), on_select=on_select))
+    contents = [SelectableRow(table.columns, task, on_select=on_select) for task in table.rows]
 
-    list_header = urwid.Columns([
-        (6, urwid.Text("ID", align='left')),
-        (60, urwid.Text("Description", align='left')),
-        (10, urwid.Text("Starts", align='left')),
-    ])
+    list_header = urwid.Columns([(metadata['width'] + 2, urwid.Text(metadata['label'], align='left')) for column, metadata in list(table.columns.items())])
     header = urwid.Pile([
         urwid.Text('Welcome to PYT'),
         urwid.AttrMap(list_header, 'list-header'),

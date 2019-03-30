@@ -55,6 +55,7 @@ class TaskModel(object):
         self.tw = TaskWarrior(self.data_location)
         self.reports = reports
         self.report = report
+        self.tasks = []
         if report:
             self.update_report(report)
 

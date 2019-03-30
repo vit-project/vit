@@ -9,11 +9,6 @@ from functools import partial
 from tasklib import TaskWarrior
 tw = TaskWarrior()
 
-import pprint
-
-pp = pprint.PrettyPrinter()
-pf = pprint.PrettyPrinter(stream=open("/tmp/test",'w'))
-
 def get_app_width():
   return 80
 
