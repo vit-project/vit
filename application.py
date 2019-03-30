@@ -13,42 +13,56 @@ PALETTE = [
     ('reveal focus', 'black', 'dark cyan', 'standout'),
 ]
 
-def init_app(task_config, reports, report):
+class Application():
+    def __init__(self, task_config, reports, report):
 
-    command = TaskCommand()
+        self.config = task_config
+        self.reports = reports
+        self.report = report
+        self.command = TaskCommand()
+        self.run(self.report)
 
-    def key_pressed(key):
+    def key_pressed(self, key):
         if key in ('q', 'Q', 'esc'):
             raise urwid.ExitMainLoop()
 
-    def on_select(row, size, key):
+    def on_select(self, row, size, key):
         if key == 'e':
-            loop.stop()
+            self.loop.stop()
             clear_screen()
             subprocess.run(["task", row.uuid, "edit"])
             clear_screen()
-            loop.start()
+            self.loop.start()
+            self.update_report()
             key = None
         elif key == 'enter':
-            loop.stop()
-            command.result(["task", row.uuid, "info"])
-            loop.start()
+            self.loop.stop()
+            self.command.result(["task", row.uuid, "info"])
+            self.loop.start()
             key = None
         return key
 
-    model = TaskListModel(task_config, reports, report)
-    table = TaskTable(task_config, reports[report], model.tasks, on_select=on_select)
+    def build_report(self):
+        self.model = TaskListModel(self.config, self.reports, self.report)
+        self.table = TaskTable(self.config, self.reports[self.report], self.model.tasks, on_select=self.on_select)
 
-    header = urwid.Pile([
-        urwid.Text('Welcome to PYT'),
-        table.header,
-    ])
-    footer = urwid.Text('Status: ready')
+        self.header = urwid.Pile([
+            urwid.Text('Welcome to PYT'),
+            self.table.header,
+        ])
+        self.footer = urwid.Text('Status: ready')
 
-    widget = urwid.Frame(
-        table.listbox,
-        header=header,
-        footer=footer,
-    )
-    loop = urwid.MainLoop(widget, PALETTE, unhandled_input=key_pressed)
-    loop.run()
+    def update_report(self, report=None):
+        if report:
+            self.report = report
+        self.build_report()
+        self.widget = urwid.Frame(
+            self.table.listbox,
+            header=self.header,
+            footer=self.footer,
+        )
+
+    def run(self, report):
+        self.update_report(report)
+        self.loop = urwid.MainLoop(self.widget, PALETTE, unhandled_input=self.key_pressed)
+        self.loop.run()
