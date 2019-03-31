@@ -1,6 +1,7 @@
 import os
 import sys
 import curses
+import shlex
 
 import version
 
@@ -16,3 +17,6 @@ def is_string(obj):
         return isinstance(obj, str)
     else:
         return isinstance(obj, basestring)
+
+def string_to_args(string):
+    return shlex.split(string)
