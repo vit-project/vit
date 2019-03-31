@@ -41,6 +41,8 @@ class Application():
     def key_pressed(self, key):
         if key in ('q', 'Q', 'esc'):
             raise urwid.ExitMainLoop()
+        if key in ('u'):
+            self.execute_command(['task', 'undo'])
 
     def on_select(self, row, size, key):
         if key == 'a':
