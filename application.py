@@ -29,14 +29,7 @@ class Application():
     def on_select(self, row, size, key):
         if key == 'e':
             self.loop.stop()
-            clear_screen()
-            proc = subprocess.Popen(
-                ["task", row.uuid, "edit"],
-                env=self.command.env,
-            )
-            # TODO: How to get output from TaskWarrior from this command?
-            stdout, stderr = proc.communicate()
-            clear_screen()
+            self.command.result(["task", row.uuid, "edit"])
             self.update_report()
             self.loop.start()
             key = None

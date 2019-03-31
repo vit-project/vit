@@ -11,7 +11,7 @@ class Parser(object):
     def __init__(self):
         self.config = []
         self.command = TaskCommand()
-        returncode, stdout, stderr = self.command.run('task _show')
+        returncode, stdout, stderr = self.command.run('task _show', capture_output=True)
         if returncode == 0:
             lines = list(filter(lambda x: True if x else False, stdout.split("\n")))
             for line in lines:

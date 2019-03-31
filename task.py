@@ -19,25 +19,29 @@ class TaskCommand(object):
         self.env = env.user
         self.env['TASKRC'] = self.taskrc_path
 
-    def run(self, command):
+    def run(self, command, capture_output=False):
         if is_string(command):
             command = shlex.split(command)
-        proc = subprocess.Popen(
-            command,
-            stdout=subprocess.PIPE,
-            stderr=subprocess.PIPE,
-            universal_newlines=True,
-            env=self.env,
-        )
+        kwargs = {
+            'env': self.env,
+        }
+        if capture_output:
+            kwargs.update({
+                'stdout': subprocess.PIPE,
+                'stderr': subprocess.PIPE,
+                'universal_newlines': True,
+            })
+        proc = subprocess.Popen(command, **kwargs)
         stdout, stderr = proc.communicate()
         return proc.returncode, stdout, stderr
 
-    def result(self, command, confirm=DEFAULT_CONFIRM, clear=True):
+    def result(self, command, confirm=DEFAULT_CONFIRM, capture_output=False, print_output=False, clear=True):
         if clear:
             clear_screen()
-        returncode, stdout, stderr = self.run(command)
+        returncode, stdout, stderr = self.run(command, capture_output)
         output = returncode == 0 and stdout or stderr
-        print(output)
+        if print_output:
+            print(output)
         if confirm:
             try:
                 input(confirm)
@@ -45,6 +49,7 @@ class TaskCommand(object):
                 raw_input(confirm)
         if clear:
             clear_screen()
+        return output
 
 class TaskListModel(object):
     def __init__(self, task_config, reports, report=None, data_location=None):
