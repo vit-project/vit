@@ -27,7 +27,10 @@ class Application():
         self.run(self.report)
 
     def command_bar_keypress(self, data):
-        if data['key'] in ('enter'):
+        if 'choice' in data['metadata']:
+            if data['metadata']['op'] == 'quit' and data['choice']:
+                self.quit()
+        elif data['key'] in ('enter'):
             args = string_to_args(data['text'])
             metadata = data['metadata']
             if metadata['op'] == 'ex':
@@ -62,6 +65,10 @@ class Application():
             return None
         if key in ('=', 'enter'):
             self.execute_command(['task', row.uuid, 'info'], update_report=False)
+            return None
+        if key in ('q'):
+            self.footer.set_metadata({'op': 'quit', 'choice': True, 'choices': {'y': True}})
+            self.set_command_prompt('Quit?')
             return None
         if key in (':'):
             self.footer.set_metadata({'op': 'ex'})
