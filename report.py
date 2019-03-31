@@ -122,30 +122,30 @@ class TaskListBox(urwid.ListBox):
     def keypress(self, size, key):
         """Overrides ListBox.keypress method.
         """
-        if key in ['j', ' ']:
+        if key in ('j', ' '):
             self.keypress(size, 'down')
-            return True
-        if key in ['ctrl f']:
+            return None
+        if key in ('ctrl f'):
             self.keypress(size, 'page down')
-            return True
-        if key in ['k']:
+            return None
+        if key in ('k'):
             self.keypress(size, 'up')
-            return True
-        if key in ['ctrl b']:
+            return None
+        if key in ('ctrl b'):
             self.keypress(size, 'page up')
-            return True
+            return None
         # TODO: Can make 'g' 'gg'?
-        if key in ['g', '0']:
+        if key in ('g', '0'):
             self.set_focus(0)
-            return True
-        if key in ['G']:
+            return None
+        if key in ('G'):
             self.set_focus(len(self.body) - 1)
             self.set_focus_valign('bottom')
-            return True
+            return None
         # TODO: This is wrong, should go to middle line on screen.
-        if key in ['M']:
+        if key in ('M'):
             self.set_focus(self.focus_position)
             self.set_focus_valign('middle')
-            return True
+            return None
         return super().keypress(size, key)
 
