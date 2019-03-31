@@ -45,21 +45,21 @@ class Application():
             self.execute_command(['task', 'undo'])
 
     def on_select(self, row, size, key):
-        if key == 'a':
+        if key in ('a'):
             self.footer.set_metadata({'op': 'add'})
             self.set_command_prompt('Add: ')
-            key = None
-        if key == 'm':
+            return None
+        if key in ('m'):
             if self.widget.focus_position == 'body':
                 self.footer.set_metadata({'op': 'modify', 'uuid': self.widget.body.focus.uuid})
                 self.set_command_prompt('Modify: ')
-            key = None
-        if key == 'e':
+            return None
+        if key in ('e'):
             self.execute_command(['task', row.uuid, 'edit'])
-            key = None
-        elif key == 'enter':
+            return None
+        elif key in ('enter'):
             self.execute_command(['task', row.uuid, 'info'], update_report=False)
-            key = None
+            return None
         return key
 
     def build_report(self):
