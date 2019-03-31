@@ -30,6 +30,8 @@ class Application():
         if data['key'] in ('enter'):
             args = string_to_args(data['text'])
             metadata = data['metadata']
+            if metadata['op'] == 'ex':
+                self.ex(data['text'], data['metadata'])
             if metadata['op'] == 'add':
                 self.execute_command(['task', 'add'] + args)
             if metadata['op'] == 'modify':
@@ -39,8 +41,9 @@ class Application():
         self.widget.focus_position = 'body'
 
     def key_pressed(self, key):
-        if key in ('q', 'Q', 'esc'):
-            raise urwid.ExitMainLoop()
+        # TODO: Should be 'ZZ'.
+        if key in ('Q', 'Z'):
+            self.quit()
         if key in ('u'):
             self.execute_command(['task', 'undo'])
 
@@ -57,10 +60,23 @@ class Application():
         if key in ('e'):
             self.execute_command(['task', row.uuid, 'edit'])
             return None
-        elif key in ('enter'):
+        if key in ('=', 'enter'):
             self.execute_command(['task', row.uuid, 'info'], update_report=False)
             return None
+        if key in (':'):
+            self.footer.set_metadata({'op': 'ex'})
+            self.set_command_prompt(':')
+            return None
         return key
+
+    def ex(self, text, metadata):
+        args = string_to_args(text)
+        if len(args):
+            if args[0] in ('q'):
+                self.quit()
+
+    def quit(self):
+        raise urwid.ExitMainLoop()
 
     def build_report(self):
         self.model = TaskListModel(self.config, self.reports, self.report)
