@@ -2,12 +2,11 @@ from __future__ import print_function
 
 import os
 import subprocess
-import shlex
 from tasklib import TaskWarrior
 
 import env
 import config
-from util import clear_screen, is_string
+from util import clear_screen, is_string, string_to_args
 
 DEFAULT_TASKRC = '~/.taskrc'
 DEFAULT_CONFIRM = 'Press Enter to continue...'
@@ -21,7 +20,7 @@ class TaskCommand(object):
 
     def run(self, command, capture_output=False):
         if is_string(command):
-            command = shlex.split(command)
+            command = string_to_args(command)
         kwargs = {
             'env': self.env,
         }
