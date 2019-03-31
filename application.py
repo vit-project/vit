@@ -28,8 +28,14 @@ class Application():
 
     def command_bar_keypress(self, data):
         if data['key'] in ('enter'):
-            args = string_to_args(data['data'])
-            self.execute_command(['task', 'add'] + args)
+            args = string_to_args(data['text'])
+            metadata = data['metadata']
+            if metadata['op'] == 'add':
+                self.execute_command(['task', 'add'] + args)
+            if metadata['op'] == 'modify':
+                # TODO: Will this break if user clicks another list item
+                # before hitting enter?
+                self.execute_command(['task', metadata['uuid'], 'modify'] + args)
         self.widget.focus_position = 'body'
 
     def key_pressed(self, key):
@@ -38,7 +44,14 @@ class Application():
 
     def on_select(self, row, size, key):
         if key == 'a':
+            self.footer.set_metadata({'op': 'add'})
             self.set_command_prompt('Add: ')
+            key = None
+        if key == 'm':
+            if self.widget.focus_position == 'body':
+                self.footer.set_metadata({'op': 'modify', 'uuid': self.widget.body.focus.uuid})
+                self.set_command_prompt('Modify: ')
+            key = None
         if key == 'e':
             self.execute_command(['task', row.uuid, 'edit'])
             key = None
