@@ -4,9 +4,11 @@ import subprocess
 
 import urwid
 
-from util import clear_screen
+from util import clear_screen, string_to_args
 from task import TaskCommand, TaskListModel
 from report import TaskTable, SelectableRow, TaskListBox
+import event
+from command_bar import CommandBar
 
 PALETTE = [
     ('list-header', 'black', 'white'),
@@ -20,23 +22,28 @@ class Application():
         self.reports = reports
         self.report = report
         self.command = TaskCommand()
+        self.event = event.Emitter()
+        self.event.listen('command-bar:keypress', self.command_bar_keypress)
         self.run(self.report)
+
+    def command_bar_keypress(self, data):
+        if data['key'] in ('enter'):
+            args = string_to_args(data['data'])
+            self.execute_command(['task', 'add'] + args)
+        self.widget.focus_position = 'body'
 
     def key_pressed(self, key):
         if key in ('q', 'Q', 'esc'):
             raise urwid.ExitMainLoop()
 
     def on_select(self, row, size, key):
+        if key == 'a':
+            self.set_command_prompt('Add: ')
         if key == 'e':
-            self.loop.stop()
-            self.command.result(["task", row.uuid, "edit"])
-            self.update_report()
-            self.loop.start()
+            self.execute_command(['task', row.uuid, 'edit'])
             key = None
         elif key == 'enter':
-            self.loop.stop()
-            self.command.result(["task", row.uuid, "info"])
-            self.loop.start()
+            self.execute_command(['task', row.uuid, 'info'], update_report=False)
             key = None
         return key
 
@@ -48,7 +55,18 @@ class Application():
             urwid.Text('Welcome to PYT'),
             self.table.header,
         ])
-        self.footer = urwid.Text('Status: ready')
+        self.footer = CommandBar(event=self.event)
+
+    def execute_command(self, args, update_report=True):
+        self.loop.stop()
+        self.command.result(args)
+        if update_report:
+            self.update_report()
+        self.loop.start()
+
+    def set_command_prompt(self, string):
+        self.footer.set_caption(string)
+        self.widget.focus_position = 'footer'
 
     def update_report(self, report=None):
         self.build_main_widget(report)
