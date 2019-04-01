@@ -84,7 +84,7 @@ class Application():
             command = args.pop(0)
             if command in ('q'):
                 self.quit()
-            elif command in ('!', '!r', '!w', '!rw'):
+            elif command in ('!', '!r', '!w', '!rw', '!wr'):
                 kwargs = {}
                 if command in ('!', '!w'):
                     kwargs['update_report'] = False
