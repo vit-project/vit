@@ -5,7 +5,8 @@ import subprocess
 import urwid
 
 from util import clear_screen, string_to_args
-from task import TaskCommand, TaskListModel
+from process import Command
+from task import TaskListModel
 from report import TaskTable, SelectableRow, TaskListBox
 import event
 from command_bar import CommandBar
@@ -21,7 +22,7 @@ class Application():
         self.config = task_config
         self.reports = reports
         self.report = report
-        self.command = TaskCommand()
+        self.command = Command()
         self.event = event.Emitter()
         self.event.listen('command-bar:keypress', self.command_bar_keypress)
         self.run(self.report)

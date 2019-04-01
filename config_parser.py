@@ -2,7 +2,7 @@ import os
 import re
 import shlex
 
-from task import TaskCommand
+from process import Command
 
 SORT_ORDER_CHARACTERS = ['+', '-']
 SORT_COLLATE_CHARACTERS = ['/']
@@ -10,7 +10,7 @@ SORT_COLLATE_CHARACTERS = ['/']
 class Parser(object):
     def __init__(self):
         self.config = []
-        self.command = TaskCommand()
+        self.command = Command()
         returncode, stdout, stderr = self.command.run('task _show', capture_output=True)
         if returncode == 0:
             lines = list(filter(lambda x: True if x else False, stdout.split("\n")))
