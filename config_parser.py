@@ -11,7 +11,7 @@ from process import Command
 
 SORT_ORDER_CHARACTERS = ['+', '-']
 SORT_COLLATE_CHARACTERS = ['/']
-DEFAULT_VITRC = '~/.vit/vit.conf'
+DEFAULT_VIT_CONFIG = '~/.vit/vit.conf'
 
 CONFIG_DEFAULTS = {
     "taskrc": "~/.taskrc",
@@ -21,7 +21,7 @@ CONFIG_DEFAULTS = {
 class ConfigParser(object):
     def __init__(self):
         self.config = configparser.SafeConfigParser(CONFIG_DEFAULTS)
-        self.config.read(os.path.expanduser('VITRC' in env.user and env.user['VITRC'] or DEFAULT_VITRC))
+        self.config.read(os.path.expanduser('VIT_CONFIG' in env.user and env.user['VIT_CONFIG'] or DEFAULT_VIT_CONFIG))
 
 class TaskParser(object):
     def __init__(self, config):
