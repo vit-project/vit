@@ -3,17 +3,17 @@
 import sys
 
 import config
-from config_parser import Parser
+from config_parser import ConfigParser, TaskParser
 from application import Application
 from tasklib import TaskWarrior
 
-default_report = sys.argv[1] if len(sys.argv) > 1 else config.default_report
-
 def main():
-  task_config = Parser()
+  config = ConfigParser().config
+  task_config = TaskParser(config)
   reports = task_config.reports()
+  default_report = sys.argv[1] if len(sys.argv) > 1 else config.get('report', 'default_report')
 
-  Application(task_config, reports, default_report)
+  Application(config, task_config, reports, default_report)
 
 if __name__ == '__main__':
   main()

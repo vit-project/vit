@@ -1,28 +1,45 @@
 import os
 import re
 import shlex
+try:
+    import configparser
+except ImportError:
+    import ConfigParser as configparser
 
+import env
 from process import Command
 
 SORT_ORDER_CHARACTERS = ['+', '-']
 SORT_COLLATE_CHARACTERS = ['/']
+DEFAULT_VITRC = '~/.vit/vit.conf'
 
-class Parser(object):
+CONFIG_DEFAULTS = {
+    "taskrc": "~/.taskrc",
+    "default_report": "next",
+}
+
+class ConfigParser(object):
     def __init__(self):
-        self.config = []
-        self.command = Command()
+        self.config = configparser.SafeConfigParser(CONFIG_DEFAULTS)
+        self.config.read(os.path.expanduser('VITRC' in env.user and env.user['VITRC'] or DEFAULT_VITRC))
+
+class TaskParser(object):
+    def __init__(self, config):
+        self.config = config
+        self.task_config = []
+        self.command = Command(self.config)
         returncode, stdout, stderr = self.command.run('task _show', capture_output=True)
         if returncode == 0:
             lines = list(filter(lambda x: True if x else False, stdout.split("\n")))
             for line in lines:
                 hierarchy, values = line.split("=")
-                self.config.append((hierarchy, values))
+                self.task_config.append((hierarchy, values))
         else:
             raise "Error parsing task config: %s" % stderr
 
     def subtree(self, matcher, walk_subtree=False):
       full_tree = {}
-      lines = list(filter(lambda config_pair: re.match(matcher, config_pair[0]), self.config))
+      lines = list(filter(lambda config_pair: re.match(matcher, config_pair[0]), self.task_config))
       for (hierarchy, value) in lines:
         parts = hierarchy.split('.')
         tree_location = full_tree

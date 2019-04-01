@@ -17,12 +17,13 @@ PALETTE = [
 ]
 
 class Application():
-    def __init__(self, task_config, reports, report):
+    def __init__(self, config, task_config, reports, report):
 
-        self.config = task_config
+        self.config = config
+        self.task_config = task_config
         self.reports = reports
         self.report = report
-        self.command = Command()
+        self.command = Command(self.config)
         self.event = event.Emitter()
         self.event.listen('command-bar:keypress', self.command_bar_keypress)
         self.run(self.report)
@@ -100,8 +101,8 @@ class Application():
         raise urwid.ExitMainLoop()
 
     def build_report(self):
-        self.model = TaskListModel(self.config, self.reports, self.report)
-        self.table = TaskTable(self.config, self.reports[self.report], self.model.tasks, on_select=self.on_select)
+        self.model = TaskListModel(self.task_config, self.reports, self.report)
+        self.table = TaskTable(self.task_config, self.reports[self.report], self.model.tasks, on_select=self.on_select)
 
         self.header = urwid.Pile([
             urwid.Text('Welcome to PYT'),

@@ -7,13 +7,13 @@ import env
 import config
 from util import clear_screen, is_string, string_to_args
 
-DEFAULT_TASKRC = '~/.taskrc'
 DEFAULT_CONFIRM = 'Press Enter to continue...'
 
 class Command(object):
 
-    def __init__(self):
-        self.taskrc_path = os.path.expanduser(hasattr(config, 'TASKRC') and config.TASKRC or DEFAULT_TASKRC)
+    def __init__(self, config):
+        self.config = config
+        self.taskrc_path = os.path.expanduser(self.config.get('taskwarrior', 'taskrc'))
         self.env = env.user
         self.env['TASKRC'] = self.taskrc_path
 
