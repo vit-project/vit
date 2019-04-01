@@ -7,7 +7,7 @@ import urwid
 from util import clear_screen, string_to_args
 from process import Command
 from task import TaskListModel
-from report import TaskTable, SelectableRow, TaskListBox
+from task_list import TaskTable, SelectableRow, TaskListBox
 import event
 from command_bar import CommandBar
 
