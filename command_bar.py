@@ -35,6 +35,11 @@ class CommandBar(urwid.Edit):
             return None
         return super().keypress(size, key)
 
+    def set_edit_text(self, text):
+        ret = super().set_edit_text(text)
+        self.set_edit_pos(len(text))
+        return ret
+
     def cleanup(self):
         self.set_caption('')
         self.set_edit_text('')

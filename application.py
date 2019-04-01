@@ -47,8 +47,15 @@ class Application():
         # TODO: Should be 'ZZ'.
         if key in ('Q', 'Z'):
             self.quit()
-        if key in ('u'):
+        elif key in ('u'):
             self.execute_command(['task', 'undo'])
+        elif key in ('q'):
+            self.footer.set_metadata({'op': 'quit', 'choice': True, 'choices': {'y': True}})
+            self.set_command_prompt('Quit?')
+        elif key in ('t', ':'):
+            self.footer.set_metadata({'op': 'ex'})
+            edit_text = '!rw task ' if key in ('t') else None
+            self.set_command_prompt(':', edit_text)
 
     def on_select(self, row, size, key):
         if key in ('a'):
@@ -66,21 +73,27 @@ class Application():
         if key in ('=', 'enter'):
             self.execute_command(['task', row.uuid, 'info'], update_report=False)
             return None
-        if key in ('q'):
-            self.footer.set_metadata({'op': 'quit', 'choice': True, 'choices': {'y': True}})
-            self.set_command_prompt('Quit?')
-            return None
-        if key in (':'):
-            self.footer.set_metadata({'op': 'ex'})
-            self.set_command_prompt(':')
-            return None
+        elif key in ('ctrl l'):
+            self.update_report()
         return key
 
     def ex(self, text, metadata):
         args = string_to_args(text)
         if len(args):
-            if args[0] in ('q'):
+            command = args.pop(0)
+            if command in ('q'):
                 self.quit()
+            elif command in ('!', '!r', '!w', '!rw'):
+                kwargs = {}
+                if command in ('!', '!w'):
+                    kwargs['update_report'] = False
+                if command in ('!', '!r'):
+                    kwargs['confirm'] = None
+                self.execute_command(args, **kwargs)
+            else:
+                # TODO: Display error message.
+                pass
+
 
     def quit(self):
         raise urwid.ExitMainLoop()
@@ -95,15 +108,21 @@ class Application():
         ])
         self.footer = CommandBar(event=self.event)
 
-    def execute_command(self, args, update_report=True):
+    def execute_command(self, args, **kwargs):
+        update_report = True
+        if 'update_report' in kwargs:
+            update_report = kwargs['update_report']
+            kwargs.pop('update_report')
         self.loop.stop()
-        self.command.result(args)
+        self.command.result(args, **kwargs)
         if update_report:
             self.update_report()
         self.loop.start()
 
-    def set_command_prompt(self, string):
-        self.footer.set_caption(string)
+    def set_command_prompt(self, caption, edit_text=None):
+        self.footer.set_caption(caption)
+        if edit_text:
+            self.footer.set_edit_text(edit_text)
         self.widget.focus_position = 'footer'
 
     def update_report(self, report=None):
