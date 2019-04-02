@@ -65,12 +65,14 @@ class Application():
             self.activate_command_bar('add', 'Add: ')
             return None
         if key in ('m'):
-            if self.widget.focus_position == 'body':
-                self.activate_command_bar('modify', 'Modify: ', {'uuid': self.widget.body.focus.uuid})
+            uuid = self.get_focused_task()
+            if uuid:
+                self.activate_command_bar('modify', 'Modify: ', {'uuid': uuid})
             return None
         if key in ('T'):
-            if self.widget.focus_position == 'body':
-                self.activate_command_bar('tag', 'Tag: ', {'uuid': self.widget.body.focus.uuid})
+            uuid = self.get_focused_task()
+            if uuid:
+                self.activate_command_bar('tag', 'Tag: ', {'uuid': uuid})
             return None
         if key in ('e'):
             self.execute_command(['task', row.uuid, 'edit'])
@@ -99,6 +101,13 @@ class Application():
                 # TODO: Display error message.
                 pass
 
+    def get_focused_task(self):
+        if self.widget.focus_position == 'body':
+            try:
+                return self.task_list.focus.uuid
+            except:
+                pass
+        return False
 
     def quit(self):
         raise urwid.ExitMainLoop()
@@ -142,6 +151,7 @@ class Application():
             header=self.header,
             footer=self.footer,
         )
+        self.task_list = self.widget.body
 
     def run(self, report):
         self.build_main_widget(report)
