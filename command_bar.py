@@ -13,7 +13,7 @@ class CommandBar(urwid.Edit):
         """Overrides Edit.keypress method.
         """
         # TODO: Readline edit shortcuts.
-        if 'choice' in self.metadata:
+        if 'choices' in self.metadata:
             data = {
                 'choice': None,
                 'metadata': self.get_metadata(),

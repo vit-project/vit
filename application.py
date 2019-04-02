@@ -29,27 +29,33 @@ class Application():
         self.run(self.report)
 
     def command_bar_keypress(self, data):
-        if 'choice' in data['metadata']:
-            if data['metadata']['op'] == 'quit' and data['choice']:
+        metadata = data['metadata']
+        op = metadata['op']
+        if 'choices' in data['metadata']:
+            choice = data['choice']
+            if op == 'quit' and choice:
                 self.quit()
+            elif op == 'priority' and choice is not None:
+                if self.model.task_priority(metadata['uuid'], choice):
+                    self.update_report()
         elif data['key'] in ('enter'):
             args = string_to_args(data['text'])
-            metadata = data['metadata']
-            if metadata['op'] == 'ex':
+            if op == 'ex':
                 self.ex(data['text'], data['metadata'])
-            if metadata['op'] == 'add':
-                self.execute_command(['task', 'add'] + args)
-            if metadata['op'] == 'modify':
-                # TODO: Will this break if user clicks another list item
-                # before hitting enter?
-                self.execute_command(['task', metadata['uuid'], 'modify'] + args)
-            if metadata['op'] == 'project':
-                # TODO: Validation if more than one arg passed.
-                if len(args) > 0 and self.model.task_project(metadata['uuid'], args[0]):
-                    self.update_report()
-            if metadata['op'] == 'tag':
-                if len(args) > 0 and self.model.task_tags(metadata['uuid'], args):
-                    self.update_report()
+            elif len(args) > 0:
+                if op == 'add':
+                    self.execute_command(['task', 'add'] + args)
+                elif op == 'modify':
+                    # TODO: Will this break if user clicks another list item
+                    # before hitting enter?
+                    self.execute_command(['task', metadata['uuid'], 'modify'] + args)
+                elif op == 'project':
+                    # TODO: Validation if more than one arg passed.
+                    if self.model.task_project(metadata['uuid'], args[0]):
+                        self.update_report()
+                elif op == 'tag':
+                    if self.model.task_tags(metadata['uuid'], args):
+                        self.update_report()
         self.widget.focus_position = 'body'
 
     def key_pressed(self, key):
@@ -59,7 +65,7 @@ class Application():
         elif key in ('u'):
             self.execute_command(['task', 'undo'])
         elif key in ('q'):
-            self.activate_command_bar('quit', 'Quit?', {'choice': True, 'choices': {'y': True}})
+            self.activate_command_bar('quit', 'Quit?', {'choices': {'y': True}})
         elif key in ('t', ':'):
             edit_text = '!rw task ' if key in ('t') else None
             self.activate_command_bar('ex', ':', edit_text=edit_text)
@@ -73,6 +79,16 @@ class Application():
             if uuid:
                 self.activate_command_bar('modify', 'Modify: ', {'uuid': uuid})
             return None
+        if key in ('P'):
+            uuid = self.get_focused_task()
+            if uuid:
+                choices = {
+                    'h': 'H',
+                    'm': 'M',
+                    'l': 'L',
+                    'n': '',
+                }
+                self.activate_command_bar('priority', 'Priority (h/m/l/n): ', {'uuid': uuid, 'choices': choices})
         if key in ('p'):
             uuid = self.get_focused_task()
             if uuid:

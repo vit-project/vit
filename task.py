@@ -32,6 +32,14 @@ class TaskListModel(object):
         except tasklib.task.DoesNotExist:
             return False
 
+    def task_priority(self, uuid, priority):
+        task = self.get_task(uuid)
+        if task:
+            task['priority'] = priority
+            task.save()
+            return True
+        return False
+
     def task_project(self, uuid, project):
         task = self.get_task(uuid)
         if task:
