@@ -122,10 +122,13 @@ class TaskListBox(urwid.ListBox):
     def keypress(self, size, key):
         """Overrides ListBox.keypress method.
         """
-        # NOTE: Looks like the default implementation of ListBox maps this key
-        # to a navigation action, override it.
+        # NOTE: Looks like the default implementation of ListBox maps these
+        # keys to a navigation action, override it.
         if key in ('t'):
             return key
+        if key in ('b'):
+            # TODO: This seems wrong.
+            return self.focus.keypress(size, key) if self.focus else None
         if key in ('j', ' '):
             self.keypress(size, 'down')
             return None

@@ -48,6 +48,20 @@ class TaskListModel(object):
             return True
         return False
 
+    def task_done(self, uuid):
+        task = self.get_task(uuid)
+        if task:
+            task.done()
+            return True
+        return False
+
+    def task_start_stop(self, uuid):
+        task = self.get_task(uuid)
+        if task:
+            task.stop() if task.active else task.start()
+            return True
+        return False
+
     def task_tags(self, uuid, tags):
         task = self.get_task(uuid)
         if task:

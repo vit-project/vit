@@ -35,6 +35,12 @@ class Application():
             choice = data['choice']
             if op == 'quit' and choice:
                 self.quit()
+            elif op == 'done' and choice is not None:
+                if self.model.task_done(metadata['uuid']):
+                    self.update_report()
+            elif op == 'start-stop' and choice is not None:
+                if self.model.task_start_stop(metadata['uuid']):
+                    self.update_report()
             elif op == 'priority' and choice is not None:
                 if self.model.task_priority(metadata['uuid'], choice):
                     self.update_report()
@@ -62,6 +68,8 @@ class Application():
         # TODO: Should be 'ZZ'.
         if key in ('Q', 'Z'):
             self.quit()
+        elif key in ('a'):
+            self.activate_command_bar('add', 'Add: ')
         elif key in ('u'):
             self.execute_command(['task', 'undo'])
         elif key in ('q'):
@@ -71,13 +79,26 @@ class Application():
             self.activate_command_bar('ex', ':', edit_text=edit_text)
 
     def on_select(self, row, size, key):
-        if key in ('a'):
-            self.activate_command_bar('add', 'Add: ')
-            return None
         if key in ('m'):
             uuid = self.get_focused_task()
             if uuid:
                 self.activate_command_bar('modify', 'Modify: ', {'uuid': uuid})
+            return None
+        if key in ('b'):
+            uuid = self.get_focused_task()
+            if uuid:
+                task = self.model.get_task(uuid)
+                if task:
+                    task_id = task['id']
+                    self.activate_command_bar('start-stop', '%s task %s? (y/n): ' % (task.active and 'Stop' or 'Start', task_id), {'uuid': uuid, 'choices': {'y': True}})
+            return None
+        if key in ('d'):
+            uuid = self.get_focused_task()
+            if uuid:
+                task = self.model.get_task(uuid)
+                if task:
+                    task_id = task['id']
+                    self.activate_command_bar('done', 'Mark task %s done? (y/n): ' % task_id, {'uuid': uuid, 'choices': {'y': True}})
             return None
         if key in ('P'):
             uuid = self.get_focused_task()
