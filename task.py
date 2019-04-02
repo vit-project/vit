@@ -32,6 +32,14 @@ class TaskListModel(object):
         except tasklib.task.DoesNotExist:
             return False
 
+    def task_project(self, uuid, project):
+        task = self.get_task(uuid)
+        if task:
+            task['project'] = project
+            task.save()
+            return True
+        return False
+
     def task_tags(self, uuid, tags):
         task = self.get_task(uuid)
         if task:

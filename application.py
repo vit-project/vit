@@ -43,8 +43,12 @@ class Application():
                 # TODO: Will this break if user clicks another list item
                 # before hitting enter?
                 self.execute_command(['task', metadata['uuid'], 'modify'] + args)
+            if metadata['op'] == 'project':
+                # TODO: Validation if more than one arg passed.
+                if len(args) > 0 and self.model.task_project(metadata['uuid'], args[0]):
+                    self.update_report()
             if metadata['op'] == 'tag':
-                if self.model.task_tags(metadata['uuid'], args):
+                if len(args) > 0 and self.model.task_tags(metadata['uuid'], args):
                     self.update_report()
         self.widget.focus_position = 'body'
 
@@ -68,6 +72,11 @@ class Application():
             uuid = self.get_focused_task()
             if uuid:
                 self.activate_command_bar('modify', 'Modify: ', {'uuid': uuid})
+            return None
+        if key in ('p'):
+            uuid = self.get_focused_task()
+            if uuid:
+                self.activate_command_bar('project', 'Project: ', {'uuid': uuid})
             return None
         if key in ('T'):
             uuid = self.get_focused_task()
