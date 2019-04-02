@@ -40,6 +40,15 @@ class CommandBar(urwid.Edit):
         self.set_edit_pos(len(text))
         return ret
 
+    def set_command_prompt(self, caption, edit_text=None):
+        self.set_caption(caption)
+        if edit_text:
+            self.set_edit_text(edit_text)
+
+    def activate(self, caption, metadata, edit_text=None):
+        self.set_metadata(metadata)
+        self.set_command_prompt(caption, edit_text)
+
     def cleanup(self):
         self.set_caption('')
         self.set_edit_text('')

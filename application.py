@@ -43,6 +43,9 @@ class Application():
                 # TODO: Will this break if user clicks another list item
                 # before hitting enter?
                 self.execute_command(['task', metadata['uuid'], 'modify'] + args)
+            if metadata['op'] == 'tag':
+                if self.model.task_tags(metadata['uuid'], args):
+                    self.update_report()
         self.widget.focus_position = 'body'
 
     def key_pressed(self, key):
@@ -52,22 +55,22 @@ class Application():
         elif key in ('u'):
             self.execute_command(['task', 'undo'])
         elif key in ('q'):
-            self.footer.set_metadata({'op': 'quit', 'choice': True, 'choices': {'y': True}})
-            self.set_command_prompt('Quit?')
+            self.activate_command_bar('quit', 'Quit?', {'choice': True, 'choices': {'y': True}})
         elif key in ('t', ':'):
-            self.footer.set_metadata({'op': 'ex'})
             edit_text = '!rw task ' if key in ('t') else None
-            self.set_command_prompt(':', edit_text)
+            self.activate_command_bar('ex', ':', edit_text=edit_text)
 
     def on_select(self, row, size, key):
         if key in ('a'):
-            self.footer.set_metadata({'op': 'add'})
-            self.set_command_prompt('Add: ')
+            self.activate_command_bar('add', 'Add: ')
             return None
         if key in ('m'):
             if self.widget.focus_position == 'body':
-                self.footer.set_metadata({'op': 'modify', 'uuid': self.widget.body.focus.uuid})
-                self.set_command_prompt('Modify: ')
+                self.activate_command_bar('modify', 'Modify: ', {'uuid': self.widget.body.focus.uuid})
+            return None
+        if key in ('T'):
+            if self.widget.focus_position == 'body':
+                self.activate_command_bar('tag', 'Tag: ', {'uuid': self.widget.body.focus.uuid})
             return None
         if key in ('e'):
             self.execute_command(['task', row.uuid, 'edit'])
@@ -121,10 +124,9 @@ class Application():
             self.update_report()
         self.loop.start()
 
-    def set_command_prompt(self, caption, edit_text=None):
-        self.footer.set_caption(caption)
-        if edit_text:
-            self.footer.set_edit_text(edit_text)
+    def activate_command_bar(self, op, caption, metadata={}, edit_text=None):
+        metadata['op'] = op
+        self.footer.activate(caption, metadata, edit_text)
         self.widget.focus_position = 'footer'
 
     def update_report(self, report=None):
