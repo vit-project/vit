@@ -3,7 +3,6 @@ from collections import OrderedDict
 
 import urwid
 import formatter
-from util import is_mouse_event
 
 MAX_COLUMN_WIDTH = 60
 
@@ -105,8 +104,6 @@ class SelectableRow(urwid.WidgetWrap):
         return True
 
     def keypress(self, size, key):
-        if is_mouse_event(key):
-            return key
         if self.on_select:
             key = self.on_select(self, size, key)
         return key
@@ -125,8 +122,6 @@ class TaskListBox(urwid.ListBox):
     def keypress(self, size, key):
         """Overrides ListBox.keypress method.
         """
-        if is_mouse_event(key):
-            return key
         # NOTE: Looks like the default implementation of ListBox maps these
         # keys to a navigation action, override it.
         if key in ('t'):

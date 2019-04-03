@@ -1,5 +1,4 @@
 import urwid
-from util import is_mouse_event
 
 class CommandBar(urwid.Edit):
     """Custom urwid.Edit class for the command bar.
@@ -13,8 +12,6 @@ class CommandBar(urwid.Edit):
     def keypress(self, size, key):
         """Overrides Edit.keypress method.
         """
-        if is_mouse_event(key):
-            return key
         # TODO: Readline edit shortcuts.
         if 'choices' in self.metadata:
             data = {

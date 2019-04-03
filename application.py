@@ -91,8 +91,6 @@ class Application():
             self.activate_command_bar('ex', ':', edit_text=edit_text)
 
     def on_select(self, row, size, key):
-        if is_mouse_event(key):
-            return key
         if key in ('m'):
             uuid = self.get_focused_task()
             if uuid:
