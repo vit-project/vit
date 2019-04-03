@@ -1,6 +1,7 @@
 from __future__ import print_function
 
 import os
+import re
 import subprocess
 
 import env
@@ -31,7 +32,7 @@ class Command(object):
             })
         proc = subprocess.Popen(command, **kwargs)
         stdout, stderr = proc.communicate()
-        return proc.returncode, stdout, stderr
+        return proc.returncode, stdout, self.filter_errors(stderr)
 
     def result(self, command, confirm=DEFAULT_CONFIRM, capture_output=False, print_output=False, clear=True):
         if clear:
@@ -49,4 +50,7 @@ class Command(object):
             clear_screen()
         return output
 
-
+    def filter_errors(self, error_string):
+        regex = '(TASKRC override)|(^$)'
+        filtered_lines = list(filter(lambda s: False if len(re.findall(regex, s)) else True, error_string.split("\n")))
+        return "\n".join(filtered_lines)
