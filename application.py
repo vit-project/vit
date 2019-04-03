@@ -4,7 +4,7 @@ import subprocess
 
 import urwid
 
-from util import clear_screen, string_to_args
+from util import clear_screen, string_to_args, is_mouse_event
 from process import Command
 from task import TaskListModel
 from task_list import TaskTable, SelectableRow, TaskListBox
@@ -65,6 +65,8 @@ class Application():
         self.widget.focus_position = 'body'
 
     def key_pressed(self, key):
+        if is_mouse_event(key):
+            return None
         # TODO: Should be 'ZZ'.
         if key in ('Q', 'Z'):
             self.quit()
@@ -79,6 +81,8 @@ class Application():
             self.activate_command_bar('ex', ':', edit_text=edit_text)
 
     def on_select(self, row, size, key):
+        if is_mouse_event(key):
+            return key
         if key in ('m'):
             uuid = self.get_focused_task()
             if uuid:

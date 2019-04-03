@@ -2,6 +2,7 @@ import os
 import sys
 import curses
 import shlex
+import six
 
 import version
 
@@ -20,3 +21,6 @@ def is_string(obj):
 
 def string_to_args(string):
     return shlex.split(string)
+
+def is_mouse_event(key):
+    return not isinstance(key, six.string_types)
