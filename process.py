@@ -51,6 +51,8 @@ class Command(object):
         return output
 
     def filter_errors(self, error_string):
+        if not error_string:
+            return ''
         regex = '(TASKRC override)|(^$)'
         filtered_lines = list(filter(lambda s: False if len(re.findall(regex, s)) else True, error_string.split("\n")))
         return "\n".join(filtered_lines)
