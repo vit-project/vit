@@ -17,7 +17,7 @@ from command_bar import CommandBar
 PALETTE = [
     ('list-header', 'black', 'white'),
     ('reveal focus', 'black', 'dark cyan', 'standout'),
-    ('message status', 'black', 'dark cyan', 'standout'),
+    ('message status', 'white', 'dark blue', 'standout'),
     ('message error', 'white', 'dark red', 'standout'),
 ]
 
@@ -36,6 +36,11 @@ class Application():
     def command_bar_keypress(self, data):
         metadata = data['metadata']
         op = metadata['op']
+        task_id = False
+        if 'id' in metadata:
+            task_id = metadata['id']
+        elif 'uuid' in metadata:
+            task_id = self.model.task_id(metadata['uuid'])
         if 'choices' in data['metadata']:
             choice = data['choice']
             if op == 'quit' and choice:
@@ -43,6 +48,8 @@ class Application():
             elif op == 'done' and choice is not None:
                 if self.model.task_done(metadata['uuid']):
                     self.update_report()
+                    if task_id:
+                        self.activate_message_bar('Task %s marked done' % task_id)
             elif op == 'start-stop' and choice is not None:
                 if self.model.task_start_stop(metadata['uuid']):
                     self.update_report()
@@ -114,7 +121,7 @@ class Application():
                 task = self.model.get_task(uuid)
                 if task:
                     task_id = task['id']
-                    self.activate_command_bar('done', 'Mark task %s done? (y/n): ' % task_id, {'uuid': uuid, 'choices': {'y': True}})
+                    self.activate_command_bar('done', 'Mark task %s done? (y/n): ' % task_id, {'uuid': uuid, 'id': task_id, 'choices': {'y': True}})
             return None
         if key in ('P'):
             uuid = self.get_focused_task()
