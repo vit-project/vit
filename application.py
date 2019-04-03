@@ -11,6 +11,7 @@ from process import Command
 from task import TaskListModel
 from task_list import TaskTable, SelectableRow, TaskListBox
 import event
+from multi_widget import MultiWidget
 from command_bar import CommandBar
 
 PALETTE = [
@@ -70,11 +71,11 @@ class Application():
                     if returncode == 0:
                         self.update_report()
                     else:
-                        # TODO: Error handling.
-                        raise_(ValueError, "Error setting wait: %s" % stderr)
+                        self.activate_message_bar("Error setting wait: %s" % stderr, 'error')
         self.widget.focus_position = 'body'
 
     def key_pressed(self, key):
+        self.activate_message_bar()
         if is_mouse_event(key):
             return None
         # TODO: Should be 'ZZ'.
@@ -91,6 +92,7 @@ class Application():
             self.activate_command_bar('ex', ':', edit_text=edit_text)
 
     def on_select(self, row, size, key):
+        self.activate_message_bar()
         if key in ('m'):
             uuid = self.get_focused_task()
             if uuid:
@@ -184,7 +186,11 @@ class Application():
             urwid.Text('Welcome to PYT'),
             self.table.header,
         ])
-        self.footer = CommandBar(event=self.event)
+        self.footer = MultiWidget()
+        self.command_bar = CommandBar(event=self.event)
+        self.message_bar = urwid.Text('')
+        self.footer.add_widget('command', self.command_bar)
+        self.footer.add_widget('message', self.message_bar)
 
     def execute_command(self, args, **kwargs):
         update_report = True
@@ -199,8 +205,13 @@ class Application():
 
     def activate_command_bar(self, op, caption, metadata={}, edit_text=None):
         metadata['op'] = op
-        self.footer.activate(caption, metadata, edit_text)
+        self.footer.show_widget('command')
+        self.command_bar.activate(caption, metadata, edit_text)
         self.widget.focus_position = 'footer'
+
+    def activate_message_bar(self, message='', message_type='status'):
+        self.footer.show_widget('message')
+        self.message_bar.set_text(message)
 
     def update_report(self, report=None):
         self.build_main_widget(report)
