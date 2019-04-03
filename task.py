@@ -2,6 +2,7 @@ from __future__ import print_function
 
 import os
 import tasklib
+import util
 
 class TaskListModel(object):
     def __init__(self, task_config, reports, report=None, data_location=None):
@@ -29,6 +30,13 @@ class TaskListModel(object):
     def get_task(self, uuid):
         try:
             return self.tw.tasks.get(uuid=uuid)
+        except tasklib.task.DoesNotExist:
+            return False
+
+    def task_id(self, uuid):
+        try:
+            task = self.tw.tasks.get(uuid=uuid)
+            return task['id'] if 'id' in task else util.uuid_short(task['uuid'])
         except tasklib.task.DoesNotExist:
             return False
 

@@ -24,3 +24,6 @@ def string_to_args(string):
 
 def is_mouse_event(key):
     return not isinstance(key, six.string_types)
+
+def uuid_short(uuid):
+    return uuid[0:8]
