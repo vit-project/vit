@@ -17,6 +17,8 @@ from command_bar import CommandBar
 PALETTE = [
     ('list-header', 'black', 'white'),
     ('reveal focus', 'black', 'dark cyan', 'standout'),
+    ('message status', 'black', 'dark cyan', 'standout'),
+    ('message error', 'white', 'dark red', 'standout'),
 ]
 
 class Application():
@@ -188,7 +190,7 @@ class Application():
         ])
         self.footer = MultiWidget()
         self.command_bar = CommandBar(event=self.event)
-        self.message_bar = urwid.Text('')
+        self.message_bar = urwid.Text('', align='center')
         self.footer.add_widget('command', self.command_bar)
         self.footer.add_widget('message', self.message_bar)
 
@@ -211,7 +213,8 @@ class Application():
 
     def activate_message_bar(self, message='', message_type='status'):
         self.footer.show_widget('message')
-        self.message_bar.set_text(message)
+        display = 'message %s' % message_type
+        self.message_bar.set_text((display, message))
 
     def update_report(self, report=None):
         self.build_main_widget(report)
