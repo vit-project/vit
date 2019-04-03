@@ -1,5 +1,7 @@
 #!/usr/bin/env python
 
+from future.utils import raise_
+
 import subprocess
 
 import urwid
@@ -62,6 +64,14 @@ class Application():
                 elif op == 'tag':
                     if self.model.task_tags(metadata['uuid'], args):
                         self.update_report()
+                elif op == 'wait':
+                    # TODO: Validation if more than one arg passed.
+                    returncode, stdout, stderr = self.command.run(['task', metadata['uuid'], 'modify', 'wait:%s' % args[0]], capture_output=True)
+                    if returncode == 0:
+                        self.update_report()
+                    else:
+                        # TODO: Error handling.
+                        raise_(ValueError, "Error setting wait: %s" % stderr)
         self.widget.focus_position = 'body'
 
     def key_pressed(self, key):
@@ -123,6 +133,12 @@ class Application():
             uuid = self.get_focused_task()
             if uuid:
                 self.activate_command_bar('tag', 'Tag: ', {'uuid': uuid})
+            return None
+        if key in ('w'):
+            # TODO: Detect if task is already waiting, if so do confirm to un-wait.
+            uuid = self.get_focused_task()
+            if uuid:
+                self.activate_command_bar('wait', 'Wait: ', {'uuid': uuid})
             return None
         if key in ('e'):
             self.execute_command(['task', row.uuid, 'edit'])
