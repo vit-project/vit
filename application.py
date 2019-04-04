@@ -112,6 +112,7 @@ class Application():
             uuid = self.get_focused_task()
             if uuid:
                 self.activate_command_bar('modify', 'Modify: ', {'uuid': uuid})
+                self.task_list.focus_by_task_uuid(uuid)
             return None
         elif key in ('b'):
             uuid = self.get_focused_task()
@@ -156,10 +157,16 @@ class Application():
                 self.activate_command_bar('wait', 'Wait: ', {'uuid': uuid})
             return None
         elif key in ('e'):
-            self.execute_command(['task', row.uuid, 'edit'])
+            uuid = self.get_focused_task()
+            if uuid:
+                self.execute_command(['task', uuid, 'edit'])
+                self.task_list.focus_by_task_uuid(uuid)
             return None
         elif key in ('=', 'enter'):
-            self.execute_command(['task', row.uuid, 'info'], update_report=False)
+            uuid = self.get_focused_task()
+            if uuid:
+                self.execute_command(['task', uuid, 'info'], update_report=False)
+                self.task_list.focus_by_task_uuid(uuid)
             return None
         elif key in ('ctrl l'):
             self.update_report()
