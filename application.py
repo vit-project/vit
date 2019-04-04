@@ -19,6 +19,7 @@ PALETTE = [
     ('reveal focus', 'black', 'dark cyan', 'standout'),
     ('message status', 'white', 'dark blue', 'standout'),
     ('message error', 'white', 'dark red', 'standout'),
+    ('status', 'dark blue', 'black'),
 ]
 
 class Application():
@@ -188,7 +189,7 @@ class Application():
             elif command.isdigit():
                 self.task_list.focus_by_task_id(int(command))
             elif command in self.reports:
-                self.update_report(command)
+                self.update_report(command, args)
                 # TODO: Handle custom filters.
             else:
                 # TODO: Display error message.
@@ -205,13 +206,16 @@ class Application():
     def quit(self):
         raise urwid.ExitMainLoop()
 
-    def build_report(self):
-        self.model = TaskListModel(self.task_config, self.reports, self.report)
+    def build_task_table(self):
         self.table = TaskTable(self.task_config, self.reports[self.report], self.model.tasks, on_select=self.on_select)
 
+    def init_task_list(self):
+        self.model = TaskListModel(self.task_config, self.reports)
+
+    def build_frame(self):
         self.header = urwid.Pile([
-            urwid.Text('Welcome to PYT'),
-            self.table.header,
+            urwid.AttrMap(urwid.Text('Welcome to PYT'), 'status'),
+            urwid.Text('Loading...'),
         ])
         self.footer = MultiWidget()
         self.command_bar = CommandBar(event=self.event)
@@ -241,20 +245,28 @@ class Application():
         display = 'message %s' % message_type
         self.message_bar.set_text((display, message))
 
-    def update_report(self, report=None):
-        self.build_main_widget(report)
-        self.loop.widget = self.widget
+    def update_report(self, report=None, extra_filters=[]):
+        if not report:
+            report = self.report
+        self.model.update_report(report, extra_filters)
+        self.build_task_table()
+        filtered_report = 'task %s %s' % (report, ' '.join(extra_filters))
+        report_status, _ = self.header.contents[0]
+        report_status.original_widget.set_text(filtered_report)
+        self.header.contents[1] = (self.table.header, self.header.options())
+        self.task_list = self.widget.body = self.table.listbox
 
     def build_main_widget(self, report=None):
         if report:
             self.report = report
-        self.build_report()
+        self.init_task_list()
+        self.build_frame()
         self.widget = urwid.Frame(
-            self.table.listbox,
+            urwid.ListBox([]),
             header=self.header,
             footer=self.footer,
         )
-        self.task_list = self.widget.body
+        self.update_report(self.report)
 
     def run(self, report):
         self.build_main_widget(report)

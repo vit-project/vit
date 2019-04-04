@@ -23,10 +23,12 @@ class TaskListModel(object):
     def active_report(self):
         return self.reports[self.report]
 
-    def update_report(self, report):
+    def update_report(self, report, extra_filters=[]):
         self.report = report
         active_report = self.active_report()
-        self.tasks = self.tw.tasks.filter(*active_report['filter']) if 'filter' in active_report else self.tw.tasks.all()
+        filters = active_report['filter'] if 'filter' in active_report else []
+        all_filters = filters + extra_filters
+        self.tasks = self.tw.tasks.filter(*all_filters) if len(all_filters) > 0 else self.tw.tasks.all()
 
     def get_task(self, uuid):
         try:
