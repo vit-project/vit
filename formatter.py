@@ -1,3 +1,16 @@
+current_module = __import__(__name__)
+
+def get_formatter(column_formatter):
+    parts = column_formatter.split('.')
+    name = parts[0]
+    formatter_class_name = ''.join([p.capitalize() for p in parts])
+    try:
+        formatter_class = getattr(current_module, formatter_class_name)
+        return name, formatter_class
+    except AttributeError:
+        # TODO: Try UDA formatter next.
+        return name, Formatter
+
 class Defaults(object):
     def __init__(self, config):
         self.report = self.translate_date_markers(config.subtree('dateformat.report', walk_subtree=True))
@@ -11,9 +24,11 @@ class Formatter(object):
         self.task = task
         self.defaults = defaults
 
-class Number(Formatter):
     def format(self, number):
         return str(number) if number else ''
+
+class Number(Formatter):
+    pass
 
 class String(Formatter):
     def format(self, string):
