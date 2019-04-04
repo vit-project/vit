@@ -1,20 +1,31 @@
 current_module = __import__(__name__)
-
-def get_formatter(column_formatter):
-    parts = column_formatter.split('.')
-    name = parts[0]
-    formatter_class_name = ''.join([p.capitalize() for p in parts])
-    try:
-        formatter_class = getattr(current_module, formatter_class_name)
-        return name, formatter_class
-    except AttributeError:
-        # TODO: Try UDA formatter next.
-        return name, Formatter
+import uda
 
 class Defaults(object):
     def __init__(self, config):
+        self.config = config
         self.report = self.translate_date_markers(config.subtree('dateformat.report', walk_subtree=True))
         self.annotation = self.translate_date_markers(config.subtree('dateformat.annotation', walk_subtree=True))
+
+    def get(self, column_formatter):
+        parts = column_formatter.split('.')
+        name = parts[0]
+        formatter_class_name = ''.join([p.capitalize() for p in parts])
+        try:
+            formatter_class = getattr(current_module, formatter_class_name)
+            return name, formatter_class
+        except AttributeError:
+            uda_metadata = uda.get(name, self.config)
+            if uda_metadata:
+                uda_type = uda_metadata['type'] if 'type' in uda_metadata else 'string'
+                formatter_class_name = 'Uda%s' % uda_type.capitalize()
+                try:
+                    formatter_class = getattr(current_module, formatter_class_name)
+                    return name, formatter_class
+                except AttributeError:
+                    pass
+        return name, Formatter
+
     def translate_date_markers(self, string):
         # TODO:
         return string
@@ -65,4 +76,16 @@ class Scheduled(DateTime):
     pass
 
 class Due(DateTime):
+    pass
+
+class UdaString(String):
+    pass
+
+class UdaNumeric(Number):
+    pass
+
+class UdaDate(DateTime):
+    pass
+
+class UdaDuration(String):
     pass

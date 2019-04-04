@@ -3,7 +3,6 @@ from collections import OrderedDict
 
 import urwid
 import formatter
-from formatter import get_formatter
 
 MAX_COLUMN_WIDTH = 60
 
@@ -14,7 +13,7 @@ class TaskTable(object):
         self.report = report
         self.tasks = tasks
         self.on_select = on_select
-        self.formatter_defaults = formatter.Defaults(task_config)
+        self.formatter = formatter.Defaults(task_config)
         self.columns = OrderedDict()
         self.rows = []
         self.sort()
@@ -34,7 +33,7 @@ class TaskTable(object):
 
     def set_column_metadata(self):
         for idx, column_formatter in enumerate(self.report['columns']):
-            name, formatter_class = get_formatter(column_formatter)
+            name, formatter_class = self.formatter.get(column_formatter)
             self.columns[name] = {
                 'label': self.report['labels'][idx],
                 'formatter': formatter_class,
@@ -46,7 +45,7 @@ class TaskTable(object):
             row_data = {}
             for column, metadata in list(self.columns.items()):
                 current = metadata['width']
-                formatted_value = metadata['formatter'](task, self.formatter_defaults).format(task[column])
+                formatted_value = metadata['formatter'](task, self.formatter).format(task[column])
                 new = len(formatted_value) if formatted_value else 0
                 if new > current and current < MAX_COLUMN_WIDTH:
                     self.columns[column]['width'] = new < MAX_COLUMN_WIDTH and new or MAX_COLUMN_WIDTH
