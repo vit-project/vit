@@ -4,8 +4,8 @@ import uda
 class Defaults(object):
     def __init__(self, config):
         self.config = config
-        self.report = self.translate_date_markers(config.subtree('dateformat.report', walk_subtree=True))
-        self.annotation = self.translate_date_markers(config.subtree('dateformat.annotation', walk_subtree=True))
+        self.report = self.translate_date_markers(config.subtree('dateformat.report'))
+        self.annotation = self.translate_date_markers(config.subtree('dateformat.annotation'))
 
     def get(self, column_formatter):
         parts = column_formatter.split('.')

@@ -8,7 +8,7 @@ class TaskListModel(object):
     def __init__(self, task_config, reports, report=None, data_location=None):
 
         if not data_location:
-            data_location = task_config.subtree('data.location', walk_subtree=True)
+            data_location = task_config.subtree('data.location')
         self.data_location = os.path.expanduser(data_location)
         self.tw = tasklib.TaskWarrior(self.data_location)
         self.reports = reports

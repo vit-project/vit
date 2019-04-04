@@ -37,9 +37,12 @@ class TaskParser(object):
         else:
             raise "Error parsing task config: %s" % stderr
 
-    def subtree(self, matcher, walk_subtree=False):
+    def subtree(self, matcher, walk_subtree=True):
+      matcher_regex = matcher
+      if walk_subtree:
+          matcher_regex = r'%s' % (('^%s' % matcher).replace('.', '\.'))
       full_tree = {}
-      lines = list(filter(lambda config_pair: re.match(matcher, config_pair[0]), self.task_config))
+      lines = list(filter(lambda config_pair: re.match(matcher_regex, config_pair[0]), self.task_config))
       for (hierarchy, value) in lines:
         parts = hierarchy.split('.')
         tree_location = full_tree
@@ -84,8 +87,8 @@ class TaskParser(object):
 
     def reports(self):
       reports = {}
-      subtree = self.subtree(r'^report\.')
-      for report, attrs in list(subtree['report'].items()):
+      subtree = self.subtree('report.')
+      for report, attrs in list(subtree.items()):
         reports[report] = {}
         if 'columns' in attrs:
           reports[report]['columns'] = attrs['columns'].split(',')
