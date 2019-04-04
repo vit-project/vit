@@ -176,6 +176,13 @@ class Application():
                 if command in ('!', '!r'):
                     kwargs['confirm'] = None
                 self.execute_command(args, **kwargs)
+            elif command.isdigit():
+                import debug
+                debug.file("it's a digit!")
+                # TODO: Look up task by ID.
+            elif command in self.reports:
+                self.update_report(command)
+                # TODO: Handle custom filters.
             else:
                 # TODO: Display error message.
                 pass
