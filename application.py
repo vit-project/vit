@@ -56,7 +56,7 @@ class Application():
                 if task:
                     self.update_report()
                     self.activate_message_bar('Task %s priority set to: %s' % (self.model.task_id(task['uuid']), task['priority'] or 'None'))
-        elif data['key'] in ('enter'):
+        elif data['key'] in ('enter',):
             args = string_to_args(data['text'])
             if op == 'ex':
                 self.ex(data['text'], data['metadata'])
@@ -99,27 +99,27 @@ class Application():
         # TODO: Should be 'ZZ'.
         if key in ('Q', 'Z'):
             self.quit()
-        elif key in ('a'):
+        elif key in ('a',):
             self.activate_command_bar('add', 'Add: ')
-        elif key in ('f'):
+        elif key in ('f',):
             self.activate_command_bar('filter', 'Filter: ')
-        elif key in ('u'):
+        elif key in ('u',):
             self.execute_command(['task', 'undo'])
-        elif key in ('q'):
+        elif key in ('q',):
             self.activate_command_bar('quit', 'Quit?', {'choices': {'y': True}})
         elif key in ('t', ':'):
-            edit_text = '!rw task ' if key in ('t') else None
+            edit_text = '!rw task ' if key in ('t',) else None
             self.activate_command_bar('ex', ':', edit_text=edit_text)
 
     def on_select(self, row, size, key):
         self.activate_message_bar()
-        if key in ('m'):
+        if key in ('m',):
             uuid = self.get_focused_task()
             if uuid:
                 self.activate_command_bar('modify', 'Modify: ', {'uuid': uuid})
                 self.task_list.focus_by_task_uuid(uuid)
             return None
-        elif key in ('b'):
+        elif key in ('b',):
             uuid = self.get_focused_task()
             if uuid:
                 task = self.model.get_task(uuid)
@@ -127,7 +127,7 @@ class Application():
                     task_id = task['id']
                     self.activate_command_bar('start-stop', '%s task %s? (y/n): ' % (task.active and 'Stop' or 'Start', task_id), {'uuid': uuid, 'choices': {'y': True}})
             return None
-        elif key in ('d'):
+        elif key in ('d',):
             uuid = self.get_focused_task()
             if uuid:
                 task = self.model.get_task(uuid)
@@ -135,7 +135,7 @@ class Application():
                     task_id = task['id']
                     self.activate_command_bar('done', 'Mark task %s done? (y/n): ' % task_id, {'uuid': uuid, 'id': task_id, 'choices': {'y': True}})
             return None
-        elif key in ('P'):
+        elif key in ('P',):
             uuid = self.get_focused_task()
             if uuid:
                 choices = {
@@ -145,23 +145,23 @@ class Application():
                     'n': '',
                 }
                 self.activate_command_bar('priority', 'Priority (h/m/l/n): ', {'uuid': uuid, 'choices': choices})
-        elif key in ('p'):
+        elif key in ('p',):
             uuid = self.get_focused_task()
             if uuid:
                 self.activate_command_bar('project', 'Project: ', {'uuid': uuid})
             return None
-        elif key in ('T'):
+        elif key in ('T',):
             uuid = self.get_focused_task()
             if uuid:
                 self.activate_command_bar('tag', 'Tag: ', {'uuid': uuid})
             return None
-        elif key in ('w'):
+        elif key in ('w',):
             # TODO: Detect if task is already waiting, if so do confirm to un-wait.
             uuid = self.get_focused_task()
             if uuid:
                 self.activate_command_bar('wait', 'Wait: ', {'uuid': uuid})
             return None
-        elif key in ('e'):
+        elif key in ('e',):
             uuid = self.get_focused_task()
             if uuid:
                 self.execute_command(['task', uuid, 'edit'])
@@ -173,7 +173,7 @@ class Application():
                 self.execute_command(['task', uuid, 'info'], update_report=False)
                 self.task_list.focus_by_task_uuid(uuid)
             return None
-        elif key in ('ctrl l'):
+        elif key in ('ctrl l',):
             self.update_report()
         return key
 
@@ -181,7 +181,7 @@ class Application():
         args = string_to_args(text)
         if len(args):
             command = args.pop(0)
-            if command in ('q'):
+            if command in ('q',):
                 self.quit()
             elif command in ('!', '!r', '!w', '!rw', '!wr'):
                 kwargs = {}

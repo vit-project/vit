@@ -78,7 +78,7 @@ class TaskListModel(object):
         if task:
             for tag in tags:
                 marker = tag[0]
-                if marker in ['+', '-']:
+                if marker in ('+', '-'):
                     tag = tag[1:]
                     if marker == '+':
                         task['tags'].add(tag)
