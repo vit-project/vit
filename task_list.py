@@ -73,6 +73,7 @@ class TaskRow():
         self.task = task
         self.data = data
         self.uuid = self.task['uuid']
+        self.id = self.task['id']
 
 class SelectableRow(urwid.WidgetWrap):
     """Wraps 'urwid.Columns' to make it selectable.
@@ -82,6 +83,7 @@ class SelectableRow(urwid.WidgetWrap):
     def __init__(self, columns, row, *, align="left", on_select=None, space_between=2):
         self.task = row.task
         self.uuid = row.uuid
+        self.id = row.id
 
         self._columns = urwid.Columns([(metadata['width'], urwid.Text(row.data[column], align=align)) for column, metadata in list(columns.items())],
                                        dividechars=space_between)
@@ -152,4 +154,16 @@ class TaskListBox(urwid.ListBox):
             self.set_focus_valign('middle')
             return None
         return super().keypress(size, key)
+
+    def focus_by_task_id(self, task_id):
+        for idx, row in enumerate(self.body):
+            if row.id == task_id:
+                self.focus_position = idx
+                return
+
+    def focus_by_task_uuid(self, uuid):
+        for idx, row in enumerate(self.body):
+            if row.uuid == uuid:
+                self.focus_position = idx
+                return
 

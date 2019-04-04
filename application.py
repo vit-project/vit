@@ -87,6 +87,8 @@ class Application():
                     else:
                         self.activate_message_bar("Error setting wait: %s" % stderr, 'error')
         self.widget.focus_position = 'body'
+        if 'uuid' in metadata:
+            self.task_list.focus_by_task_uuid(metadata['uuid'])
 
     def key_pressed(self, key):
         if is_mouse_event(key):
@@ -177,9 +179,7 @@ class Application():
                     kwargs['confirm'] = None
                 self.execute_command(args, **kwargs)
             elif command.isdigit():
-                import debug
-                debug.file("it's a digit!")
-                # TODO: Look up task by ID.
+                self.task_list.focus_by_task_id(int(command))
             elif command in self.reports:
                 self.update_report(command)
                 # TODO: Handle custom filters.
