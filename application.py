@@ -36,26 +36,25 @@ class Application():
     def command_bar_keypress(self, data):
         metadata = data['metadata']
         op = metadata['op']
-        task_id = False
-        if 'id' in metadata:
-            task_id = metadata['id']
-        elif 'uuid' in metadata:
-            task_id = self.model.task_id(metadata['uuid'])
         if 'choices' in data['metadata']:
             choice = data['choice']
             if op == 'quit' and choice:
                 self.quit()
             elif op == 'done' and choice is not None:
-                if self.model.task_done(metadata['uuid']):
+                task = self.model.task_done(metadata['uuid'])
+                if task:
                     self.update_report()
-                    if task_id:
-                        self.activate_message_bar('Task %s marked done' % task_id)
+                    self.activate_message_bar('Task %s marked done' % self.model.task_id(task['uuid']))
             elif op == 'start-stop' and choice is not None:
-                if self.model.task_start_stop(metadata['uuid']):
+                task = self.model.task_start_stop(metadata['uuid'])
+                if task:
                     self.update_report()
+                    self.activate_message_bar('Task %s %s' % (self.model.task_id(task['uuid']), 'started' if task['start'] else 'stopped'))
             elif op == 'priority' and choice is not None:
-                if self.model.task_priority(metadata['uuid'], choice):
+                task = self.model.task_priority(metadata['uuid'], choice)
+                if task:
                     self.update_report()
+                    self.activate_message_bar('Task %s priority set to: %s' % (self.model.task_id(task['uuid']), task['priority'] or 'None'))
         elif data['key'] in ('enter'):
             args = string_to_args(data['text'])
             if op == 'ex':
@@ -63,28 +62,33 @@ class Application():
             elif len(args) > 0:
                 if op == 'add':
                     self.execute_command(['task', 'add'] + args)
+                    self.activate_message_bar('Task added')
                 elif op == 'modify':
                     # TODO: Will this break if user clicks another list item
                     # before hitting enter?
                     self.execute_command(['task', metadata['uuid'], 'modify'] + args)
                 elif op == 'project':
                     # TODO: Validation if more than one arg passed.
-                    if self.model.task_project(metadata['uuid'], args[0]):
+                    task = self.model.task_project(metadata['uuid'], args[0])
+                    if task:
                         self.update_report()
+                        self.activate_message_bar('Task %s project updated' % self.model.task_id(task['uuid']))
                 elif op == 'tag':
-                    if self.model.task_tags(metadata['uuid'], args):
+                    task = self.model.task_tags(metadata['uuid'], args)
+                    if task:
                         self.update_report()
+                        self.activate_message_bar('Task %s tags updated' % self.model.task_id(task['uuid']))
                 elif op == 'wait':
                     # TODO: Validation if more than one arg passed.
                     returncode, stdout, stderr = self.command.run(['task', metadata['uuid'], 'modify', 'wait:%s' % args[0]], capture_output=True)
                     if returncode == 0:
                         self.update_report()
+                        self.activate_message_bar('Task %s wait updated' % self.model.task_id(metadata['uuid']))
                     else:
                         self.activate_message_bar("Error setting wait: %s" % stderr, 'error')
         self.widget.focus_position = 'body'
 
     def key_pressed(self, key):
-        self.activate_message_bar()
         if is_mouse_event(key):
             return None
         # TODO: Should be 'ZZ'.
@@ -107,7 +111,7 @@ class Application():
             if uuid:
                 self.activate_command_bar('modify', 'Modify: ', {'uuid': uuid})
             return None
-        if key in ('b'):
+        elif key in ('b'):
             uuid = self.get_focused_task()
             if uuid:
                 task = self.model.get_task(uuid)
@@ -115,7 +119,7 @@ class Application():
                     task_id = task['id']
                     self.activate_command_bar('start-stop', '%s task %s? (y/n): ' % (task.active and 'Stop' or 'Start', task_id), {'uuid': uuid, 'choices': {'y': True}})
             return None
-        if key in ('d'):
+        elif key in ('d'):
             uuid = self.get_focused_task()
             if uuid:
                 task = self.model.get_task(uuid)
@@ -123,7 +127,7 @@ class Application():
                     task_id = task['id']
                     self.activate_command_bar('done', 'Mark task %s done? (y/n): ' % task_id, {'uuid': uuid, 'id': task_id, 'choices': {'y': True}})
             return None
-        if key in ('P'):
+        elif key in ('P'):
             uuid = self.get_focused_task()
             if uuid:
                 choices = {
@@ -133,26 +137,26 @@ class Application():
                     'n': '',
                 }
                 self.activate_command_bar('priority', 'Priority (h/m/l/n): ', {'uuid': uuid, 'choices': choices})
-        if key in ('p'):
+        elif key in ('p'):
             uuid = self.get_focused_task()
             if uuid:
                 self.activate_command_bar('project', 'Project: ', {'uuid': uuid})
             return None
-        if key in ('T'):
+        elif key in ('T'):
             uuid = self.get_focused_task()
             if uuid:
                 self.activate_command_bar('tag', 'Tag: ', {'uuid': uuid})
             return None
-        if key in ('w'):
+        elif key in ('w'):
             # TODO: Detect if task is already waiting, if so do confirm to un-wait.
             uuid = self.get_focused_task()
             if uuid:
                 self.activate_command_bar('wait', 'Wait: ', {'uuid': uuid})
             return None
-        if key in ('e'):
+        elif key in ('e'):
             self.execute_command(['task', row.uuid, 'edit'])
             return None
-        if key in ('=', 'enter'):
+        elif key in ('=', 'enter'):
             self.execute_command(['task', row.uuid, 'info'], update_report=False)
             return None
         elif key in ('ctrl l'):
