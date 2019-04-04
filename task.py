@@ -36,7 +36,7 @@ class TaskListModel(object):
     def task_id(self, uuid):
         try:
             task = self.tw.tasks.get(uuid=uuid)
-            return task['id'] if 'id' in task else util.uuid_short(task['uuid'])
+            return task['id'] or util.uuid_short(task['uuid'])
         except tasklib.task.DoesNotExist:
             return False
 
@@ -45,7 +45,7 @@ class TaskListModel(object):
         if task:
             task['priority'] = priority
             task.save()
-            return True
+            return task
         return False
 
     def task_project(self, uuid, project):
@@ -53,21 +53,21 @@ class TaskListModel(object):
         if task:
             task['project'] = project
             task.save()
-            return True
+            return task
         return False
 
     def task_done(self, uuid):
         task = self.get_task(uuid)
         if task:
             task.done()
-            return True
+            return task
         return False
 
     def task_start_stop(self, uuid):
         task = self.get_task(uuid)
         if task:
             task.stop() if task.active else task.start()
-            return True
+            return task
         return False
 
     def task_tags(self, uuid, tags):
@@ -84,7 +84,7 @@ class TaskListModel(object):
                 else:
                     task['tags'].add(tag)
             task.save()
-            return True
+            return task
         return False
 
 #    def get_summary(self, report=None):
