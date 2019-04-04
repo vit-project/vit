@@ -123,7 +123,7 @@ class TaskListBox(urwid.ListBox):
         """
         # NOTE: Looks like the default implementation of ListBox maps these
         # keys to a navigation action, override it.
-        if key in ('t'):
+        if key in ('t', 'f'):
             return key
         if key in ('b'):
             # TODO: This seems wrong.

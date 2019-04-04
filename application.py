@@ -60,6 +60,8 @@ class Application():
             args = string_to_args(data['text'])
             if op == 'ex':
                 self.ex(data['text'], data['metadata'])
+            elif op == 'filter':
+                self.update_report(extra_filters=args)
             elif len(args) > 0:
                 if op == 'add':
                     self.execute_command(['task', 'add'] + args)
@@ -99,6 +101,8 @@ class Application():
             self.quit()
         elif key in ('a'):
             self.activate_command_bar('add', 'Add: ')
+        elif key in ('f'):
+            self.activate_command_bar('filter', 'Filter: ')
         elif key in ('u'):
             self.execute_command(['task', 'undo'])
         elif key in ('q'):
