@@ -25,7 +25,8 @@ class TaskListModel(object):
 
     def update_report(self, report):
         self.report = report
-        self.tasks = self.tw.tasks.filter(*self.active_report()['filter'])
+        active_report = self.active_report()
+        self.tasks = self.tw.tasks.filter(*active_report['filter']) if 'filter' in active_report else self.tw.tasks.all()
 
     def get_task(self, uuid):
         try:
