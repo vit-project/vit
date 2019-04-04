@@ -72,6 +72,13 @@ class DescriptionCount(String):
 class Tags(List):
     pass
 
+class TagsCount(Formatter):
+    def format(self, string):
+        if self.task['tags'] and len(self.task['tags']) > 0:
+            return "[%d]" % len(self.task['tags'])
+        else:
+            return ''
+
 class Scheduled(DateTime):
     pass
 
