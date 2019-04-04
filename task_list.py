@@ -96,8 +96,8 @@ class SelectableRow(urwid.WidgetWrap):
         self.on_select = on_select
 
     def __repr__(self):
-        return "{}(contents='{}')".format(self.__class__.__name__,
-                                          self.contents)
+        return "{}(id={}, uuid={})".format(self.__class__.__name__,
+                                          self.id, self.uuid)
 
     def selectable(self):
         return True
@@ -141,8 +141,32 @@ class TaskListBox(urwid.ListBox):
             self.set_focus(len(self.body) - 1)
             self.set_focus_valign('bottom')
             return None
-        # TODO: This is wrong, should go to middle line on screen.
-        if key in ('M',):
+        if key in ('H', 'M', 'L'):
+            try:
+                ((_, middle, _, _, _), (_, top_list), (_, bottom_list)) = self.calculate_visible(size)
+                top = top_list[len(top_list) - 1][0] if len(top_list) > 0 else None
+                bottom = bottom_list[len(bottom_list) - 1][0] if len(bottom_list) > 0 else None
+                if key in ('H',):
+                    self.focus_by_task_uuid(top.uuid if top else middle.uuid)
+                if key in ('M',):
+                    # top_list.reverse() is returning None here, WTF?
+                    top_list_reversed = []
+                    while True:
+                        if len(top_list) > 0:
+                            row = top_list.pop()
+                            top_list_reversed.append(row)
+                        else:
+                            break
+                    assembled_list = top_list_reversed + [(middle, )] + (bottom_list if bottom else [])
+                    middle = (assembled_list[:len(assembled_list)//2]).pop()[0]
+                    self.focus_by_task_uuid(middle.uuid)
+                if key in ('L',):
+                    self.focus_by_task_uuid(bottom.uuid if bottom else middle.uuid)
+            except:
+                # TODO: Log this?
+                pass
+            return None
+        if key in ('ctrl m',):
             self.set_focus(self.focus_position)
             self.set_focus_valign('middle')
             return None
