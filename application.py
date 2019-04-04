@@ -3,6 +3,7 @@
 from future.utils import raise_
 
 import subprocess
+import re
 
 import urwid
 
@@ -108,8 +109,12 @@ class Application():
         elif key in ('q',):
             self.activate_command_bar('quit', 'Quit?', {'choices': {'y': True}})
         elif key in ('t', ':'):
+            metadata = {}
+            uuid = self.get_focused_task()
+            if uuid:
+                metadata['uuid'] = uuid
             edit_text = '!rw task ' if key in ('t',) else None
-            self.activate_command_bar('ex', ':', edit_text=edit_text)
+            self.activate_command_bar('ex', ':', metadata, edit_text=edit_text)
 
     def on_select(self, row, size, key):
         self.activate_message_bar()
@@ -196,8 +201,18 @@ class Application():
                 self.update_report(command, args)
                 # TODO: Handle custom filters.
             else:
-                # TODO: Display error message.
-                pass
+                # Matches 's/foo/bar/' and s%/foo/bar/, allowing for separators
+                # to be any non-word character.
+                matches = re.match(r'^%?s(\W)((?:(?!\1).)*)\1((?:(?!\1).)*)\1$', text)
+                if matches and 'uuid' in metadata:
+                    before, after = matches.group(2, 3)
+                    task = self.model.get_task(metadata['uuid'])
+                    if task:
+                        description = re.sub(r'%s' % before, after, task['description'])
+                        task = self.model.task_description(metadata['uuid'], description)
+                        if task:
+                            self.update_report()
+                            self.activate_message_bar('Task %s description updated' % self.model.task_id(task['uuid']))
 
     def get_focused_task(self):
         if self.widget.focus_position == 'body':
