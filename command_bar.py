@@ -33,12 +33,12 @@ class CommandBar(urwid.Edit):
         elif key in ('ctrl e',):
             self.set_edit_pos(len(self.get_edit_text()))
             return None
-        elif key in ('cursor up', 'ctrl p'):
+        elif key in ('up', 'ctrl p'):
             text = self.history.previous(self.metadata['op'])
             if text != False:
                 self.set_edit_text(text)
             return None
-        elif key in ('cursor down', 'ctrl n'):
+        elif key in ('down', 'ctrl n'):
             text = self.history.next(self.metadata['op'])
             if text != False:
                 self.set_edit_text(text)
