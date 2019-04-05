@@ -5,9 +5,11 @@ class CommandBar(urwid.Edit):
     """
     def __init__(self, **kwargs):
         self.event = kwargs['event']
+        self.autocomplete = kwargs['autocomplete']
         self.metadata = None
         self.history = CommandBarHistory()
         kwargs.pop('event')
+        kwargs.pop('autocomplete')
         return super().__init__(**kwargs)
 
     def keypress(self, size, key):

@@ -4,6 +4,8 @@ import os
 import tasklib
 import util
 
+from process import Command
+
 class TaskListModel(object):
     def __init__(self, task_config, reports, report=None, data_location=None):
 
@@ -110,4 +112,24 @@ class TaskListModel(object):
 #        self._list_view.options = self._model.get_summary()
 #        self._list_view.value = new_value
 
+class TaskAutoComplete(object):
 
+    def __init__(self, config, default_filters=None):
+        self.default_filters = default_filters or ('column', 'project', 'tag')
+        self.config = config
+        self.command = Command(self.config)
+        for ac_type in self.default_filters:
+            setattr(self, ac_type, [])
+
+    def refresh(self, filters=None):
+        filters = filters or self.default_filters
+        for ac_type in filters:
+            setattr(self, ac_type, self.refresh_type(ac_type))
+
+    def refresh_type(self, ac_type):
+        command = 'task _%ss' % ac_type
+        returncode, stdout, stderr = self.command.run(command, capture_output=True)
+        if returncode == 0:
+            return list(filter(lambda x: True if x else False, stdout.split("\n")))
+        else:
+            raise "Error running command '%s': %s" % (command, stderr)

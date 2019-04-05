@@ -9,7 +9,8 @@ import urwid
 
 from util import clear_screen, string_to_args, is_mouse_event
 from process import Command
-from task import TaskListModel
+from task import TaskListModel, TaskAutoComplete
+
 from task_list import TaskTable, SelectableRow, TaskListBox
 import event
 from multi_widget import MultiWidget
@@ -237,7 +238,8 @@ class Application():
             urwid.Text('Loading...'),
         ])
         self.footer = MultiWidget()
-        self.command_bar = CommandBar(event=self.event)
+        self.autocomplete = TaskAutoComplete(self.config)
+        self.command_bar = CommandBar(autocomplete=self.autocomplete, event=self.event)
         self.message_bar = urwid.Text('', align='center')
         self.footer.add_widget('command', self.command_bar)
         self.footer.add_widget('message', self.message_bar)
@@ -274,6 +276,7 @@ class Application():
         report_status.original_widget.set_text(filtered_report)
         self.header.contents[1] = (self.table.header, self.header.options())
         self.task_list = self.widget.body = self.table.listbox
+        self.autocomplete.refresh()
 
     def build_main_widget(self, report=None):
         if report:
