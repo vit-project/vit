@@ -115,22 +115,26 @@ class TaskListModel(object):
 
 class TaskAutoComplete(object):
 
-    def __init__(self, config, default_filters=None):
+    def __init__(self, config, default_filters=None, extra_filters=None):
         self.default_filters = default_filters or ('column', 'project', 'tag')
+        self.extra_filters = extra_filters or {}
         self.default_prefixes = {
+            'column': {
+                'suffixes': [':'],
+            },
             'project': {
                 'prefixes': ['project:'],
-                'include_unprefixed': False,
             },
             'tag': {
                 'prefixes': ['+', '-'],
-                'include_unprefixed': False,
             },
         }
         self.config = config
         self.command = Command(self.config)
         for ac_type in self.default_filters:
             setattr(self, ac_type, [])
+        for ac_type, items in list(self.extra_filters.items()):
+            setattr(self, ac_type, items)
         self.reset()
 
     def refresh(self, filters=None):
@@ -150,14 +154,18 @@ class TaskAutoComplete(object):
         entries = []
         for ac_type in filters:
             items = getattr(self, ac_type)
-            include_unprefixed = prefixes[ac_type]['include_unprefixed'] if ac_type in prefixes else False
-            type_prefixes = prefixes[ac_type]['prefixes'] if ac_type in prefixes else []
+            include_unprefixed = prefixes[ac_type]['include_unprefixed'] if ac_type in prefixes and 'include_unprefixed' in prefixes[ac_type] else False
+            type_prefixes = prefixes[ac_type]['prefixes'] if ac_type in prefixes and 'prefixes' in prefixes[ac_type] else []
+            type_suffixes = prefixes[ac_type]['suffixes'] if ac_type in prefixes and 'suffixes' in prefixes[ac_type] else []
             if include_unprefixed:
                 for item in items:
-                    entries.append(item)
+                    entries.append((ac_type, item))
             for prefix in type_prefixes:
                 for item in items:
-                    entries.append('%s%s' % (prefix, item))
+                    entries.append((ac_type, '%s%s' % (prefix, item)))
+            for suffix in type_suffixes:
+                for item in items:
+                    entries.append((ac_type, '%s%s' % (item, suffix)))
         entries.sort()
         return entries
 
@@ -171,11 +179,13 @@ class TaskAutoComplete(object):
             prefixes = self.default_prefixes
         self.refresh()
         self.entries = self.make_entries(filters, prefixes)
+        self.root_only_filters = list(filter(lambda f: True if f in prefixes and 'root_only' in prefixes[f] else False, filters))
         self.is_setup = True
 
     def teardown(self):
         self.is_setup = False
         self.entries = []
+        self.root_only_filters = []
         self.callback = None
         self.deactivate()
 
@@ -206,11 +216,17 @@ class TaskAutoComplete(object):
 
     def generate_tab_options(self, text, edit_pos):
         if self.root_search:
-            self.tab_options = self.entries
+            if len(self.root_only_filters) > 0:
+                self.tab_options = list(map(lambda e: e[1], filter(lambda e: True if e[0] in self.root_only_filters else False, self.entries)))
+            else:
+                self.tab_options = list(map(lambda e: e[1], self.entries))
         else:
             self.parse_text(text, edit_pos)
             exp = re.compile(self.search_fragment)
-            self.tab_options = list(filter(lambda e: True if exp.match(e) else False, self.entries))
+            if len(self.root_only_filters) > 0:
+                self.tab_options = list(map(lambda e: e[1], filter(lambda e: True if e[0] not in self.root_only_filters and exp.match(e[1]) else False, self.entries)))
+            else:
+                self.tab_options = list(map(lambda e: e[1], filter(lambda e: True if exp.match(e[1]) else False, self.entries)))
 
     def parse_text(self, text, edit_pos):
         full_prefix = text[:edit_pos]
@@ -218,7 +234,6 @@ class TaskAutoComplete(object):
         self.search_fragment = prefix_parts.pop()
         self.prefix = ' '.join(prefix_parts)
         self.suffix = text[(edit_pos + 1):]
-
 
     def can_tab(self, text, edit_pos):
         if edit_pos == 0:
@@ -238,13 +253,20 @@ class TaskAutoComplete(object):
         edit_pos_final = len(edit_pos_parts)
         return tabbed_text, edit_pos_final
 
+    def increment_index(self):
+        self.idx = self.idx + 1 if self.idx < len(self.tab_options) - 1 else 0
+
     def next_tab_item(self, text, edit_pos):
         tabbed_text = ''
         final_edit_pos = None
         if self.root_search:
             tabbed_text = self.tab_options[self.idx]
+            self.increment_index()
         else:
-            tabbed_text, final_edit_pos = self.assemble(self.tab_options[self.idx])
-        self.idx = self.idx + 1 if self.idx < len(self.tab_options) - 1 else 0
+            if len(self.tab_options) == 0:
+                tabbed_text = text
+            else:
+                tabbed_text, final_edit_pos = self.assemble(self.tab_options[self.idx])
+                self.increment_index()
         return tabbed_text, final_edit_pos
 

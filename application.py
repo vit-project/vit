@@ -4,6 +4,7 @@ from future.utils import raise_
 
 import subprocess
 import re
+import copy
 
 import urwid
 
@@ -200,7 +201,6 @@ class Application():
                 self.task_list.focus_by_task_id(int(command))
             elif command in self.reports:
                 self.update_report(command, args)
-                # TODO: Handle custom filters.
             else:
                 # Matches 's/foo/bar/' and s%/foo/bar/, allowing for separators
                 # to be any non-word character.
@@ -238,7 +238,7 @@ class Application():
             urwid.Text('Loading...'),
         ])
         self.footer = MultiWidget()
-        self.autocomplete = TaskAutoComplete(self.config)
+        self.autocomplete = TaskAutoComplete(self.config, extra_filters={'report': self.reports.keys()})
         self.command_bar = CommandBar(autocomplete=self.autocomplete, event=self.event)
         self.message_bar = urwid.Text('', align='center')
         self.footer.add_widget('command', self.command_bar)
@@ -264,8 +264,16 @@ class Application():
 
     def setup_autocomplete(self, op):
         callback = self.command_bar.set_edit_text_callback()
-        if op in ('ex', 'filter', 'add', 'modify'):
+        if op in ('filter', 'add', 'modify'):
             self.autocomplete.setup(callback)
+        elif op in ('ex',):
+            filters = ('report', 'column', 'project', 'tag')
+            prefixes = copy.deepcopy(self.autocomplete.default_prefixes)
+            prefixes['report'] = {
+                'include_unprefixed': True,
+                'root_only': True,
+            }
+            self.autocomplete.setup(callback, filters=filters, prefixes=prefixes)
         elif op in ('project',):
             filters = ('project',)
             prefixes = {
