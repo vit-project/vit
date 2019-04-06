@@ -299,11 +299,11 @@ class Application():
         self.message_bar.set_text((display, message))
 
     def update_report(self, report=None, extra_filters=[]):
-        if not report:
-            report = self.report
-        self.model.update_report(report, extra_filters)
+        if report:
+            self.report = report
+        self.model.update_report(self.report, extra_filters)
         self.build_task_table()
-        filtered_report = 'task %s %s' % (report, ' '.join(extra_filters))
+        filtered_report = 'task %s %s' % (self.report, ' '.join(extra_filters))
         report_status, _ = self.header.contents[0]
         report_status.original_widget.set_text(filtered_report)
         self.header.contents[1] = (self.table.header, self.header.options())
