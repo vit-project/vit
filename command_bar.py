@@ -16,6 +16,8 @@ class CommandBar(urwid.Edit):
         """Overrides Edit.keypress method.
         """
         # TODO: Readline edit shortcuts.
+        if key not in ('tab',):
+            self.autocomplete.deactivate()
         if 'choices' in self.metadata:
             op = self.metadata['op']
             data = {
@@ -56,11 +58,17 @@ class CommandBar(urwid.Edit):
                 self.history.add(metadata['op'], text)
             self.event.emit('command-bar:keypress', data)
             return None
+        elif key in ('tab',):
+            text = self.get_edit_text()
+            self.autocomplete.activate(text, self.edit_pos)
+            return None
         return super().keypress(size, key)
 
-    def set_edit_text(self, text):
+    def set_edit_text(self, text, edit_pos=None):
         ret = super().set_edit_text(text)
-        self.set_edit_pos(len(text))
+        if not edit_pos:
+            edit_pos = len(text)
+        self.set_edit_pos(edit_pos)
         return ret
 
     def set_command_prompt(self, caption, edit_text=None):
@@ -83,6 +91,9 @@ class CommandBar(urwid.Edit):
 
     def set_metadata(self, metadata):
         self.metadata = metadata
+
+    def set_edit_text_callback(self):
+        return self.set_edit_text
 
 class CommandBarHistory(object):
     """Holds command-specific history for the command bar.

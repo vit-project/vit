@@ -258,8 +258,32 @@ class Application():
     def activate_command_bar(self, op, caption, metadata={}, edit_text=None):
         metadata['op'] = op
         self.footer.show_widget('command')
+        self.setup_autocomplete(op)
         self.command_bar.activate(caption, metadata, edit_text)
         self.widget.focus_position = 'footer'
+
+    def setup_autocomplete(self, op):
+        callback = self.command_bar.set_edit_text_callback()
+        if op in ('ex', 'filter', 'add', 'modify'):
+            self.autocomplete.setup(callback)
+        elif op in ('project',):
+            filters = ('project',)
+            prefixes = {
+                'project': {
+                    'prefixes': [],
+                    'include_unprefixed': True,
+                },
+            }
+            self.autocomplete.setup(callback, filters=filters, prefixes=prefixes)
+        elif op in ('tag',):
+            filters = ('tag',)
+            prefixes = {
+                'tag': {
+                    'prefixes': ['+', '-'],
+                    'include_unprefixed': True,
+                },
+            }
+            self.autocomplete.setup(callback, filters=filters, prefixes=prefixes)
 
     def activate_message_bar(self, message='', message_type='status'):
         self.footer.show_widget('message')
