@@ -216,23 +216,32 @@ class TaskAutoComplete(object):
 
     def generate_tab_options(self, text, edit_pos):
         if self.root_search:
-            if len(self.root_only_filters) > 0:
+            if self.has_root_only_filters():
                 self.tab_options = list(map(lambda e: e[1], filter(lambda e: True if e[0] in self.root_only_filters else False, self.entries)))
             else:
                 self.tab_options = list(map(lambda e: e[1], self.entries))
         else:
             self.parse_text(text, edit_pos)
             exp = re.compile(self.search_fragment)
-            if len(self.root_only_filters) > 0:
-                self.tab_options = list(map(lambda e: e[1], filter(lambda e: True if e[0] not in self.root_only_filters and exp.match(e[1]) else False, self.entries)))
+            if self.has_root_only_filters():
+                if self.search_fragment_is_root():
+                    self.tab_options = list(map(lambda e: e[1], filter(lambda e: True if e[0] in self.root_only_filters and exp.match(e[1]) else False, self.entries)))
+                else:
+                    self.tab_options = list(map(lambda e: e[1], filter(lambda e: True if e[0] not in self.root_only_filters and exp.match(e[1]) else False, self.entries)))
             else:
                 self.tab_options = list(map(lambda e: e[1], filter(lambda e: True if exp.match(e[1]) else False, self.entries)))
 
+    def has_root_only_filters(self):
+        return len(self.root_only_filters) > 0
+
+    def search_fragment_is_root(self):
+        return len(self.prefix_parts) == 0
+
     def parse_text(self, text, edit_pos):
         full_prefix = text[:edit_pos]
-        prefix_parts = util.string_to_args(full_prefix)
-        self.search_fragment = prefix_parts.pop()
-        self.prefix = ' '.join(prefix_parts)
+        self.prefix_parts = util.string_to_args(full_prefix)
+        self.search_fragment = self.prefix_parts.pop()
+        self.prefix = ' '.join(self.prefix_parts)
         self.suffix = text[(edit_pos + 1):]
 
     def can_tab(self, text, edit_pos):
