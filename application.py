@@ -73,6 +73,11 @@ class Application():
                     # TODO: Will this break if user clicks another list item
                     # before hitting enter?
                     self.execute_command(['task', metadata['uuid'], 'modify'] + args)
+                elif op == 'annotate':
+                    task = self.model.task_annotate(metadata['uuid'], data['text'])
+                    if task:
+                        self.update_report()
+                        self.activate_message_bar('Annotated task %s' % self.model.task_id(task['uuid']))
                 elif op == 'project':
                     # TODO: Validation if more than one arg passed.
                     task = self.model.task_project(metadata['uuid'], args[0])
@@ -120,6 +125,12 @@ class Application():
 
     def on_select(self, row, size, key):
         self.activate_message_bar()
+        if key in ('A',):
+            uuid = self.get_focused_task()
+            if uuid:
+                self.activate_command_bar('annotate', 'Annotate: ', {'uuid': uuid})
+                self.task_list.focus_by_task_uuid(uuid)
+            return None
         if key in ('m',):
             uuid = self.get_focused_task()
             if uuid:

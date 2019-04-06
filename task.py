@@ -54,6 +54,13 @@ class TaskListModel(object):
             return task
         return False
 
+    def task_annotate(self, uuid, description):
+        task = self.get_task(uuid)
+        if task:
+            task.add_annotation(description)
+            return task
+        return False
+
     def task_priority(self, uuid, priority):
         task = self.get_task(uuid)
         if task:
