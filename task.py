@@ -209,9 +209,11 @@ class TaskAutoComplete(object):
         self.search_fragment = None
         self.prefix = None
         self.suffix = None
+        self.partial = None
+        self.matched_first_partial = False
 
     def send_tabbed_text(self, text, edit_pos):
-        tabbed_text, final_edit_pos = self.next_tab_item(text, edit_pos)
+        tabbed_text, final_edit_pos = self.next_tab_item(text)
         self.text_callback(tabbed_text, final_edit_pos)
 
     def generate_tab_options(self, text, edit_pos):
@@ -254,7 +256,9 @@ class TaskAutoComplete(object):
         next_pos = edit_pos + 1
         return text[edit_pos:next_pos] in (' ', '') and text[previous_pos:edit_pos] not in (' ', '')
 
-    def assemble(self, tab_option):
+    def assemble(self, tab_option, solo_match=False):
+        if solo_match:
+            tab_option += ' '
         parts = [self.prefix, tab_option, self.suffix]
         tabbed_text = ' '.join(filter(lambda p: True if p else False, parts))
         parts.pop()
@@ -262,20 +266,46 @@ class TaskAutoComplete(object):
         edit_pos_final = len(edit_pos_parts)
         return tabbed_text, edit_pos_final
 
+    def partial_match(self):
+        if self.partial:
+            return
+        ref_item = self.tab_options[0]
+        ref_item_length = len(ref_item)
+        tab_options_length = len(self.tab_options)
+        pos = len(self.search_fragment)
+        self.partial = self.search_fragment
+        while pos < ref_item_length:
+            pos += 1
+            exp = re.compile(ref_item[:pos])
+            ref_result = list(filter(lambda o: True if exp.match(o) else False, self.tab_options))
+            if len(ref_result) == tab_options_length:
+                self.partial = ref_item[:pos]
+            else:
+                break
+        return self.partial != self.search_fragment
+
     def increment_index(self):
         self.idx = self.idx + 1 if self.idx < len(self.tab_options) - 1 else 0
 
-    def next_tab_item(self, text, edit_pos):
+    def next_tab_item(self, text):
         tabbed_text = ''
-        final_edit_pos = None
+        edit_pos = None
         if self.root_search:
             tabbed_text = self.tab_options[self.idx]
             self.increment_index()
         else:
             if len(self.tab_options) == 0:
                 tabbed_text = text
+            elif len(self.tab_options) == 1:
+                tabbed_text, edit_pos = self.assemble(self.tab_options[self.idx], solo_match=True)
             else:
-                tabbed_text, final_edit_pos = self.assemble(self.tab_options[self.idx])
-                self.increment_index()
-        return tabbed_text, final_edit_pos
+                if self.partial_match():
+                    tabbed_text, edit_pos = self.assemble(self.partial)
+                else:
+                    if not self.matched_first_partial and self.partial == self.tab_options[self.idx]:
+                        self.matched_first_partial = True
+                        self.increment_index()
+                    tabbed_text, edit_pos = self.assemble(self.tab_options[self.idx])
+                    self.increment_index()
+        return tabbed_text, edit_pos
 
