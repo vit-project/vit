@@ -192,28 +192,27 @@ class TaskAutoComplete(object):
     def reset(self):
         self.teardown()
 
-    def activate(self, text, edit_pos):
+    def activate(self, text, edit_pos, reverse=False):
         if self.activated:
-            self.send_tabbed_text(text, edit_pos)
+            self.send_tabbed_text(text, edit_pos, reverse)
             return
         if self.can_tab(text, edit_pos):
             self.activated = True
             self.generate_tab_options(text, edit_pos)
-            self.send_tabbed_text(text, edit_pos)
+            self.send_tabbed_text(text, edit_pos, reverse)
 
     def deactivate(self):
         self.activated = False
-        self.idx = 0
+        self.idx = None
         self.tab_options = []
         self.root_search = False
         self.search_fragment = None
         self.prefix = None
         self.suffix = None
         self.partial = None
-        self.matched_first_partial = False
 
-    def send_tabbed_text(self, text, edit_pos):
-        tabbed_text, final_edit_pos = self.next_tab_item(text)
+    def send_tabbed_text(self, text, edit_pos, reverse):
+        tabbed_text, final_edit_pos = self.next_tab_item(text, reverse)
         self.text_callback(tabbed_text, final_edit_pos)
 
     def generate_tab_options(self, text, edit_pos):
@@ -284,15 +283,24 @@ class TaskAutoComplete(object):
                 break
         return self.partial != self.search_fragment
 
-    def increment_index(self):
-        self.idx = self.idx + 1 if self.idx < len(self.tab_options) - 1 else 0
+    def initial_idx(self, reverse):
+        return len(self.tab_options) - 1 if reverse else 0
 
-    def next_tab_item(self, text):
+    def increment_index(self, reverse):
+        if self.idx == None:
+            self.idx = self.initial_idx(reverse)
+        else:
+            if reverse:
+                self.idx = self.idx - 1 if self.idx > 0 else len(self.tab_options) - 1
+            else:
+                self.idx = self.idx + 1 if self.idx < len(self.tab_options) - 1 else 0
+
+    def next_tab_item(self, text, reverse):
         tabbed_text = ''
         edit_pos = None
         if self.root_search:
+            self.increment_index(reverse)
             tabbed_text = self.tab_options[self.idx]
-            self.increment_index()
         else:
             if len(self.tab_options) == 0:
                 tabbed_text = text
@@ -302,10 +310,9 @@ class TaskAutoComplete(object):
                 if self.partial_match():
                     tabbed_text, edit_pos = self.assemble(self.partial)
                 else:
-                    if not self.matched_first_partial and self.partial == self.tab_options[self.idx]:
-                        self.matched_first_partial = True
-                        self.increment_index()
+                    if self.idx == None and self.partial == self.tab_options[self.initial_idx(reverse)]:
+                        self.increment_index(reverse)
+                    self.increment_index(reverse)
                     tabbed_text, edit_pos = self.assemble(self.tab_options[self.idx])
-                    self.increment_index()
         return tabbed_text, edit_pos
 

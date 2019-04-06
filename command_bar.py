@@ -16,7 +16,7 @@ class CommandBar(urwid.Edit):
         """Overrides Edit.keypress method.
         """
         # TODO: Readline edit shortcuts.
-        if key not in ('tab',):
+        if key not in ('tab', 'shift tab'):
             self.autocomplete.deactivate()
         if 'choices' in self.metadata:
             op = self.metadata['op']
@@ -58,9 +58,12 @@ class CommandBar(urwid.Edit):
                 self.history.add(metadata['op'], text)
             self.event.emit('command-bar:keypress', data)
             return None
-        elif key in ('tab',):
+        elif key in ('tab', 'shift tab'):
             text = self.get_edit_text()
-            self.autocomplete.activate(text, self.edit_pos)
+            kwargs = {}
+            if key in ('shift tab',):
+                kwargs['reverse'] = True
+            self.autocomplete.activate(text, self.edit_pos, **kwargs)
             return None
         return super().keypress(size, key)
 
