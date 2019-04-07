@@ -6,6 +6,8 @@ import six
 
 import version
 
+from functools import reduce
+
 curses.setupterm()
 e3_seq = curses.tigetstr('E3') or b''
 clear_screen_seq = curses.tigetstr('clear') or b''
@@ -27,3 +29,22 @@ def is_mouse_event(key):
 
 def uuid_short(uuid):
     return uuid[0:8]
+
+def format_key_command(command_string, replacements={}):
+    for token, replacement in list(replacements.items()):
+        command_string = command_string.replace(token, replacement)
+    def reducer(accum, char):
+        if char == '<':
+            accum['in_brackets'] = True
+            accum['bracket_string'] = ''
+        elif char == '>':
+            accum['in_brackets'] = False
+            accum['key_command'].append(accum['bracket_string'])
+        else:
+            if accum['in_brackets']:
+                accum['bracket_string'] += char
+            else:
+                accum['key_command'].append(char)
+        return accum
+    accum = reduce(reducer, command_string, {'key_command': [], 'in_brackets': False, 'bracket_string': ''})
+    return accum['key_command']
