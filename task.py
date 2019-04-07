@@ -312,7 +312,7 @@ class TaskAutoComplete(object):
             if len(self.tab_options) == 0:
                 tabbed_text = text
             elif len(self.tab_options) == 1:
-                tabbed_text, edit_pos = self.assemble(self.tab_options[self.idx], solo_match=True)
+                tabbed_text, edit_pos = self.assemble(self.tab_options[0], solo_match=True)
             else:
                 if self.partial_match():
                     tabbed_text, edit_pos = self.assemble(self.partial)
