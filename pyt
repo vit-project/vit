@@ -8,7 +8,7 @@ from application import Application
 from tasklib import TaskWarrior
 
 def main():
-  config = ConfigParser().config
+  config = ConfigParser()
   task_config = TaskParser(config)
   reports = task_config.reports()
   default_report = sys.argv[1] if len(sys.argv) > 1 else config.get('report', 'default_report')

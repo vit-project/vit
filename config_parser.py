@@ -13,15 +13,34 @@ SORT_ORDER_CHARACTERS = ['+', '-']
 SORT_COLLATE_CHARACTERS = ['/']
 DEFAULT_VIT_CONFIG = '~/.vit/vit.conf'
 
-CONFIG_DEFAULTS = {
-    "taskrc": "~/.taskrc",
-    "default_report": "next",
+DEFAULTS = {
+    'taskwarrior': {
+        'taskrc': '~/.taskrc',
+    },
+    'report': {
+        'default_report': 'next',
+    },
 }
 
 class ConfigParser(object):
     def __init__(self):
-        self.config = configparser.SafeConfigParser(CONFIG_DEFAULTS)
+        self.config = configparser.SafeConfigParser()
         self.config.read(os.path.expanduser('VIT_CONFIG' in env.user and env.user['VIT_CONFIG'] or DEFAULT_VIT_CONFIG))
+
+    def get(self, section, key):
+        try:
+            return self.config.get(section, key)
+        except configparser.NoOptionError:
+            return DEFAULTS[section][key]
+
+    def items(self, section):
+        try:
+            return self.config.items(section)
+        except configparser.NoSectionError:
+            return []
+
+    def has_section(self, section):
+        return self.config.has_section(section)
 
 class TaskParser(object):
     def __init__(self, config):
