@@ -15,7 +15,7 @@ from process import Command
 from task import TaskListModel, TaskAutoComplete
 from keybinding_parser import KeybindingParser
 
-from task_list import TaskTable, SelectableRow, TaskListBox
+from task_list import TaskTable
 import event
 from multi_widget import MultiWidget
 from command_bar import CommandBar
@@ -357,6 +357,9 @@ class Application():
             footer=self.footer,
         )
         self.update_report(self.report)
+        # This first time the focus needs to be manually set so the ListBox
+        # class can properly track the focus highlighting.
+        self.task_list.focus_position = 0
 
     def run(self, report):
         self.build_main_widget(report)

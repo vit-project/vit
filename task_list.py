@@ -23,6 +23,20 @@ class TaskTable(object):
         self.clean_empty_columns()
         self.reconcile_column_width_for_label()
         self.build_table()
+        self.init_event_listener()
+
+    def init_event_listener(self):
+        def handler():
+            self.update_focus()
+        self.modified_signal = urwid.connect_signal(self.list_walker, 'modified', handler)
+
+    def update_focus(self):
+        if self.listbox.previous_focus_position != self.listbox.focus_position:
+            if self.listbox.previous_focus_position is not None and self.listbox.previous_focus_position < len(self.contents):
+                self.contents[self.listbox.previous_focus_position].row.set_attr_map({})
+            if self.listbox.focus_position is not None:
+                self.contents[self.listbox.focus_position].row.set_attr_map({None: 'reveal focus'})
+        self.listbox.previous_focus_position = self.listbox.focus_position
 
     def sort(self):
         for column, order, collate in reversed(self.report['sort']):
@@ -63,7 +77,8 @@ class TaskTable(object):
 
     def build_table(self):
         self.contents = [SelectableRow(self.columns, task, on_select=self.on_select) for task in self.rows]
-        self.listbox = TaskListBox(urwid.SimpleFocusListWalker(self.contents))
+        self.list_walker = urwid.SimpleFocusListWalker(self.contents)
+        self.listbox = TaskListBox(self.list_walker)
 
         list_header = urwid.Columns([(metadata['width'] + 2, urwid.Text(metadata['label'], align='left')) for column, metadata in list(self.columns.items())])
         self.header = urwid.AttrMap(list_header, 'list-header')
@@ -87,10 +102,10 @@ class SelectableRow(urwid.WidgetWrap):
 
         self._columns = urwid.Columns([(metadata['width'], urwid.Text(row.data[column], align=align)) for column, metadata in list(columns.items())],
                                        dividechars=space_between)
-        self._focusable_columns = urwid.AttrMap(self._columns, '', 'reveal focus')
+        self.row = urwid.AttrMap(self._columns, '')
 
         # Wrap 'urwid.Columns'.
-        super().__init__(self._focusable_columns)
+        super().__init__(self.row)
 
         # A hook which defines the behavior that is executed when a specified key is pressed.
         self.on_select = on_select
@@ -118,6 +133,11 @@ class SelectableRow(urwid.WidgetWrap):
 class TaskListBox(urwid.ListBox):
     """Maps task list shortcuts to default ListBox class.
     """
+
+    def __init__(self, body):
+        self.previous_focus_position = None
+        return super().__init__(body)
+
     def keypress(self, size, key):
         """Overrides ListBox.keypress method.
         """
