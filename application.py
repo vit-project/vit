@@ -5,12 +5,15 @@ from future.utils import raise_
 import subprocess
 import re
 import copy
+from inspect import isfunction
+from functools import reduce
 
 import urwid
 
 from util import clear_screen, string_to_args, is_mouse_event
 from process import Command
 from task import TaskListModel, TaskAutoComplete
+from keybinding_parser import KeybindingParser
 
 from task_list import TaskTable, SelectableRow, TaskListBox
 import event
@@ -33,9 +36,28 @@ class Application():
         self.reports = reports
         self.report = report
         self.command = Command(self.config)
+        self.setup_keybindings()
         self.event = event.Emitter()
         self.event.listen('command-bar:keypress', self.command_bar_keypress)
         self.run(self.report)
+
+    def setup_keybindings(self):
+        self.keybinding_parser = KeybindingParser()
+        bindings = self.config.items('keybinding')
+        replacements = {
+            'TASKID': lambda: str(self.get_focused_task())
+        }
+        self.keybinding_parser.add_keybindings(bindings=bindings, replacements=replacements)
+        self.keybindings = self.keybinding_parser.keybindings
+
+    def prepare_keybinding_keypresses(self, keypresses):
+        def reducer(accum, key):
+            if isfunction(key):
+                accum += list(key())
+            else:
+                accum.append(key)
+            return accum
+        return reduce(reducer, keypresses, [])
 
     def command_bar_keypress(self, data):
         metadata = data['metadata']
@@ -122,6 +144,9 @@ class Application():
                 metadata['uuid'] = uuid
             edit_text = '!rw task ' if key in ('t',) else None
             self.activate_command_bar('ex', ':', metadata, edit_text=edit_text)
+        elif key in self.keybindings:
+            keypresses = self.prepare_keybinding_keypresses(self.keybindings[key])
+            self.loop.process_input(keypresses)
 
     def on_select(self, row, size, key):
         self.activate_message_bar()
