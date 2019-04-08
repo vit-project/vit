@@ -8,12 +8,19 @@ MAX_COLUMN_WIDTH = 60
 
 class TaskTable(object):
 
-    def __init__(self, task_config, report, tasks, on_select=None):
+    def __init__(self, task_config, on_select=None):
         self.task_config = task_config
-        self.report = report
-        self.tasks = tasks
         self.on_select = on_select
         self.formatter = formatter.Defaults(task_config)
+
+    def init_event_listener(self):
+        def handler():
+            self.update_focus()
+        self.modified_signal = urwid.connect_signal(self.list_walker, 'modified', handler)
+
+    def update_data(self, report, tasks):
+        self.report = report
+        self.tasks = tasks
         self.columns = OrderedDict()
         self.rows = []
         self.sort()
@@ -23,20 +30,18 @@ class TaskTable(object):
         self.clean_empty_columns()
         self.reconcile_column_width_for_label()
         self.build_table()
-        self.init_event_listener()
-
-    def init_event_listener(self):
-        def handler():
-            self.update_focus()
-        self.modified_signal = urwid.connect_signal(self.list_walker, 'modified', handler)
+        self.update_focus()
 
     def update_focus(self):
-        if self.listbox.previous_focus_position != self.listbox.focus_position:
-            if self.listbox.previous_focus_position is not None and self.listbox.previous_focus_position < len(self.contents):
-                self.contents[self.listbox.previous_focus_position].row.set_attr_map({})
-            if self.listbox.focus_position is not None:
-                self.contents[self.listbox.focus_position].row.set_attr_map({None: 'reveal focus'})
-        self.listbox.previous_focus_position = self.listbox.focus_position
+        if len(self.contents) > 0:
+            if self.listbox.previous_focus_position != self.listbox.focus_position:
+                if self.listbox.previous_focus_position is not None and self.listbox.previous_focus_position < len(self.contents):
+                    self.contents[self.listbox.previous_focus_position].row.set_attr_map({})
+                if self.listbox.focus_position is not None:
+                    self.contents[self.listbox.focus_position].row.set_attr_map({None: 'reveal focus'})
+            self.listbox.previous_focus_position = self.listbox.focus_position
+        else:
+            self.listbox.previous_focus_position = None
 
     def sort(self):
         for column, order, collate in reversed(self.report['sort']):
@@ -79,7 +84,7 @@ class TaskTable(object):
         self.contents = [SelectableRow(self.columns, task, on_select=self.on_select) for task in self.rows]
         self.list_walker = urwid.SimpleFocusListWalker(self.contents)
         self.listbox = TaskListBox(self.list_walker)
-
+        self.init_event_listener()
         list_header = urwid.Columns([(metadata['width'] + 2, urwid.Text(metadata['label'], align='left')) for column, metadata in list(self.columns.items())])
         self.header = urwid.AttrMap(list_header, 'list-header')
 

@@ -263,7 +263,10 @@ class Application():
         raise urwid.ExitMainLoop()
 
     def build_task_table(self):
-        self.table = TaskTable(self.task_config, self.reports[self.report], self.model.tasks, on_select=self.on_select)
+        self.table = TaskTable(self.task_config, on_select=self.on_select)
+
+    def update_task_table(self):
+        self.table.update_data(self.reports[self.report], self.model.tasks)
 
     def init_task_list(self):
         self.model = TaskListModel(self.task_config, self.reports)
@@ -338,7 +341,7 @@ class Application():
         if report:
             self.report = report
         self.model.update_report(self.report, extra_filters)
-        self.build_task_table()
+        self.update_task_table()
         filtered_report = 'task %s %s' % (self.report, ' '.join(extra_filters))
         report_status, _ = self.header.contents[0]
         report_status.original_widget.set_text(filtered_report)
@@ -356,10 +359,8 @@ class Application():
             header=self.header,
             footer=self.footer,
         )
+        self.build_task_table()
         self.update_report(self.report)
-        # This first time the focus needs to be manually set so the ListBox
-        # class can properly track the focus highlighting.
-        self.task_list.focus_position = 0
 
     def run(self, report):
         self.build_main_widget(report)
