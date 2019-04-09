@@ -26,6 +26,8 @@ PALETTE = [
     ('message status', 'white', 'dark blue', 'standout'),
     ('message error', 'white', 'dark red', 'standout'),
     ('status', 'dark blue', 'black'),
+    ('flash off', 'black', 'black', 'standout'),
+    ('flash on', 'white', 'black', 'standout'),
 ]
 
 class Application():
@@ -69,16 +71,19 @@ class Application():
             elif op == 'done' and choice is not None:
                 task = self.model.task_done(metadata['uuid'])
                 if task:
+                    self.table.flash_focus()
                     self.update_report()
                     self.activate_message_bar('Task %s marked done' % self.model.task_id(task['uuid']))
             elif op == 'start-stop' and choice is not None:
                 task = self.model.task_start_stop(metadata['uuid'])
                 if task:
+                    self.table.flash_focus()
                     self.update_report()
                     self.activate_message_bar('Task %s %s' % (self.model.task_id(task['uuid']), 'started' if task['start'] else 'stopped'))
             elif op == 'priority' and choice is not None:
                 task = self.model.task_priority(metadata['uuid'], choice)
                 if task:
+                    self.table.flash_focus()
                     self.update_report()
                     self.activate_message_bar('Task %s priority set to: %s' % (self.model.task_id(task['uuid']), task['priority'] or 'None'))
         elif data['key'] in ('enter',):
@@ -98,23 +103,27 @@ class Application():
                 elif op == 'annotate':
                     task = self.model.task_annotate(metadata['uuid'], data['text'])
                     if task:
+                        self.table.flash_focus()
                         self.update_report()
                         self.activate_message_bar('Annotated task %s' % self.model.task_id(task['uuid']))
                 elif op == 'project':
                     # TODO: Validation if more than one arg passed.
                     task = self.model.task_project(metadata['uuid'], args[0])
                     if task:
+                        self.table.flash_focus()
                         self.update_report()
                         self.activate_message_bar('Task %s project updated' % self.model.task_id(task['uuid']))
                 elif op == 'tag':
                     task = self.model.task_tags(metadata['uuid'], args)
                     if task:
+                        self.table.flash_focus()
                         self.update_report()
                         self.activate_message_bar('Task %s tags updated' % self.model.task_id(task['uuid']))
                 elif op == 'wait':
                     # TODO: Validation if more than one arg passed.
                     returncode, stdout, stderr = self.command.run(['task', metadata['uuid'], 'modify', 'wait:%s' % args[0]], capture_output=True)
                     if returncode == 0:
+                        self.table.flash_focus()
                         self.update_report()
                         self.activate_message_bar('Task %s wait updated' % self.model.task_id(metadata['uuid']))
                     else:
@@ -156,7 +165,7 @@ class Application():
                 self.activate_command_bar('annotate', 'Annotate: ', {'uuid': uuid})
                 self.task_list.focus_by_task_uuid(uuid)
             return None
-        if key in ('m',):
+        elif key in ('m',):
             uuid = self.get_focused_task()
             if uuid:
                 self.activate_command_bar('modify', 'Modify: ', {'uuid': uuid})
@@ -248,6 +257,7 @@ class Application():
                         description = re.sub(r'%s' % before, after, task['description'])
                         task = self.model.task_description(metadata['uuid'], description)
                         if task:
+                            self.table.flash_focus()
                             self.update_report()
                             self.activate_message_bar('Task %s description updated' % self.model.task_id(task['uuid']))
 
@@ -365,4 +375,5 @@ class Application():
     def run(self, report):
         self.build_main_widget(report)
         self.loop = urwid.MainLoop(self.widget, PALETTE, unhandled_input=self.key_pressed)
+        self.table.set_draw_screen_callback(self.loop.draw_screen)
         self.loop.run()

@@ -1,5 +1,7 @@
 from operator import itemgetter
 from collections import OrderedDict
+from itertools import repeat
+from time import sleep
 
 import urwid
 import formatter
@@ -12,6 +14,9 @@ class TaskTable(object):
         self.task_config = task_config
         self.on_select = on_select
         self.formatter = formatter.Defaults(task_config)
+
+    def set_draw_screen_callback(self, callback):
+        self.draw_screen = callback
 
     def init_event_listener(self):
         def handler():
@@ -36,12 +41,35 @@ class TaskTable(object):
         if len(self.contents) > 0:
             if self.listbox.previous_focus_position != self.listbox.focus_position:
                 if self.listbox.previous_focus_position is not None and self.listbox.previous_focus_position < len(self.contents):
-                    self.contents[self.listbox.previous_focus_position].row.set_attr_map({})
+                    self.update_focus_attr({}, position=self.listbox.previous_focus_position)
                 if self.listbox.focus_position is not None:
-                    self.contents[self.listbox.focus_position].row.set_attr_map({None: 'reveal focus'})
+                    self.update_focus_attr('reveal focus')
             self.listbox.previous_focus_position = self.listbox.focus_position
         else:
             self.listbox.previous_focus_position = None
+
+    def update_focus_attr(self, attr, position=None):
+        attr = attr if isinstance(attr, dict) else {None: attr}
+        if position is None:
+            position = self.listbox.focus_position
+        self.contents[position].row.set_attr_map(attr)
+
+    def flash_focus(self, repeat_times=2, pause_seconds=0.1):
+        if len(self.contents) > 0:
+            position = self.listbox.focus_position if self.listbox.focus_position is not None else self.listbox.previous_focus_position if self.listbox.previous_focus_position is not None else None
+            if position is not None:
+                self.update_focus_attr('flash on', position)
+                self.draw_screen()
+                for i in repeat(None, repeat_times):
+                    sleep(pause_seconds)
+                    self.update_focus_attr('flash off', position)
+                    self.draw_screen()
+                    sleep(pause_seconds)
+                    self.update_focus_attr('flash on', position)
+                    self.draw_screen()
+                sleep(pause_seconds)
+                self.update_focus_attr('reveal focus', position)
+                self.draw_screen()
 
     def sort(self):
         for column, order, collate in reversed(self.report['sort']):
