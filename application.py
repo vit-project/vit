@@ -284,11 +284,13 @@ class Application():
 
     def build_frame(self):
         self.status_report = urwid.AttrMap(urwid.Text('Welcome to VIT'), 'status')
+        self.status_context = urwid.AttrMap(urwid.Text(''), 'status')
         self.status_version = urwid.AttrMap(urwid.Text('vit (%s)' % version.VIT, align='center'), 'status')
         self.status_tasks_shown = urwid.AttrMap(urwid.Text('', align='right'), 'status')
         self.status_tasks_completed = urwid.AttrMap(urwid.Text('', align='right'), 'status')
         self.top_column_left = urwid.Pile([
             self.status_report,
+            self.status_context,
         ])
         self.top_column_center = urwid.Pile([
             self.status_version,
@@ -370,6 +372,14 @@ class Application():
         filtered_report = 'task %s %s' % (self.report, ' '.join(extra_filters))
         self.status_report.original_widget.set_text(filtered_report)
 
+    def update_status_context(self):
+        returncode, stdout, stderr = self.command.run(['task', 'context', 'show'], capture_output=True)
+        if returncode == 0:
+            text = ' '.join(stdout.split()[:2])
+            self.status_context.original_widget.set_text(text)
+        else:
+            raise "Error retrieving completed tasks: %s" % stderr
+
     def update_status_tasks_shown(self):
         num_tasks = len(self.model.tasks)
         text = '%s %s shown' % (num_tasks, num_tasks == 1 and 'task' or 'tasks')
@@ -390,6 +400,7 @@ class Application():
         self.model.update_report(self.report, extra_filters)
         self.update_task_table()
         self.update_status_report(extra_filters)
+        self.update_status_context()
         self.update_status_tasks_shown()
         self.update_status_tasks_completed()
         self.header.contents[1] = (self.table.header, self.header.options())
