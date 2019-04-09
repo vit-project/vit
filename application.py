@@ -14,6 +14,7 @@ from util import clear_screen, string_to_args, is_mouse_event
 from process import Command
 from task import TaskListModel, TaskAutoComplete
 from keybinding_parser import KeybindingParser
+import version
 
 from task_list import TaskTable
 import event
@@ -282,8 +283,26 @@ class Application():
         self.model = TaskListModel(self.task_config, self.reports)
 
     def build_frame(self):
+        self.status_report = urwid.AttrMap(urwid.Text('Welcome to VIT'), 'status')
+        self.status_version = urwid.AttrMap(urwid.Text('vit (%s)' % version.VIT, align='center'), 'status')
+        self.status_tasks_shown = urwid.AttrMap(urwid.Text('', align='right'), 'status')
+        self.status_tasks_completed = urwid.AttrMap(urwid.Text('', align='right'), 'status')
+        self.top_column_left = urwid.Pile([
+            self.status_report,
+        ])
+        self.top_column_center = urwid.Pile([
+            self.status_version,
+        ])
+        self.top_column_right = urwid.Pile([
+            self.status_tasks_shown,
+            self.status_tasks_completed,
+        ])
         self.header = urwid.Pile([
-            urwid.AttrMap(urwid.Text('Welcome to PYT'), 'status'),
+            urwid.Columns([
+                self.top_column_left,
+                self.top_column_center,
+                self.top_column_right,
+            ]),
             urwid.Text('Loading...'),
         ])
         self.footer = MultiWidget()
@@ -347,14 +366,32 @@ class Application():
         display = 'message %s' % message_type
         self.message_bar.set_text((display, message))
 
+    def update_status_report(self, extra_filters):
+        filtered_report = 'task %s %s' % (self.report, ' '.join(extra_filters))
+        self.status_report.original_widget.set_text(filtered_report)
+
+    def update_status_tasks_shown(self):
+        num_tasks = len(self.model.tasks)
+        text = '%s %s shown' % (num_tasks, num_tasks == 1 and 'task' or 'tasks')
+        self.status_tasks_shown.original_widget.set_text(text)
+
+    def update_status_tasks_completed(self):
+        returncode, stdout, stderr = self.command.run(['task', '+COMPLETED', 'count'], capture_output=True)
+        if returncode == 0:
+            num_tasks = int(stdout.strip())
+            text = '%s %s completed' % (num_tasks, num_tasks == 1 and 'task' or 'tasks')
+            self.status_tasks_completed.original_widget.set_text(text)
+        else:
+            raise "Error retrieving completed tasks: %s" % stderr
+
     def update_report(self, report=None, extra_filters=[]):
         if report:
             self.report = report
         self.model.update_report(self.report, extra_filters)
         self.update_task_table()
-        filtered_report = 'task %s %s' % (self.report, ' '.join(extra_filters))
-        report_status, _ = self.header.contents[0]
-        report_status.original_widget.set_text(filtered_report)
+        self.update_status_report(extra_filters)
+        self.update_status_tasks_shown()
+        self.update_status_tasks_completed()
         self.header.contents[1] = (self.table.header, self.header.options())
         self.task_list = self.widget.body = self.table.listbox
         self.autocomplete.refresh()
