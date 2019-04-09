@@ -378,7 +378,7 @@ class Application():
             text = ' '.join(stdout.split()[:2])
             self.status_context.original_widget.set_text(text)
         else:
-            raise "Error retrieving completed tasks: %s" % stderr
+            raise_(RuntimeError, "Error retrieving current context: %s" % stderr)
 
     def update_status_tasks_shown(self):
         num_tasks = len(self.model.tasks)
@@ -392,7 +392,7 @@ class Application():
             text = '%s %s completed' % (num_tasks, num_tasks == 1 and 'task' or 'tasks')
             self.status_tasks_completed.original_widget.set_text(text)
         else:
-            raise "Error retrieving completed tasks: %s" % stderr
+            raise_(RuntimeError, "Error retrieving completed tasks: %s" % stderr)
 
     def update_report(self, report=None, extra_filters=[]):
         if report:

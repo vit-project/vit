@@ -1,3 +1,5 @@
+from future.utils import raise_
+
 import os
 import re
 import shlex
@@ -54,7 +56,7 @@ class TaskParser(object):
                 hierarchy, values = line.split("=")
                 self.task_config.append((hierarchy, values))
         else:
-            raise "Error parsing task config: %s" % stderr
+            raise_(RuntimeError, "Error parsing task config: %s" % stderr)
 
     def subtree(self, matcher, walk_subtree=True):
       matcher_regex = matcher

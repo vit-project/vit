@@ -1,4 +1,5 @@
 from __future__ import print_function
+from future.utils import raise_
 
 import os
 import re
@@ -155,7 +156,7 @@ class TaskAutoComplete(object):
         if returncode == 0:
             return list(filter(lambda x: True if x else False, stdout.split("\n")))
         else:
-            raise "Error running command '%s': %s" % (command, stderr)
+            raise_(RuntimeError, "Error running command '%s': %s" % (command, stderr))
 
     def make_entries(self, filters, prefixes):
         entries = []
