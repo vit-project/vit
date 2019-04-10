@@ -4,6 +4,7 @@ from future.utils import raise_
 
 import subprocess
 import re
+import time
 import copy
 from inspect import isfunction
 from functools import reduce
@@ -285,6 +286,7 @@ class Application():
     def build_frame(self):
         self.status_report = urwid.AttrMap(urwid.Text('Welcome to VIT'), 'status')
         self.status_context = urwid.AttrMap(urwid.Text(''), 'status')
+        self.status_performance = urwid.AttrMap(urwid.Text('', align='center'), 'status')
         self.status_version = urwid.AttrMap(urwid.Text('vit (%s)' % version.VIT, align='center'), 'status')
         self.status_tasks_shown = urwid.AttrMap(urwid.Text('', align='right'), 'status')
         self.status_tasks_completed = urwid.AttrMap(urwid.Text('', align='right'), 'status')
@@ -294,6 +296,7 @@ class Application():
         ])
         self.top_column_center = urwid.Pile([
             self.status_version,
+            self.status_performance,
         ])
         self.top_column_right = urwid.Pile([
             self.status_tasks_shown,
@@ -372,6 +375,10 @@ class Application():
         filtered_report = 'task %s %s' % (self.report, ' '.join(extra_filters))
         self.status_report.original_widget.set_text(filtered_report)
 
+    def update_status_performance(self, seconds):
+        text = 'Exec. time: %dms' % (seconds * 1000)
+        self.status_performance.original_widget.set_text(text)
+
     def update_status_context(self):
         returncode, stdout, stderr = self.command.run(['task', 'context', 'show'], capture_output=True)
         if returncode == 0:
@@ -395,6 +402,7 @@ class Application():
             raise_(RuntimeError, "Error retrieving completed tasks: %s" % stderr)
 
     def update_report(self, report=None, extra_filters=[]):
+        start = time.time()
         if report:
             self.report = report
         self.model.update_report(self.report, extra_filters)
@@ -406,6 +414,8 @@ class Application():
         self.header.contents[1] = (self.table.header, self.header.options())
         self.task_list = self.widget.body = self.table.listbox
         self.autocomplete.refresh()
+        end = time.time()
+        self.update_status_performance(end - start)
 
     def build_main_widget(self, report=None):
         if report:
