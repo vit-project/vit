@@ -76,6 +76,12 @@ class Application():
                     self.table.flash_focus()
                     self.update_report()
                     self.activate_message_bar('Task %s marked done' % self.model.task_id(task['uuid']))
+            elif op == 'delete' and choice is not None:
+                task = self.model.task_delete(metadata['uuid'])
+                if task:
+                    self.table.flash_focus()
+                    self.update_report()
+                    self.activate_message_bar('Task %s deleted' % self.model.task_id(task['uuid']))
             elif op == 'start-stop' and choice is not None:
                 task = self.model.task_start_stop(metadata['uuid'])
                 if task:
@@ -166,6 +172,14 @@ class Application():
             if uuid:
                 self.activate_command_bar('annotate', 'Annotate: ', {'uuid': uuid})
                 self.task_list.focus_by_task_uuid(uuid)
+            return None
+        elif key in ('D',):
+            uuid = self.get_focused_task()
+            if uuid:
+                task = self.model.get_task(uuid)
+                if task:
+                    task_id = task['id']
+                    self.activate_command_bar('delete', 'Delete task %s? (y/n): ' % task_id, {'uuid': uuid, 'id': task_id, 'choices': {'y': True}})
             return None
         elif key in ('m',):
             uuid = self.get_focused_task()

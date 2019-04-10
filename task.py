@@ -85,6 +85,13 @@ class TaskListModel(object):
             return task
         return False
 
+    def task_delete(self, uuid):
+        task = self.get_task(uuid)
+        if task:
+            task.delete()
+            return task
+        return False
+
     def task_start_stop(self, uuid):
         task = self.get_task(uuid)
         if task:
