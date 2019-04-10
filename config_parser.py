@@ -14,6 +14,7 @@ from process import Command
 SORT_ORDER_CHARACTERS = ['+', '-']
 SORT_COLLATE_CHARACTERS = ['/']
 DEFAULT_VIT_CONFIG = '~/.vit/vit.conf'
+FILTER_EXCLUSION_REGEX = re.compile("^limit:")
 
 DEFAULTS = {
     'taskwarrior': {
@@ -118,7 +119,7 @@ class TaskParser(object):
         if 'filter' in attrs:
           # Allows quoted strings.
           filters = shlex.split(attrs['filter'])
-          reports[report]['filter'] = [f for f in filters]
+          reports[report]['filter'] = [f for f in filters if not FILTER_EXCLUSION_REGEX.match(f)]
         if 'labels' in attrs:
           reports[report]['labels'] = attrs['labels'].split(',')
         if 'sort' in attrs:
