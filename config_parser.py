@@ -15,6 +15,7 @@ SORT_ORDER_CHARACTERS = ['+', '-']
 SORT_COLLATE_CHARACTERS = ['/']
 DEFAULT_VIT_CONFIG = '~/.vit/vit.conf'
 FILTER_EXCLUSION_REGEX = re.compile("^limit:")
+FILTER_PARENS_REGEX = re.compile("([\(\)])")
 
 DEFAULTS = {
     'taskwarrior': {
@@ -118,11 +119,13 @@ class TaskParser(object):
           reports[report]['description'] = attrs['description']
         if 'filter' in attrs:
           # Allows quoted strings.
-          filters = shlex.split(attrs['filter'])
+          # Adjust for missing spaces around parentheses.
+          filters = shlex.split(re.sub(FILTER_PARENS_REGEX, r' \1 ', attrs['filter']))
           reports[report]['filter'] = [f for f in filters if not FILTER_EXCLUSION_REGEX.match(f)]
         if 'labels' in attrs:
           reports[report]['labels'] = attrs['labels'].split(',')
         if 'sort' in attrs:
           columns = attrs['sort'].split(',')
           reports[report]['sort'] = [self.parse_sort_column(c) for c in columns]
+
       return reports
