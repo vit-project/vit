@@ -2,6 +2,8 @@ from operator import itemgetter
 from collections import OrderedDict
 from itertools import repeat
 from time import sleep
+# TODO: This isn't implemented in Python < 2.7.
+from functools import cmp_to_key
 
 import urwid
 import formatter
@@ -73,10 +75,19 @@ class TaskTable(object):
 
     def sort(self):
         for column, order, collate in reversed(self.report['sort']):
+            def comparator(first, second):
+                if first[column] is not None and second[column] is not None:
+                    return -1 if first[column] < second[column] else 1 if first[column] > second[column] else 0
+                elif first[column] is None and second[column] is None:
+                    return 0
+                elif first[column] is not None and second[column] is None:
+                    return 1
+                elif first[column] is None and second[column] is not None:
+                    return -1
             if order and order == 'descending':
-                self.tasks = sorted(self.tasks, key=itemgetter(column), reverse=True)
+                self.tasks = sorted(self.tasks, key=cmp_to_key(comparator), reverse=True)
             else:
-                self.tasks = sorted(self.tasks, key=itemgetter(column))
+                self.tasks = sorted(self.tasks, key=cmp_to_key(comparator))
 
     def set_column_metadata(self):
         for idx, column_formatter in enumerate(self.report['columns']):
