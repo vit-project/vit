@@ -12,10 +12,10 @@ class Defaults(object):
         formatter_class_name = ''.join([p.capitalize() for p in parts])
         try:
             formatter_module = import_module('formatter.%s' % formatter_module_name)
-            formatter_class = getattr(formatter_module, formatter_class_name)
-            return formatter_class
         except ImportError:
             return None
+        formatter_class = getattr(formatter_module, formatter_class_name)
+        return formatter_class
 
     def get(self, column_formatter):
         parts = column_formatter.split('.')
