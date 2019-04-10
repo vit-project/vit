@@ -1,4 +1,4 @@
-current_module = __import__(__name__)
+from importlib import import_module
 import uda
 
 class Defaults(object):
@@ -7,23 +7,29 @@ class Defaults(object):
         self.report = self.translate_date_markers(config.subtree('dateformat.report'))
         self.annotation = self.translate_date_markers(config.subtree('dateformat.annotation'))
 
+    def get_formatter_class(self, parts):
+        formatter_module_name = '_'.join(parts)
+        formatter_class_name = ''.join([p.capitalize() for p in parts])
+        try:
+            formatter_module = import_module('formatter.%s' % formatter_module_name)
+            formatter_class = getattr(formatter_module, formatter_class_name)
+            return formatter_class
+        except ImportError:
+            return None
+
     def get(self, column_formatter):
         parts = column_formatter.split('.')
         name = parts[0]
-        formatter_class_name = ''.join([p.capitalize() for p in parts])
-        try:
-            formatter_class = getattr(current_module, formatter_class_name)
+        formatter_class = self.get_formatter_class(parts)
+        if formatter_class:
             return name, formatter_class
-        except AttributeError:
+        else:
             uda_metadata = uda.get(name, self.config)
             if uda_metadata:
                 uda_type = uda_metadata['type'] if 'type' in uda_metadata else 'string'
-                formatter_class_name = 'Uda%s' % uda_type.capitalize()
-                try:
-                    formatter_class = getattr(current_module, formatter_class_name)
+                formatter_class = self.get_formatter_class(['uda', uda_type])
+                if formatter_class:
                     return name, formatter_class
-                except AttributeError:
-                    pass
         return name, Formatter
 
     def translate_date_markers(self, string):
@@ -52,47 +58,3 @@ class DateTime(Formatter):
 class List(Formatter):
     def format(self, obj):
         return ','.join(obj) if obj else ''
-
-class Id(Number):
-    pass
-
-class Project(String):
-    pass
-
-class Description(String):
-    pass
-
-class DescriptionCount(String):
-    def format(self, string):
-        if self.task['annotations']:
-            return "%s [%d]" % (string, len(self.task['annotations']))
-        else:
-            return string
-
-class Tags(List):
-    pass
-
-class TagsCount(Formatter):
-    def format(self, string):
-        if self.task['tags'] and len(self.task['tags']) > 0:
-            return "[%d]" % len(self.task['tags'])
-        else:
-            return ''
-
-class Scheduled(DateTime):
-    pass
-
-class Due(DateTime):
-    pass
-
-class UdaString(String):
-    pass
-
-class UdaNumeric(Number):
-    pass
-
-class UdaDate(DateTime):
-    pass
-
-class UdaDuration(String):
-    pass
