@@ -3,6 +3,10 @@ from future.utils import raise_
 import os
 import re
 import shlex
+import datetime
+
+from functools import reduce
+
 try:
     import configparser
 except ImportError:
@@ -24,6 +28,33 @@ DEFAULTS = {
     'report': {
         'default_report': 'next',
     },
+}
+
+# strftime() works differently on Windows, test here.
+test_datetime = datetime.datetime(1900, 1, 1)
+NO_PAD_FORMAT_CODE = '-' if test_datetime.strftime('%-d') == '1' else '#' if test_datetime.strftime('%#d') == '1' else ''
+
+DATE_FORMAT_MAPPING = {
+    'm': '%%%sm' % NO_PAD_FORMAT_CODE,   # 1 or 2 digit month number, eg '1', '12'
+    'M': '%m',                           # 2 digit month number, eg '01', '12'
+    'd': '%%%sd' % NO_PAD_FORMAT_CODE,   # 1 or 2 digit day of month number¸ eg '1', '12'
+    'D': '%d',                           # 2 digit day of month number, eg '01', '30'
+    'y': '%y',                           # 2 digit year, eg '12', where the century is assumed to be '20', therefore '2012'
+    'Y': '%Y',                           # 4 digit year, eg '2015'
+    'h': '%%%sH' % NO_PAD_FORMAT_CODE,   # 1 or 2 digit hours, eg '1', '23'
+    'H': '%H',                           # 2 digit hours, eg '01', '23'
+    'n': '%%%sM' % NO_PAD_FORMAT_CODE,   # 1 or 2 digit minutes, eg '1', '59'
+    'N': '%M',                           # 2 digit minutes, eg '01', '59'
+    's': '%%%sS' % NO_PAD_FORMAT_CODE,   # 1 or 2 digit seconds, eg '1', '59'
+    'S': '%S',                           # 2 digit seconds, eg '01', '59'
+    'v': '%%%sU' % NO_PAD_FORMAT_CODE,   # 1 or 2 digit week number, eg '1', '52'
+    'V': '%U',                           # 2 digit week number, eg '01', '52'
+    'a': '%a',                           # 3-character English day name abbreviation, eg 'mon', 'tue'
+    'A': '%A',                           # Complete English day name, eg 'monday', 'tuesday'
+    'b': '%b',                           # 3-character English month name abbreviation, eg 'jan', 'feb'
+    'B': '%B',                           # Complete English month name, eg 'january', 'february'
+    'j': '%%%sj' % NO_PAD_FORMAT_CODE,   # 1, 2 or 3 digit day-of-year number, sometimes referred to as a Julian date, eg '1', '11', or '365'
+    'J': '%j',                           # 3 digit day of year number, sometimes referred to as a Julian date, eg '001', '011', or '365'
 }
 
 class ConfigParser(object):
@@ -108,6 +139,9 @@ class TaskParser(object):
         column = ''.join(parts)
         return (column, order, collate)
 
+    def translate_date_markers(self, string):
+        return reduce(lambda accum, code: accum.replace(code[0], code[1]), list(DATE_FORMAT_MAPPING.items()), string)
+
     def reports(self):
       reports = {}
       subtree = self.subtree('report.')
@@ -127,5 +161,7 @@ class TaskParser(object):
         if 'sort' in attrs:
           columns = attrs['sort'].split(',')
           reports[report]['sort'] = [self.parse_sort_column(c) for c in columns]
+        if 'dateformat' in attrs:
+          reports[report]['dateformat'] = self.translate_date_markers(attrs['dateformat'])
 
       return reports

@@ -89,6 +89,9 @@ class TaskTable(object):
             else:
                 self.tasks = sorted(self.tasks, key=cmp_to_key(comparator))
 
+    def custom_report_formatter(self):
+        return self.report['dateformat'] if 'dateformat' in self.report else None
+
     def set_column_metadata(self):
         for idx, column_formatter in enumerate(self.report['columns']):
             name, formatter_class = self.formatter.get(column_formatter)
@@ -99,11 +102,12 @@ class TaskTable(object):
             }
 
     def build_rows(self):
+        custom_formatter = self.custom_report_formatter()
         for task in self.tasks:
             row_data = {}
             for column, metadata in list(self.columns.items()):
                 current = metadata['width']
-                formatted_value = metadata['formatter'](task, self.formatter).format(task[column])
+                formatted_value = metadata['formatter'](task, self.formatter, custom_formatter=custom_formatter).format(task[column])
                 new = len(formatted_value) if formatted_value else 0
                 if new > current and current < MAX_COLUMN_WIDTH:
                     self.columns[column]['width'] = new < MAX_COLUMN_WIDTH and new or MAX_COLUMN_WIDTH
