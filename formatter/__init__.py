@@ -68,7 +68,7 @@ class Defaults(object):
         return reduce(lambda accum, code: accum.replace(code[0], code[1]), list(DATE_FORMAT_MAPPING.items()), string)
 
 class Formatter(object):
-    def __init__(self, task, defaults):
+    def __init__(self, task, defaults, **kwargs):
         self.task = task
         self.defaults = defaults
 
