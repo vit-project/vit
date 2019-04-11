@@ -85,8 +85,12 @@ class Duration(Formatter):
     pass
 
 class DateTime(Formatter):
+    def __init__(self, task, defaults, custom_formatter=None):
+        self.custom_formatter = custom_formatter
+        super().__init__(task, defaults)
+
     def format(self, datetime):
-        return datetime.strftime('%Y-%m-%d') if datetime else ''
+        return datetime.strftime(self.custom_formatter or self.defaults.report) if datetime else ''
 
 class List(Formatter):
     def format(self, obj):
