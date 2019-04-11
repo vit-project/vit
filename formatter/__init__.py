@@ -60,11 +60,7 @@ class DateTime(Formatter):
     def format(self, dt):
         return dt.strftime(self.custom_formatter or self.defaults.report) if dt else ''
 
-    def age(self, dt):
-        if dt == None:
-            return ''
-        now = datetime.datetime.now(get_localzone())
-        seconds = (now - dt).total_seconds()
+    def seconds_to_age(self, seconds):
         if seconds <= 60:
             return '%ds' % seconds
         elif seconds <= 3600:
@@ -79,6 +75,22 @@ class DateTime(Formatter):
             return '%dmo' % (seconds // 2592000)
         else:
             return '%dy' % (seconds // 31536000)
+
+    def age(self, dt):
+        if dt == None:
+            return ''
+        now = datetime.datetime.now(get_localzone())
+        seconds = (now - dt).total_seconds()
+        return self.seconds_to_age(seconds)
+
+    def countdown(self, dt):
+        if dt == None:
+            return ''
+        now = datetime.datetime.now(get_localzone())
+        if dt < now:
+            return ''
+        seconds = (dt - now).total_seconds()
+        return self.seconds_to_age(seconds)
 
 class List(Formatter):
     def format(self, obj):
