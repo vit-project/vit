@@ -30,3 +30,5 @@ def is_mouse_event(key):
 def uuid_short(uuid):
     return uuid[0:8]
 
+def task_id_or_uuid_short(task):
+    return task['id'] or uuid_short(task['uuid'])

@@ -43,7 +43,7 @@ class TaskListModel(object):
     def task_id(self, uuid):
         try:
             task = self.tw.tasks.get(uuid=uuid)
-            return task['id'] or util.uuid_short(task['uuid'])
+            return util.task_id_or_uuid_short(task)
         except tasklib.task.DoesNotExist:
             return False
 
