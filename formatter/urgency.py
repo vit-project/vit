@@ -1,4 +1,5 @@
 from formatter import Number
 
 class Urgency(Number):
-    pass
+    def format(self, obj):
+        return "{0:.2f}".format(obj)
