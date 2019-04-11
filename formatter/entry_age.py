@@ -1,4 +1,5 @@
 from formatter.entry import Entry
 
 class EntryAge(Entry):
-    pass
+    def format(self, dt):
+        return self.age(dt)

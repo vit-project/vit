@@ -1,4 +1,6 @@
 from importlib import import_module
+import datetime
+from tzlocal import get_localzone
 
 import uda
 
@@ -55,8 +57,28 @@ class DateTime(Formatter):
         self.custom_formatter = custom_formatter
         super().__init__(task, defaults)
 
-    def format(self, datetime):
-        return datetime.strftime(self.custom_formatter or self.defaults.report) if datetime else ''
+    def format(self, dt):
+        return dt.strftime(self.custom_formatter or self.defaults.report) if dt else ''
+
+    def age(self, dt):
+        if dt == None:
+            return ''
+        now = datetime.datetime.now(get_localzone())
+        seconds = (now - dt).total_seconds()
+        if seconds <= 60:
+            return '%ds' % seconds
+        elif seconds <= 3600:
+            return '%dm' % (seconds // 60)
+        elif seconds <= 86400:
+            return '%dh' % (seconds // 3600)
+        elif seconds <= 604800:
+            return '%dd' % (seconds // 86400)
+        elif seconds <= 7257600:
+            return '%dw' % (seconds // 604800)
+        elif seconds <= 31536000:
+            return '%dmo' % (seconds // 2592000)
+        else:
+            return '%dy' % (seconds // 31536000)
 
 class List(Formatter):
     def format(self, obj):
