@@ -271,7 +271,7 @@ class TaskAutoComplete(object):
         return text[edit_pos:next_pos] in (' ', '') and text[previous_pos:edit_pos] not in (' ', '')
 
     def assemble(self, tab_option, solo_match=False):
-        if solo_match:
+        if solo_match and not tab_option.endswith(":"):
             tab_option += ' '
         parts = [self.prefix, tab_option, self.suffix]
         tabbed_text = ' '.join(filter(lambda p: True if p else False, parts))
