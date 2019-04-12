@@ -1,5 +1,5 @@
-from formatter.due import Due
+from formatter.wait import Wait
 
-class DueRelative(Due):
+class WaitRelative(Wait):
     def format(self, dt):
         return self.relative(dt)

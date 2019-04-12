@@ -1,4 +1,5 @@
 from formatter.until import Until
 
 class UntilRemaining(Until):
-    pass
+    def format(self, dt):
+        return self.remaining(dt)

@@ -1,5 +1,5 @@
-from formatter.due import Due
+from formatter.end import End
 
-class DueRelative(Due):
+class EndRelative(End):
     def format(self, dt):
         return self.relative(dt)

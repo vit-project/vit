@@ -61,20 +61,23 @@ class DateTime(Formatter):
         return dt.strftime(self.custom_formatter or self.defaults.report) if dt else ''
 
     def seconds_to_age(self, seconds):
-        if seconds <= 60:
-            return '%ds' % seconds
-        elif seconds <= 3600:
-            return '%dm' % (seconds // 60)
-        elif seconds <= 86400:
-            return '%dh' % (seconds // 3600)
-        elif seconds <= 604800:
-            return '%dd' % (seconds // 86400)
-        elif seconds <= 7257600:
-            return '%dw' % (seconds // 604800)
-        elif seconds <= 31536000:
-            return '%dmo' % (seconds // 2592000)
+        test = -seconds if seconds < 0 else seconds
+        result = ''
+        if test <= 60:
+            result = '%ds' % seconds
+        elif test <= 3600:
+            result = '%dm' % (seconds // 60)
+        elif test <= 86400:
+            result = '%dh' % (seconds // 3600)
+        elif test <= 604800:
+            result = '%dd' % (seconds // 86400)
+        elif test <= 7257600:
+            result = '%dw' % (seconds // 604800)
+        elif test <= 31536000:
+            result = '%dmo' % (seconds // 2592000)
         else:
-            return '%dy' % (seconds // 31536000)
+            result = '%dy' % (seconds // 31536000)
+        return result
 
     def age(self, dt):
         if dt == None:
@@ -84,6 +87,22 @@ class DateTime(Formatter):
         return self.seconds_to_age(seconds)
 
     def countdown(self, dt):
+        if dt == None:
+            return ''
+        now = datetime.datetime.now(get_localzone())
+        if dt < now:
+            return ''
+        seconds = (dt - now).total_seconds()
+        return self.seconds_to_age(seconds)
+
+    def relative(self, dt):
+        if dt == None:
+            return ''
+        now = datetime.datetime.now(get_localzone())
+        seconds = (dt - now).total_seconds()
+        return self.seconds_to_age(seconds)
+
+    def remaining(self, dt):
         if dt == None:
             return ''
         now = datetime.datetime.now(get_localzone())
