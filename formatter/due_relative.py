@@ -1,5 +1,5 @@
 from formatter.due import Due
 
 class DueRelative(Due):
-    def format(self, dt):
-        return self.relative(dt)
+    def format(self, due, task):
+        return self.relative(due)

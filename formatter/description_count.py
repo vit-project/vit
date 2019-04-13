@@ -1,8 +1,8 @@
 from formatter.description import Description
 
 class DescriptionCount(Description):
-    def format(self, string):
-        if self.task['annotations']:
-            return "%s [%d]" % (string or '', len(self.task['annotations']))
+    def format(self, description, task):
+        if task['annotations']:
+            return "%s [%d]" % (description or '', len(task['annotations']))
         else:
-            return string
+            return description

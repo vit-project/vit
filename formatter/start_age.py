@@ -1,5 +1,5 @@
 from formatter.start import Start
 
 class StartAge(Start):
-    def format(self, dt):
-        return self.age(dt)
+    def format(self, start, task):
+        return self.age(start)

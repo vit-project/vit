@@ -36,12 +36,12 @@ class Defaults(object):
         return name, Formatter
 
 class Formatter(object):
-    def __init__(self, task, defaults, **kwargs):
-        self.task = task
+    def __init__(self, report, defaults, **kwargs):
+        self.report = report
         self.defaults = defaults
 
-    def format(self, number):
-        return str(number) if number else ''
+    def format(self, obj, task):
+        return str(obj) if obj else ''
 
 class Number(Formatter):
     pass
@@ -53,11 +53,11 @@ class Duration(Formatter):
     pass
 
 class DateTime(Formatter):
-    def __init__(self, task, defaults, custom_formatter=None):
+    def __init__(self, report, defaults, custom_formatter=None):
         self.custom_formatter = custom_formatter
-        super().__init__(task, defaults)
+        super().__init__(report, defaults)
 
-    def format(self, dt):
+    def format(self, dt, task):
         return dt.strftime(self.custom_formatter or self.defaults.report) if dt else ''
 
     def seconds_to_age(self, seconds):
@@ -112,5 +112,5 @@ class DateTime(Formatter):
         return self.seconds_to_age(seconds)
 
 class List(Formatter):
-    def format(self, obj):
+    def format(self, obj, task):
         return ','.join(obj) if obj else ''

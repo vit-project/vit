@@ -1,5 +1,5 @@
 from formatter.modified import Modified
 
 class ModifiedRelative(Modified):
-    def format(self, dt):
-        return self.relative(dt)
+    def format(self, modified, task):
+        return self.relative(modified)

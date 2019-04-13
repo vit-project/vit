@@ -1,5 +1,5 @@
 from formatter.due import Due
 
 class DueAge(Due):
-    def format(self, dt):
-        return self.age(dt)
+    def format(self, due, task):
+        return self.age(due)
