@@ -39,6 +39,7 @@ class Application():
         self.task_config = task_config
         self.reports = reports
         self.report = report
+        self.extra_filters = []
         self.command = Command(self.config)
         self.setup_keybindings()
         self.event = event.Emitter()
@@ -99,7 +100,8 @@ class Application():
             if op == 'ex':
                 self.ex(data['text'], data['metadata'])
             elif op == 'filter':
-                self.update_report(extra_filters=args)
+                self.extra_filters = args
+                self.update_report()
             elif len(args) > 0:
                 if op == 'add':
                     self.execute_command(['task', 'add'] + args)
@@ -261,7 +263,8 @@ class Application():
             elif command.isdigit():
                 self.task_list.focus_by_task_id(int(command))
             elif command in self.reports:
-                self.update_report(command, args)
+                self.extra_filters = args
+                self.update_report(command)
             else:
                 # Matches 's/foo/bar/' and s%/foo/bar/, allowing for separators
                 # to be any non-word character.
@@ -385,8 +388,8 @@ class Application():
         display = 'message %s' % message_type
         self.message_bar.set_text((display, message))
 
-    def update_status_report(self, extra_filters):
-        filtered_report = 'task %s %s' % (self.report, ' '.join(extra_filters))
+    def update_status_report(self):
+        filtered_report = 'task %s %s' % (self.report, ' '.join(self.extra_filters))
         self.status_report.original_widget.set_text(filtered_report)
 
     def update_status_performance(self, seconds):
@@ -415,13 +418,13 @@ class Application():
         else:
             raise_(RuntimeError, "Error retrieving completed tasks: %s" % stderr)
 
-    def update_report(self, report=None, extra_filters=[]):
+    def update_report(self, report=None):
         start = time.time()
         if report:
             self.report = report
-        self.model.update_report(self.report, extra_filters)
+        self.model.update_report(self.report, self.extra_filters)
         self.update_task_table()
-        self.update_status_report(extra_filters)
+        self.update_status_report()
         self.update_status_context()
         self.update_status_tasks_shown()
         self.update_status_tasks_completed()
