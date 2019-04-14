@@ -13,6 +13,7 @@
  cmd   =               view the current task's info
  cmd   <enter>         view the current task's info
  cmd   u               undo the last change
+ cmd   s               sync (requires Taskwarrior 2.3.0 or later)
  rpt   :REPORT         display REPORT
  rpt   :REPORT FILTER  display REPORT with FILTER
  rpt   :STRING<tab>    display REPORT using tab completion
