@@ -13,19 +13,23 @@ MAX_COLUMN_WIDTH = 60
 
 class TaskTable(object):
 
-    def __init__(self, config, task_config, on_select=None):
+    def __init__(self, config, task_config, on_select=None, event=None):
         self.config = config
         self.task_config = task_config
         self.on_select = on_select
+        self.event = event
         self.formatter = formatter.Defaults(self.config, self.task_config)
 
     def set_draw_screen_callback(self, callback):
         self.draw_screen = callback
 
-    def init_event_listener(self):
-        def handler():
+    def init_event_listeners(self):
+        def signal_handler():
             self.update_focus()
-        self.modified_signal = urwid.connect_signal(self.list_walker, 'modified', handler)
+        self.modified_signal = urwid.connect_signal(self.list_walker, 'modified', signal_handler)
+        def task_list_keypress(data):
+            self.update_header(data['size'])
+        self.event.listen('task-list:keypress', task_list_keypress)
 
     def update_data(self, report, tasks):
         self.report = report
@@ -42,6 +46,31 @@ class TaskTable(object):
         self.reconcile_column_width_for_label()
         self.build_table()
         self.update_focus()
+
+    def update_header(self, size):
+        self.update_project_column_header(size)
+
+    def get_project_from_row(self, row):
+        return row.task['project'] if isinstance(row, SelectableRow) else row.project
+
+    def update_project_column_header(self, size):
+        if self.indent_subprojects:
+            top, _, _ = self.listbox.get_top_middle_bottom_rows(size)
+            project = self.get_project_from_row(top)
+            if project:
+                _, parents = util.project_get_subproject_and_parents(project)
+                self.set_project_column_header(parents)
+            else:
+                self.set_project_column_header()
+
+    def set_project_column_header(self, parents=None):
+        column_index = self.task_config.get_column_index(self.report['name'], 'project')
+        (widget, _) = self.header.original_widget.contents[column_index]
+        label = self.project_label_for_parents(parents)
+        widget.set_text(label)
+
+    def project_label_for_parents(self, parents):
+        return '.'.join(parents) if parents else self.task_config.get_column_label(self.report['name'], 'project')
 
     def update_focus(self):
         if len(self.contents) > 0:
@@ -152,7 +181,9 @@ class TaskTable(object):
             return parents
 
     def inject_project_placeholder(self, project_parts):
-        self.rows.append(ProjectRow(self.formatter.format_subproject_indented(project_parts)))
+        project = '.'.join(project_parts)
+        placeholder = self.formatter.format_subproject_indented(project_parts)
+        self.rows.append(ProjectRow(project, placeholder))
 
     def clean_empty_columns(self):
         self.columns = {c:m for c,m in list(self.columns.items()) if m['width'] > 0}
@@ -166,8 +197,8 @@ class TaskTable(object):
     def build_table(self):
         self.contents = [SelectableRow(self.columns, obj, on_select=self.on_select) if isinstance(obj, TaskRow) else ProjectPlaceholderRow(self.columns, obj) for obj in self.rows]
         self.list_walker = urwid.SimpleFocusListWalker(self.contents)
-        self.listbox = TaskListBox(self.list_walker)
-        self.init_event_listener()
+        self.listbox = TaskListBox(self.list_walker, event=self.event)
+        self.init_event_listeners()
         list_header = urwid.Columns([(metadata['width'] + 2, urwid.Text(metadata['label'], align='left')) for column, metadata in list(self.columns.items())])
         self.header = urwid.AttrMap(list_header, 'list-header')
 
@@ -179,7 +210,8 @@ class TaskRow():
         self.id = self.task['id']
 
 class ProjectRow():
-    def __init__(self, placeholder):
+    def __init__(self, project, placeholder):
+        self.project = project
         self.placeholder = placeholder
 
 class SelectableRow(urwid.WidgetWrap):
@@ -229,6 +261,8 @@ class ProjectPlaceholderRow(urwid.WidgetWrap):
     def __init__(self, columns, row, align="left", space_between=2):
         self.uuid = None
         self.id = None
+        self.project = row.project
+        self.placeholder = row.placeholder
         self._columns = urwid.Columns([(metadata['width'], urwid.Text(row.placeholder if column == 'project' else '', align=align)) for column, metadata in list(columns.items())],
                                        dividechars=space_between)
         self.row = urwid.AttrMap(self._columns, '')
@@ -243,63 +277,75 @@ class TaskListBox(urwid.ListBox):
     """Maps task list shortcuts to default ListBox class.
     """
 
-    def __init__(self, body):
+    def __init__(self, body, event=None):
         self.previous_focus_position = None
+        self.event = event
         return super().__init__(body)
+
+    def get_top_middle_bottom_rows(self, size):
+        #try:
+            ((_, focused, _, _, _), (_, top_list), (_, bottom_list)) = self.calculate_visible(size)
+            top = top_list[len(top_list) - 1][0] if len(top_list) > 0 else None
+            bottom = bottom_list[len(bottom_list) - 1][0] if len(bottom_list) > 0 else None
+            top_list_reversed = []
+            # Neither top_list.reverse() nor reversed(top_list) works here, WTF?
+            while True:
+                if len(top_list) > 0:
+                    row = top_list.pop()
+                    top_list_reversed.append(row)
+                else:
+                    break
+            assembled_list = top_list_reversed + [(focused, )] + (bottom_list if bottom else [])
+            middle = (assembled_list[:len(assembled_list)//2]).pop()[0]
+            return (top or focused), middle, (bottom or focused)
+        #except:
+        #    # TODO: Log this?
+        #    return None, None, None
 
     def keypress(self, size, key):
         """Overrides ListBox.keypress method.
         """
+        key_handled = False
         if key in ('j', ' '):
             self.keypress(size, 'down')
-            return None
-        if key in ('ctrl f',):
+            key_handled = True
+        elif key in ('ctrl f',):
             self.keypress(size, 'page down')
-            return None
-        if key in ('k',):
+            key_handled = True
+        elif key in ('k',):
             self.keypress(size, 'up')
-            return None
-        if key in ('ctrl b',):
+            key_handled = True
+        elif key in ('ctrl b',):
             self.keypress(size, 'page up')
-            return None
+            key_handled = True
         # TODO: Can make 'g' 'gg'?
-        if key in ('g', '0'):
+        elif key in ('g', '0'):
             self.set_focus(0)
-            return None
-        if key in ('G',):
+            key_handled = True
+        elif key in ('G',):
             self.set_focus(len(self.body) - 1)
             self.set_focus_valign('bottom')
-            return None
-        if key in ('H', 'M', 'L'):
-            try:
-                ((_, middle, _, _, _), (_, top_list), (_, bottom_list)) = self.calculate_visible(size)
-                top = top_list[len(top_list) - 1][0] if len(top_list) > 0 else None
-                bottom = bottom_list[len(bottom_list) - 1][0] if len(bottom_list) > 0 else None
-                if key in ('H',):
-                    self.focus_by_task_uuid(top.uuid if top else middle.uuid)
-                if key in ('M',):
-                    # top_list.reverse() is returning None here, WTF?
-                    top_list_reversed = []
-                    while True:
-                        if len(top_list) > 0:
-                            row = top_list.pop()
-                            top_list_reversed.append(row)
-                        else:
-                            break
-                    assembled_list = top_list_reversed + [(middle, )] + (bottom_list if bottom else [])
-                    middle = (assembled_list[:len(assembled_list)//2]).pop()[0]
-                    self.focus_by_task_uuid(middle.uuid)
-                if key in ('L',):
-                    self.focus_by_task_uuid(bottom.uuid if bottom else middle.uuid)
-            except:
-                # TODO: Log this?
-                pass
-            return None
-        if key in ('ctrl m',):
+            key_handled = True
+        elif key in ('H', 'M', 'L'):
+            top, middle, bottom = self.get_top_middle_bottom_rows(size)
+            if key in ('H',):
+                self.focus_by_task_uuid(top.uuid)
+            if key in ('M',):
+                self.focus_by_task_uuid(middle.uuid)
+            if key in ('L',):
+                self.focus_by_task_uuid(bottom.uuid)
+            key_handled = True
+        elif key in ('ctrl m',):
             self.set_focus(self.focus_position)
             self.set_focus_valign('middle')
-            return None
-        return super().keypress(size, key)
+            key_handled = True
+        if key_handled:
+            data = {
+                'key': key,
+                'size': size,
+            }
+            self.event.emit('task-list:keypress', data)
+        return None if key_handled else super().keypress(size, key)
 
     def focus_by_task_id(self, task_id):
         for idx, row in enumerate(self.body):
