@@ -18,8 +18,9 @@ from process import Command
 SORT_ORDER_CHARACTERS = ['+', '-']
 SORT_COLLATE_CHARACTERS = ['/']
 DEFAULT_VIT_CONFIG = '~/.vit/vit.conf'
-FILTER_EXCLUSION_REGEX = re.compile("^limit:")
-FILTER_PARENS_REGEX = re.compile("([\(\)])")
+FILTER_EXCLUSION_REGEX = re.compile('^limit:')
+FILTER_PARENS_REGEX = re.compile('([\(\)])')
+CONFIG_BOOLEAN_TRUE_REGEX = re.compile('1|yes|true', re.IGNORECASE)
 
 DEFAULTS = {
     'taskwarrior': {
@@ -27,6 +28,7 @@ DEFAULTS = {
     },
     'report': {
         'default_report': 'next',
+        'indent_subprojects': True,
     },
 }
 
@@ -61,12 +63,15 @@ class ConfigParser(object):
     def __init__(self):
         self.config = configparser.SafeConfigParser()
         self.config.read(os.path.expanduser('VIT_CONFIG' in env.user and env.user['VIT_CONFIG'] or DEFAULT_VIT_CONFIG))
+        self.subproject_indentable = self.is_subproject_indentable()
 
     def get(self, section, key):
+        default = DEFAULTS[section][key]
         try:
-            return self.config.get(section, key)
+            value = self.config.get(section, key)
+            return self.transform(key, value, default)
         except configparser.NoOptionError:
-            return DEFAULTS[section][key]
+            return default
 
     def items(self, section):
         try:
@@ -77,6 +82,18 @@ class ConfigParser(object):
     def has_section(self, section):
         return self.config.has_section(section)
 
+    def transform(self, key, value, default):
+        if isinstance(default, bool):
+            return self.transform_bool(value)
+        else:
+            return value
+
+    def transform_bool(self, value):
+        return True if CONFIG_BOOLEAN_TRUE_REGEX.match(value) else False
+
+    def is_subproject_indentable(self):
+        return self.get('report', 'indent_subprojects')
+
 class TaskParser(object):
     def __init__(self, config):
         self.config = config
@@ -86,10 +103,10 @@ class TaskParser(object):
         if returncode == 0:
             lines = list(filter(lambda x: True if x else False, stdout.split("\n")))
             for line in lines:
-                hierarchy, values = line.split("=")
+                hierarchy, values = line.split('=')
                 self.task_config.append((hierarchy, values))
         else:
-            raise_(RuntimeError, "Error parsing task config: %s" % stderr)
+            raise_(RuntimeError, 'Error parsing task config: %s' % stderr)
 
     def subtree(self, matcher, walk_subtree=True):
       matcher_regex = matcher
@@ -146,7 +163,9 @@ class TaskParser(object):
       reports = {}
       subtree = self.subtree('report.')
       for report, attrs in list(subtree.items()):
-        reports[report] = {}
+        reports[report] = {
+            'subproject_indentable': False,
+        }
         if 'columns' in attrs:
           reports[report]['columns'] = attrs['columns'].split(',')
         if 'description' in attrs:
@@ -161,7 +180,12 @@ class TaskParser(object):
         if 'sort' in attrs:
           columns = attrs['sort'].split(',')
           reports[report]['sort'] = [self.parse_sort_column(c) for c in columns]
+          reports[report]['subproject_indentable'] = self.is_subproject_indentable(reports[report])
         if 'dateformat' in attrs:
           reports[report]['dateformat'] = self.translate_date_markers(attrs['dateformat'])
 
       return reports
+
+    def is_subproject_indentable(self, report):
+        primary_sort = report['sort'][0]
+        return primary_sort[0] == 'project' and primary_sort[1] == 'ascending'
