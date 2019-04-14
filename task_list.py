@@ -33,7 +33,7 @@ class TaskTable(object):
         self.rows = []
         self.sort()
         self.set_column_metadata()
-        self.has_project_column = self.columns_have_project()
+        self.indent_subprojects = self.subproject_indentable()
         self.project_cache = {}
         self.build_rows()
         # TODO: Make this optional based on Taskwarrior config setting.
@@ -105,9 +105,6 @@ class TaskTable(object):
                 'width': 0,
             }
 
-    def columns_have_project(self):
-        return 'project' in self.columns
-
     def build_rows(self):
         for task in self.tasks:
             row_data = {}
@@ -121,16 +118,19 @@ class TaskTable(object):
                 row_data[column] = formatted_value
             self.rows.append(TaskRow(task, row_data))
 
+    def subproject_indentable(self):
+        return self.config.subproject_indentable and self.report['subproject_indentable']
+
     def inject_project_placeholders(self, task):
         project = task['project']
-        if self.has_project_column and project:
+        if self.indent_subprojects and project:
             parts = self.project_may_need_placeholders(project)
             if parts:
-                to_inject = self.build_project_placeholders_to_inject(parts)
+                to_inject = self.build_project_placeholders_to_inject(parts, [])
                 for project_parts in to_inject:
                     self.inject_project_placeholder(project_parts)
 
-    def build_project_placeholders_to_inject(self, parts, to_inject=[]):
+    def build_project_placeholders_to_inject(self, parts, to_inject):
         project = '.'.join(parts)
         if project in self.project_cache:
             return to_inject
@@ -139,7 +139,7 @@ class TaskTable(object):
             to_inject.append(parts.copy())
             parts.pop()
             if len(parts) > 0:
-                return self.build_project_placeholders_to_inject(parts, to_inject=to_inject)
+                return self.build_project_placeholders_to_inject(parts, to_inject)
             else:
                 to_inject.reverse()
                 return to_inject
