@@ -32,3 +32,9 @@ def uuid_short(uuid):
 
 def task_id_or_uuid_short(task):
     return task['id'] or uuid_short(task['uuid'])
+
+def project_get_subproject_and_parents(project):
+    parts = project.split('.')
+    subproject = parts.pop()
+    parents = parts if len(parts) > 0 else None
+    return subproject, parents

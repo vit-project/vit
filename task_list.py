@@ -7,6 +7,7 @@ from functools import cmp_to_key
 
 import urwid
 import formatter
+import util
 
 MAX_COLUMN_WIDTH = 60
 
@@ -124,22 +125,22 @@ class TaskTable(object):
     def inject_project_placeholders(self, task):
         project = task['project']
         if self.indent_subprojects and project:
-            parts = self.project_may_need_placeholders(project)
-            if parts:
-                to_inject = self.build_project_placeholders_to_inject(parts, [])
+            parents = self.project_may_need_placeholders(project)
+            if parents:
+                to_inject = self.build_project_placeholders_to_inject(parents, [])
                 for project_parts in to_inject:
                     self.inject_project_placeholder(project_parts)
 
-    def build_project_placeholders_to_inject(self, parts, to_inject):
-        project = '.'.join(parts)
+    def build_project_placeholders_to_inject(self, parents, to_inject):
+        project = '.'.join(parents)
         if project in self.project_cache:
             return to_inject
         else:
             self.project_cache[project] = True
-            to_inject.append(parts.copy())
-            parts.pop()
-            if len(parts) > 0:
-                return self.build_project_placeholders_to_inject(parts, to_inject)
+            to_inject.append(parents.copy())
+            parents.pop()
+            if len(parents) > 0:
+                return self.build_project_placeholders_to_inject(parents, to_inject)
             else:
                 to_inject.reverse()
                 return to_inject
@@ -147,9 +148,8 @@ class TaskTable(object):
     def project_may_need_placeholders(self, project):
         if project not in self.project_cache:
             self.project_cache[project] = True
-            parts = project.split('.')
-            parts.pop()
-            return parts
+            _, parents = util.project_get_subproject_and_parents(project)
+            return parents
 
     def inject_project_placeholder(self, project_parts):
         self.rows.append(ProjectRow(self.formatter.format_subproject_indented(project_parts)))
