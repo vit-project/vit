@@ -98,6 +98,7 @@ class TaskParser(object):
     def __init__(self, config):
         self.config = config
         self.task_config = []
+        self.reports = {}
         self.command = Command(self.config)
         returncode, stdout, stderr = self.command.run('task _show', capture_output=True)
         if returncode == 0:
@@ -159,11 +160,12 @@ class TaskParser(object):
     def translate_date_markers(self, string):
         return reduce(lambda accum, code: accum.replace(code[0], code[1]), list(DATE_FORMAT_MAPPING.items()), string)
 
-    def reports(self):
+    def get_reports(self):
       reports = {}
       subtree = self.subtree('report.')
       for report, attrs in list(subtree.items()):
         reports[report] = {
+            'name': report,
             'subproject_indentable': False,
         }
         if 'columns' in attrs:
@@ -184,8 +186,16 @@ class TaskParser(object):
         if 'dateformat' in attrs:
           reports[report]['dateformat'] = self.translate_date_markers(attrs['dateformat'])
 
+        self.reports = reports
       return reports
 
     def is_subproject_indentable(self, report):
         primary_sort = report['sort'][0]
         return primary_sort[0] == 'project' and primary_sort[1] == 'ascending'
+
+    def get_column_index(self, report, column):
+        return self.reports[report]['columns'].index(column)
+
+    def get_column_label(self, report, column):
+        column_index = self.get_column_index(report, column)
+        return self.reports[report]['labels'][column_index]
