@@ -292,7 +292,7 @@ class Application():
         raise urwid.ExitMainLoop()
 
     def build_task_table(self):
-        self.table = TaskTable(self.task_config, on_select=self.on_select)
+        self.table = TaskTable(self.config, self.task_config, on_select=self.on_select)
 
     def update_task_table(self):
         self.table.update_data(self.reports[self.report], self.model.tasks)

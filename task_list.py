@@ -12,10 +12,11 @@ MAX_COLUMN_WIDTH = 60
 
 class TaskTable(object):
 
-    def __init__(self, task_config, on_select=None):
+    def __init__(self, config, task_config, on_select=None):
+        self.config = config
         self.task_config = task_config
         self.on_select = on_select
-        self.formatter = formatter.Defaults(task_config)
+        self.formatter = formatter.Defaults(self.config, self.task_config)
 
     def set_draw_screen_callback(self, callback):
         self.draw_screen = callback
@@ -32,6 +33,8 @@ class TaskTable(object):
         self.rows = []
         self.sort()
         self.set_column_metadata()
+        self.has_project_column = self.columns_have_project()
+        self.project_cache = {}
         self.build_rows()
         # TODO: Make this optional based on Taskwarrior config setting.
         self.clean_empty_columns()
@@ -102,9 +105,13 @@ class TaskTable(object):
                 'width': 0,
             }
 
+    def columns_have_project(self):
+        return 'project' in self.columns
+
     def build_rows(self):
         for task in self.tasks:
             row_data = {}
+            self.inject_project_placeholders(task)
             for column, metadata in list(self.columns.items()):
                 current = metadata['width']
                 formatted_value = metadata['formatter'].format(task[column], task)
@@ -113,6 +120,39 @@ class TaskTable(object):
                     self.columns[column]['width'] = new < MAX_COLUMN_WIDTH and new or MAX_COLUMN_WIDTH
                 row_data[column] = formatted_value
             self.rows.append(TaskRow(task, row_data))
+
+    def inject_project_placeholders(self, task):
+        project = task['project']
+        if self.has_project_column and project:
+            parts = self.project_may_need_placeholders(project)
+            if parts:
+                to_inject = self.build_project_placeholders_to_inject(parts)
+                for project_parts in to_inject:
+                    self.inject_project_placeholder(project_parts)
+
+    def build_project_placeholders_to_inject(self, parts, to_inject=[]):
+        project = '.'.join(parts)
+        if project in self.project_cache:
+            return to_inject
+        else:
+            self.project_cache[project] = True
+            to_inject.append(parts.copy())
+            parts.pop()
+            if len(parts) > 0:
+                return self.build_project_placeholders_to_inject(parts, to_inject=to_inject)
+            else:
+                to_inject.reverse()
+                return to_inject
+
+    def project_may_need_placeholders(self, project):
+        if project not in self.project_cache:
+            self.project_cache[project] = True
+            parts = project.split('.')
+            parts.pop()
+            return parts
+
+    def inject_project_placeholder(self, project_parts):
+        self.rows.append(ProjectRow(self.formatter.format_subproject_indented(project_parts)))
 
     def clean_empty_columns(self):
         self.columns = {c:m for c,m in list(self.columns.items()) if m['width'] > 0}
@@ -124,7 +164,7 @@ class TaskTable(object):
                 self.columns[column]['width'] = label_len
 
     def build_table(self):
-        self.contents = [SelectableRow(self.columns, task, on_select=self.on_select) for task in self.rows]
+        self.contents = [SelectableRow(self.columns, obj, on_select=self.on_select) if isinstance(obj, TaskRow) else ProjectPlaceholderRow(self.columns, obj) for obj in self.rows]
         self.list_walker = urwid.SimpleFocusListWalker(self.contents)
         self.listbox = TaskListBox(self.list_walker)
         self.init_event_listener()
@@ -137,6 +177,10 @@ class TaskRow():
         self.data = data
         self.uuid = self.task['uuid']
         self.id = self.task['id']
+
+class ProjectRow():
+    def __init__(self, placeholder):
+        self.placeholder = placeholder
 
 class SelectableRow(urwid.WidgetWrap):
     """Wraps 'urwid.Columns' to make it selectable.
@@ -177,6 +221,23 @@ class SelectableRow(urwid.WidgetWrap):
         # ... and update the displayed items.
         for t, (w, _) in zip(contents, self._columns.contents):
             w.set_text(t)
+
+class ProjectPlaceholderRow(urwid.WidgetWrap):
+    """Wraps 'urwid.Columns' for a project placeholder row.
+    """
+
+    def __init__(self, columns, row, align="left", space_between=2):
+        self.uuid = None
+        self.id = None
+        self._columns = urwid.Columns([(metadata['width'], urwid.Text(row.placeholder if column == 'project' else '', align=align)) for column, metadata in list(columns.items())],
+                                       dividechars=space_between)
+        self.row = urwid.AttrMap(self._columns, '')
+
+        # Wrap 'urwid.Columns'.
+        super().__init__(self.row)
+
+    def __repr__(self):
+        return "{}(placeholder={})".format(self.__class__.__name__, self.placeholder)
 
 class TaskListBox(urwid.ListBox):
     """Maps task list shortcuts to default ListBox class.
