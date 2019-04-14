@@ -5,10 +5,11 @@ from tzlocal import get_localzone
 import uda
 
 class Defaults(object):
-    def __init__(self, config):
+    def __init__(self, config, task_config):
         self.config = config
-        self.report = self.config.translate_date_markers(config.subtree('dateformat.report'))
-        self.annotation = self.config.translate_date_markers(config.subtree('dateformat.annotation'))
+        self.task_config = task_config
+        self.report = self.task_config.translate_date_markers(self.task_config.subtree('dateformat.report'))
+        self.annotation = self.task_config.translate_date_markers(self.task_config.subtree('dateformat.annotation'))
 
     def get_formatter_class(self, parts):
         formatter_module_name = '_'.join(parts)
@@ -27,13 +28,21 @@ class Defaults(object):
         if formatter_class:
             return name, formatter_class
         else:
-            uda_metadata = uda.get(name, self.config)
+            uda_metadata = uda.get(name, self.task_config)
             if uda_metadata:
                 uda_type = uda_metadata['type'] if 'type' in uda_metadata else 'string'
                 formatter_class = self.get_formatter_class(['uda', uda_type])
                 if formatter_class:
                     return name, formatter_class
         return name, Formatter
+
+    def format_subproject_indented(self, project_parts):
+        if len(project_parts) == 1:
+            return project_parts[0]
+        else:
+            subproject = project_parts.pop()
+            space_padding = (len(project_parts) * 2) - 1
+            return '%s%s %s' % (' ' * space_padding, u'\u21aa', subproject)
 
 class Formatter(object):
     def __init__(self, report, defaults, **kwargs):
