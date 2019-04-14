@@ -98,7 +98,7 @@ class Application():
         elif data['key'] in ('enter',):
             args = string_to_args(data['text'])
             if op == 'ex':
-                self.ex(data['text'], data['metadata'])
+                metadata = self.ex(data['text'], data['metadata'])
             elif op == 'filter':
                 self.extra_filters = args
                 self.update_report()
@@ -262,9 +262,11 @@ class Application():
                 self.execute_command(args, **kwargs)
             elif command.isdigit():
                 self.task_list.focus_by_task_id(int(command))
+                metadata.pop('uuid')
             elif command in self.reports:
                 self.extra_filters = args
                 self.update_report(command)
+                metadata.pop('uuid')
             else:
                 # Matches 's/foo/bar/' and s%/foo/bar/, allowing for separators
                 # to be any non-word character.
@@ -279,6 +281,7 @@ class Application():
                             self.table.flash_focus()
                             self.update_report()
                             self.activate_message_bar('Task %s description updated' % self.model.task_id(task['uuid']))
+        return metadata
 
     def get_focused_task(self):
         if self.widget.focus_position == 'body':
@@ -292,7 +295,7 @@ class Application():
         raise urwid.ExitMainLoop()
 
     def build_task_table(self):
-        self.table = TaskTable(self.config, self.task_config, on_select=self.on_select)
+        self.table = TaskTable(self.config, self.task_config, on_select=self.on_select, event=self.event)
 
     def update_task_table(self):
         self.table.update_data(self.reports[self.report], self.model.tasks)
