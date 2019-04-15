@@ -4,6 +4,43 @@ from tzlocal import get_localzone
 
 import uda
 
+TIME_UNIT_MAP = {
+    'seconds': {
+        'label': 's',
+        'divisor': 1,
+        'threshold': 60,
+     },
+    'minutes': {
+        'label': 'm',
+        'divisor': 60,
+        'threshold': 3600,
+     },
+    'hours': {
+        'label': 'h',
+        'divisor': 3600,
+        'threshold': 86400,
+     },
+    'days': {
+        'label': 'd',
+        'divisor': 86400,
+        'threshold': 86400 * 14,
+     },
+    'weeks': {
+        'label': 'w',
+        'divisor': 86400 * 7,
+        'threshold': 86400 * 90,
+     },
+    'months': {
+        'label': 'mo',
+        'divisor': 86400 * 30,
+        'threshold': 86400 * 365,
+     },
+    'years': {
+        'label': 'y',
+        'divisor': 86400 * 365,
+     },
+}
+
 class Defaults(object):
     def __init__(self, config, task_config):
         self.config = config
@@ -69,31 +106,37 @@ class DateTime(Formatter):
     def format(self, dt, task):
         return dt.strftime(self.custom_formatter or self.defaults.report) if dt else ''
 
-    def seconds_to_age(self, seconds):
-        test = -seconds if seconds < 0 else seconds
-        result = ''
-        if test <= 60:
-            result = '%ds' % seconds
-        elif test <= 3600:
-            result = '%dm' % (seconds // 60)
-        elif test <= 86400:
-            result = '%dh' % (seconds // 3600)
-        elif test <= 604800:
-            result = '%dd' % (seconds // 86400)
-        elif test <= 7257600:
-            result = '%dw' % (seconds // 604800)
-        elif test <= 31536000:
-            result = '%dmo' % (seconds // 2592000)
+    def format_duration_vague(self, seconds):
+        test = seconds
+        sign = ''
+        unit = 'seconds'
+        if seconds < 0:
+            test = -seconds
+            sign = '-'
+        if test <= TIME_UNIT_MAP['seconds']['threshold']:
+            # Handled by defaults
+            pass
+        elif test <= TIME_UNIT_MAP['minutes']['threshold']:
+            unit = 'minutes'
+        elif test <= TIME_UNIT_MAP['hours']['threshold']:
+            unit = 'hours'
+        elif test <= TIME_UNIT_MAP['days']['threshold']:
+            unit = 'days'
+        elif test <= TIME_UNIT_MAP['weeks']['threshold']:
+            unit = 'weeks'
+        elif test <= TIME_UNIT_MAP['months']['threshold']:
+            unit = 'months'
         else:
-            result = '%dy' % (seconds // 31536000)
-        return result
+            unit = 'years'
+        age = test // TIME_UNIT_MAP[unit]['divisor']
+        return '%s%d%s' % (sign, age, TIME_UNIT_MAP[unit]['label'])
 
     def age(self, dt):
         if dt == None:
             return ''
         now = datetime.datetime.now(get_localzone())
         seconds = (now - dt).total_seconds()
-        return self.seconds_to_age(seconds)
+        return self.format_duration_vague(seconds)
 
     def countdown(self, dt):
         if dt == None:
@@ -102,14 +145,14 @@ class DateTime(Formatter):
         if dt < now:
             return ''
         seconds = (dt - now).total_seconds()
-        return self.seconds_to_age(seconds)
+        return self.format_duration_vague(seconds)
 
     def relative(self, dt):
         if dt == None:
             return ''
         now = datetime.datetime.now(get_localzone())
         seconds = (dt - now).total_seconds()
-        return self.seconds_to_age(seconds)
+        return self.format_duration_vague(seconds)
 
     def remaining(self, dt):
         if dt == None:
@@ -118,7 +161,7 @@ class DateTime(Formatter):
         if dt < now:
             return ''
         seconds = (dt - now).total_seconds()
-        return self.seconds_to_age(seconds)
+        return self.format_duration_vague(seconds)
 
 class List(Formatter):
     def format(self, obj, task):
