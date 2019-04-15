@@ -8,6 +8,8 @@ import util
 
 from process import Command
 
+REGEX_SPECIAL_CHARS_REGEX = re.compile('([!@#\$%\^\&*\)\(+=._-])')
+
 class TaskListModel(object):
     def __init__(self, task_config, reports, report=None, data_location=None):
 
@@ -238,7 +240,7 @@ class TaskAutoComplete(object):
                 self.tab_options = list(map(lambda e: e[1], self.entries))
         else:
             self.parse_text(text, edit_pos)
-            exp = re.compile(self.search_fragment)
+            exp = re.compile(self.regexify(self.search_fragment))
             if self.has_root_only_filters():
                 if self.search_fragment_is_root():
                     self.tab_options = list(map(lambda e: e[1], filter(lambda e: True if e[0] in self.root_only_filters and exp.match(e[1]) else False, self.entries)))
@@ -252,6 +254,9 @@ class TaskAutoComplete(object):
 
     def search_fragment_is_root(self):
         return len(self.prefix_parts) == 0
+
+    def regexify(self, string):
+        return REGEX_SPECIAL_CHARS_REGEX.sub(r"\\\1", string)
 
     def parse_text(self, text, edit_pos):
         full_prefix = text[:edit_pos]
