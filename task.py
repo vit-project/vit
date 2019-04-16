@@ -64,6 +64,13 @@ class TaskListModel(object):
             return task
         return False
 
+    def task_denotate(self, uuid, annotation):
+        task = self.get_task(uuid)
+        if task:
+            task.remove_annotation(annotation)
+            return task
+        return False
+
     def task_priority(self, uuid, priority):
         task = self.get_task(uuid)
         if task:

@@ -6,19 +6,18 @@ from time import sleep
 from functools import cmp_to_key
 
 import urwid
-import formatter
 import util
 
 MAX_COLUMN_WIDTH = 60
 
 class TaskTable(object):
 
-    def __init__(self, config, task_config, on_select=None, event=None):
+    def __init__(self, config, task_config, formatter, on_select=None, event=None):
         self.config = config
         self.task_config = task_config
         self.on_select = on_select
         self.event = event
-        self.formatter = formatter.Defaults(self.config, self.task_config)
+        self.formatter = formatter
 
     def set_draw_screen_callback(self, callback):
         self.draw_screen = callback

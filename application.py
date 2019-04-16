@@ -11,6 +11,7 @@ from functools import reduce
 
 import urwid
 
+import formatter
 from util import clear_screen, string_to_args, is_mouse_event
 from process import Command
 from task import TaskListModel, TaskAutoComplete
@@ -21,6 +22,7 @@ from task_list import TaskTable
 import event
 from multi_widget import MultiWidget
 from command_bar import CommandBar
+from denotation import DenotationPopupLauncher
 
 PALETTE = [
     ('list-header', 'black', 'white'),
@@ -30,6 +32,9 @@ PALETTE = [
     ('status', 'dark blue', 'black'),
     ('flash off', 'black', 'black', 'standout'),
     ('flash on', 'white', 'black', 'standout'),
+    ('pop_up', 'white', 'black'),
+    ('button action', 'white', 'dark red'),
+    ('button cancel', 'black', 'light gray'),
 ]
 
 class Application():
@@ -41,9 +46,11 @@ class Application():
         self.report = report
         self.extra_filters = []
         self.command = Command(self.config)
+        self.formatter = formatter.Defaults(self.config, self.task_config)
         self.setup_keybindings()
         self.event = event.Emitter()
         self.event.listen('command-bar:keypress', self.command_bar_keypress)
+        self.event.listen('task:denotate', self.denotate_task)
         self.run(self.report)
 
     def setup_keybindings(self):
@@ -63,6 +70,13 @@ class Application():
                 accum.append(key)
             return accum
         return reduce(reducer, keypresses, [])
+
+    def denotate_task(self, data):
+        task = self.model.task_denotate(data['uuid'], data['annotation'])
+        if task:
+            self.table.flash_focus()
+            self.update_report()
+            self.activate_message_bar('Task %s denotated' % self.model.task_id(task['uuid']))
 
     def command_bar_keypress(self, data):
         metadata = data['metadata']
@@ -163,6 +177,8 @@ class Application():
                 metadata['uuid'] = uuid
             edit_text = '!rw task ' if key in ('t',) else None
             self.activate_command_bar('ex', ':', metadata, edit_text=edit_text)
+        elif key in ('esc',):
+            self.denotation_pop_up.close_pop_up()
         elif key in self.keybindings:
             keypresses = self.prepare_keybinding_keypresses(self.keybindings[key])
             self.loop.process_input(keypresses)
@@ -182,6 +198,13 @@ class Application():
                 if task:
                     task_id = task['id']
                     self.activate_command_bar('delete', 'Delete task %s? (y/n): ' % task_id, {'uuid': uuid, 'id': task_id, 'choices': {'y': True}})
+            return None
+        elif key in ('E',):
+            uuid = self.get_focused_task()
+            if uuid:
+                task = self.model.get_task(uuid)
+                if task:
+                    self.denotation_pop_up.open(task)
             return None
         elif key in ('m',):
             uuid = self.get_focused_task()
@@ -295,7 +318,7 @@ class Application():
         raise urwid.ExitMainLoop()
 
     def build_task_table(self):
-        self.table = TaskTable(self.config, self.task_config, on_select=self.on_select, event=self.event)
+        self.table = TaskTable(self.config, self.task_config, self.formatter, on_select=self.on_select, event=self.event)
 
     def update_task_table(self):
         self.table.update_data(self.reports[self.report], self.model.tasks)
@@ -432,7 +455,9 @@ class Application():
         self.update_status_tasks_shown()
         self.update_status_tasks_completed()
         self.header.contents[1] = (self.table.header, self.header.options())
-        self.task_list = self.widget.body = self.table.listbox
+        self.denotation_pop_up = DenotationPopupLauncher(self.table.listbox, self.formatter, event=self.event)
+        self.task_list = self.table.listbox
+        self.widget.body = self.denotation_pop_up
         self.autocomplete.refresh()
         end = time.time()
         self.update_status_performance(end - start)
@@ -452,6 +477,6 @@ class Application():
 
     def run(self, report):
         self.build_main_widget(report)
-        self.loop = urwid.MainLoop(self.widget, PALETTE, unhandled_input=self.key_pressed)
+        self.loop = urwid.MainLoop(self.widget, PALETTE, unhandled_input=self.key_pressed, pop_ups=True)
         self.table.set_draw_screen_callback(self.loop.draw_screen)
         self.loop.run()
