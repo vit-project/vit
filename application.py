@@ -77,6 +77,7 @@ class Application():
             self.table.flash_focus()
             self.update_report()
             self.activate_message_bar('Task %s denotated' % self.model.task_id(task['uuid']))
+            self.task_list.focus_by_task_uuid(data['uuid'])
 
     def command_bar_keypress(self, data):
         metadata = data['metadata']
@@ -203,7 +204,7 @@ class Application():
             uuid = self.get_focused_task()
             if uuid:
                 task = self.model.get_task(uuid)
-                if task:
+                if task and task['annotations']:
                     self.denotation_pop_up.open(task)
             return None
         elif key in ('m',):
