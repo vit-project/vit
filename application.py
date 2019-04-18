@@ -45,6 +45,7 @@ class Application():
         self.reports = reports
         self.report = report
         self.extra_filters = []
+        self.search_term_active = ''
         self.command = Command(self.config)
         self.formatter = formatter.Defaults(self.config, self.task_config)
         self.setup_keybindings()
@@ -153,6 +154,9 @@ class Application():
                         self.activate_message_bar('Task %s wait updated' % self.model.task_id(metadata['uuid']))
                     else:
                         self.activate_message_bar("Error setting wait: %s" % stderr, 'error')
+                elif op in ('search-forward', 'search-reverse'):
+                    self.search_set_term(data['text'])
+                    self.search(reverse=(op == 'search-reverse'))
         self.widget.focus_position = 'body'
         if 'uuid' in metadata:
             self.task_list.focus_by_task_uuid(metadata['uuid'])
@@ -178,6 +182,14 @@ class Application():
                 metadata['uuid'] = uuid
             edit_text = '!rw task ' if key in ('t',) else None
             self.activate_command_bar('ex', ':', metadata, edit_text=edit_text)
+        elif key in ('/',):
+            self.activate_command_bar('search-forward', '/')
+        elif key in ('?',):
+            self.activate_command_bar('search-reverse', '?')
+        elif key in ('n',):
+            self.search()
+        elif key in ('N',):
+            self.search(reverse=True)
         elif key in ('esc',):
             self.denotation_pop_up.close_pop_up()
         elif key in self.keybindings:
@@ -306,6 +318,59 @@ class Application():
                             self.update_report()
                             self.activate_message_bar('Task %s description updated' % self.model.task_id(task['uuid']))
         return metadata
+
+    def search_set_term(self, text):
+        self.search_term_active = text
+
+    def search(self, reverse=False):
+        if not self.search_term_active:
+            return
+        self.search_display_message(reverse)
+        current_index = 0 if self.task_list.focus is None else self.task_list.focus_position
+        new_focus = self.search_rows(self.search_term_active, current_index, reverse)
+        if new_focus is None:
+            self.activate_message_bar("Pattern not found: %s" % self.search_term_active, 'error')
+        else:
+            self.task_list.focus_position = new_focus
+
+    def search_rows(self, term, start_index=0, reverse=False):
+        search_regex = re.compile(term, re.MULTILINE)
+        rows = self.table.rows
+        current_index = start_index
+        last_index = len(rows) - 1
+        start_matches = self.search_row_has_search_term(rows[start_index], search_regex)
+        current_index = self.search_increment_index(current_index, reverse)
+        while True:
+            if reverse and current_index < 0:
+                self.search_loop_warning('TOP', reverse)
+                current_index = last_index
+            elif not reverse and current_index > last_index:
+                self.search_loop_warning('BOTTOM', reverse)
+                current_index = 0
+            if self.search_row_has_search_term(rows[current_index], search_regex):
+                return current_index
+            current_index = self.search_increment_index(current_index, reverse)
+            if current_index == start_index:
+                return start_index if start_matches else None
+
+    def search_increment_index(self, current_index, reverse=False):
+        return current_index + (-1 if reverse else 1)
+
+    def search_display_message(self, reverse=False):
+        self.activate_message_bar("Search %s for: %s" % ('reverse' if reverse else 'forward', self.search_term_active))
+
+    def search_loop_warning(self, hit, reverse=False):
+        self.activate_message_bar('Search hit %s, continuing at %s' % (hit, hit == 'TOP' and 'BOTTOM' or 'TOP'))
+        self.loop.draw_screen()
+        time.sleep(0.8)
+        self.search_display_message(reverse)
+
+    def search_row_has_search_term(self, row, search_regex):
+        for column in row.data:
+            value = row.data[column]
+            if value and search_regex.search(value):
+                return True
+        return False
 
     def get_focused_task(self):
         if self.widget.focus_position == 'body':
