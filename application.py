@@ -62,6 +62,7 @@ class Application():
         }
         self.keybinding_parser.add_keybindings(bindings=bindings, replacements=replacements)
         self.keybindings = self.keybinding_parser.keybindings
+        self.keybinding_parser.build_multi_key_cache()
 
     def prepare_keybinding_keypresses(self, keypresses):
         def reducer(accum, key):
