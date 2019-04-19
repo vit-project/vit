@@ -8,9 +8,12 @@ BRACKETS_REGEX = re.compile("[<>]")
 class KeybindingParser(object):
     def __init__(self):
         self.keybindings = {}
+        self.multi_key_cache = {}
 
-    def parse_keybinding_key(self, key):
-        return ' '.join(re.sub(BRACKETS_REGEX, ' ', key).strip().split()).lower()
+    def parse_keybinding_keys(self, keys):
+        parsed_keys = ' '.join(re.sub(BRACKETS_REGEX, ' ', keys).strip().split()).lower()
+        has_modifier = bool(re.match(BRACKETS_REGEX, keys))
+        return parsed_keys, has_modifier
 
     def parse_keybinding_value(self, value, replacements={}):
         def reducer(accum, char):
@@ -41,8 +44,15 @@ class KeybindingParser(object):
         return accum['key_command']
 
     def add_keybindings(self, bindings=[], replacements={}):
-        for keys, value in bindings:
-            for key in keys.strip().split(','):
-                self.keybindings[self.parse_keybinding_key(key)] = self.parse_keybinding_value(value, replacements)
+        for key_groups, value in bindings:
+            for keys in key_groups.strip().split(','):
+                parsed_keys, has_modifier = self.parse_keybinding_keys(keys)
+                self.keybindings[parsed_keys] = {
+                    'keys': self.parse_keybinding_value(value, replacements),
+                    'has_modifier': has_modifier,
+                }
+
+    def build_multi_key_cache(self):
+        alphabetic_key_combinations = []
 
 

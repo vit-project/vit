@@ -193,7 +193,7 @@ class Application():
         elif key in ('esc',):
             self.denotation_pop_up.close_pop_up()
         elif key in self.keybindings:
-            keypresses = self.prepare_keybinding_keypresses(self.keybindings[key])
+            keypresses = self.prepare_keybinding_keypresses(self.keybindings[key]['keys'])
             self.loop.process_input(keypresses)
 
     def on_select(self, row, size, key):
