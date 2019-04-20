@@ -66,8 +66,6 @@ class KeybindingParser(object):
             elif char == '}':
                 accum['in_variable'] = False
                 if accum['variable_string'] in self.actions:
-                    # TODO: Some way to enforce errors if anything besides an
-                    # action is declared.
                     accum['action'] = self.actions[accum['variable_string']]['callback']
                     accum['action_name'] = accum['variable_string']
                 elif accum['variable_string'] in replacements:
