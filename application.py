@@ -49,6 +49,7 @@ class Application():
         self.search_term_active = ''
         self.action_registry = ActionRegistry()
         self.register_global_actions()
+        self.register_task_actions()
         self.actions = self.action_registry.actions
         self.command = Command(self.config)
         self.formatter = formatter.Defaults(self.config, self.task_config)
@@ -71,14 +72,33 @@ class Application():
         register('COMMAND_BAR_SEARCH_REVERSE', 'Open the command bar in search reverse mode', self.activate_command_bar_search_reverse)
         register('COMMAND_BAR_SEARCH_NEXT', 'Search next', self.activate_command_bar_search_next)
         register('COMMAND_BAR_SEARCH_PREVIOUS', 'Search previous', self.activate_command_bar_search_previous)
+        register('COMMAND_REFRESH_REPORT', 'Refresh the current report', self.update_report)
         register('GLOBAL_ESCAPE', 'Top-level escape function', self.global_escape)
         register('NOOP', 'Used to disable a default keybinding action', self.action_registry.noop)
+
+    def register_task_actions(self):
+        register = self.action_registry.register
+        register('TASK_ANNOTATE', 'Add an annotation to a task', self.task_action_annotate)
+        register('TASK_DELETE', 'Delete task', self.task_action_delete)
+        register('TASK_DENOTATE', 'Denotate a task', self.task_action_denotate)
+        register('TASK_MODIFY', 'Modify task', self.task_action_modify)
+        register('TASK_START_STOP', 'Start/stop task', self.task_action_start_stop)
+        register('TASK_DONE', 'Mark task done', self.task_action_done)
+        register('TASK_PRIORITY', 'Modify task priority', self.task_action_priority)
+        register('TASK_PROJECT', 'Modify task project', self.task_action_project)
+        register('TASK_TAGS', 'Modify task tags', self.task_action_tags)
+        register('TASK_WAIT', 'Wait a task', self.task_action_wait)
+        register('TASK_EDIT', 'Edit a task via the default editor', self.task_action_edit)
+        register('TASK_SHOW', 'Show task details', self.task_action_show)
 
     def setup_keybindings(self):
         self.keybinding_parser = KeybindingParser(self.config, self.actions)
         bindings = self.config.items('keybinding')
+        def task_id():
+            uuid, _ = self.get_focused_task()
+            return uuid
         replacements = {
-            'TASKID': lambda: str(self.get_focused_task())
+            'TASKID': task_id,
         }
         self.keybinding_parser.add_keybindings(bindings=bindings, replacements=replacements)
         self.keybindings = self.keybinding_parser.keybindings
@@ -217,91 +237,18 @@ class Application():
         self.update_status_key_cache(self.cached_keys)
 
     def on_select(self, row, size, key):
+        keys = self.get_cached_keys(key)
         self.activate_message_bar()
-        if key in ('A',):
-            uuid = self.get_focused_task()
-            if uuid:
-                self.activate_command_bar('annotate', 'Annotate: ', {'uuid': uuid})
-                self.task_list.focus_by_task_uuid(uuid)
-            return None
-        elif key in ('D',):
-            uuid = self.get_focused_task()
-            if uuid:
-                task = self.model.get_task(uuid)
-                if task:
-                    task_id = task['id']
-                    self.activate_command_bar('delete', 'Delete task %s? (y/n): ' % task_id, {'uuid': uuid, 'id': task_id, 'choices': {'y': True}})
-            return None
-        elif key in ('E',):
-            uuid = self.get_focused_task()
-            if uuid:
-                task = self.model.get_task(uuid)
-                if task and task['annotations']:
-                    self.denotation_pop_up.open(task)
-            return None
-        elif key in ('m',):
-            uuid = self.get_focused_task()
-            if uuid:
-                self.activate_command_bar('modify', 'Modify: ', {'uuid': uuid})
-                self.task_list.focus_by_task_uuid(uuid)
-            return None
-        elif key in ('b',):
-            uuid = self.get_focused_task()
-            if uuid:
-                task = self.model.get_task(uuid)
-                if task:
-                    task_id = task['id']
-                    self.activate_command_bar('start-stop', '%s task %s? (y/n): ' % (task.active and 'Stop' or 'Start', task_id), {'uuid': uuid, 'choices': {'y': True}})
-            return None
-        elif key in ('d',):
-            uuid = self.get_focused_task()
-            if uuid:
-                task = self.model.get_task(uuid)
-                if task:
-                    task_id = task['id']
-                    self.activate_command_bar('done', 'Mark task %s done? (y/n): ' % task_id, {'uuid': uuid, 'id': task_id, 'choices': {'y': True}})
-            return None
-        elif key in ('P',):
-            uuid = self.get_focused_task()
-            if uuid:
-                choices = {
-                    'h': 'H',
-                    'm': 'M',
-                    'l': 'L',
-                    'n': '',
-                }
-                self.activate_command_bar('priority', 'Priority (h/m/l/n): ', {'uuid': uuid, 'choices': choices})
-        elif key in ('p',):
-            uuid = self.get_focused_task()
-            if uuid:
-                self.activate_command_bar('project', 'Project: ', {'uuid': uuid})
-            return None
-        elif key in ('T',):
-            uuid = self.get_focused_task()
-            if uuid:
-                self.activate_command_bar('tag', 'Tag: ', {'uuid': uuid})
-            return None
-        elif key in ('w',):
-            # TODO: Detect if task is already waiting, if so do confirm to un-wait.
-            uuid = self.get_focused_task()
-            if uuid:
-                self.activate_command_bar('wait', 'Wait: ', {'uuid': uuid})
-            return None
-        elif key in ('e',):
-            uuid = self.get_focused_task()
-            if uuid:
-                self.execute_command(['task', uuid, 'edit'])
-                self.task_list.focus_by_task_uuid(uuid)
-            return None
-        elif key in ('=', 'enter'):
-            uuid = self.get_focused_task()
-            if uuid:
-                self.execute_command(['task', uuid, 'info'], update_report=False)
-                self.task_list.focus_by_task_uuid(uuid)
-            return None
-        elif key in ('ctrl l',):
-            self.update_report()
-        return key
+        # NOTE: Colon and equals sign can't be used as config keys, so this
+        # is currently obtained from config.
+        if keys in (self.config.get('task', 'show_hotkey'),):
+            self.set_cached_keys()
+            self.task_action_show()
+        elif keys in self.keybindings:
+            self.set_cached_keys()
+            self.execute_keybinding(self.keybindings[keys])
+        else:
+            return key
 
     def ex(self, text, metadata):
         args = string_to_args(text)
@@ -395,10 +342,12 @@ class Application():
     def get_focused_task(self):
         if self.widget.focus_position == 'body':
             try:
-                return self.task_list.focus.uuid
+                uuid = self.task_list.focus.uuid
+                task = self.model.get_task(uuid)
+                return uuid, task
             except:
                 pass
-        return False
+        return False, False
 
     def quit(self):
         raise urwid.ExitMainLoop()
@@ -478,7 +427,7 @@ class Application():
 
     def activate_command_bar_ex(self):
         metadata = {}
-        uuid = self.get_focused_task()
+        uuid, _ = self.get_focused_task()
         if uuid:
             metadata['uuid'] = uuid
         self.activate_command_bar('ex', ':', metadata)
@@ -500,6 +449,82 @@ class Application():
 
     def global_escape(self):
         self.denotation_pop_up.close_pop_up()
+
+    def task_action_annotate(self):
+        uuid, _ = self.get_focused_task()
+        if uuid:
+            self.activate_command_bar('annotate', 'Annotate: ', {'uuid': uuid})
+            self.task_list.focus_by_task_uuid(uuid)
+
+    def task_action_delete(self):
+        uuid, task = self.get_focused_task()
+        if task:
+            task_id = task['id']
+            self.activate_command_bar('delete', 'Delete task %s? (y/n): ' % task_id, {'uuid': uuid, 'id': task_id, 'choices': {'y': True}})
+
+    def task_action_denotate(self):
+        uuid, task = self.get_focused_task()
+        if task and task['annotations']:
+                self.denotation_pop_up.open(task)
+
+    def task_action_modify(self):
+        uuid, _ = self.get_focused_task()
+        if uuid:
+            self.activate_command_bar('modify', 'Modify: ', {'uuid': uuid})
+            self.task_list.focus_by_task_uuid(uuid)
+
+    def task_action_start_stop(self):
+        uuid, _ = self.get_focused_task()
+        if uuid:
+            task = self.model.get_task(uuid)
+            if task:
+                task_id = task['id']
+                self.activate_command_bar('start-stop', '%s task %s? (y/n): ' % (task.active and 'Stop' or 'Start', task_id), {'uuid': uuid, 'choices': {'y': True}})
+
+    def task_action_done(self):
+        uuid, task = self.get_focused_task()
+        if task:
+            task_id = task['id']
+            self.activate_command_bar('done', 'Mark task %s done? (y/n): ' % task_id, {'uuid': uuid, 'id': task_id, 'choices': {'y': True}})
+
+    def task_action_priority(self):
+        uuid, _ = self.get_focused_task()
+        if uuid:
+            choices = {
+                'h': 'H',
+                'm': 'M',
+                'l': 'L',
+                'n': '',
+            }
+            self.activate_command_bar('priority', 'Priority (h/m/l/n): ', {'uuid': uuid, 'choices': choices})
+
+    def task_action_project(self):
+        uuid, _ = self.get_focused_task()
+        if uuid:
+            self.activate_command_bar('project', 'Project: ', {'uuid': uuid})
+
+    def task_action_tags(self):
+        uuid, _ = self.get_focused_task()
+        if uuid:
+            self.activate_command_bar('tag', 'Tag: ', {'uuid': uuid})
+
+    def task_action_wait(self):
+        # TODO: Detect if task is already waiting, if so do confirm to un-wait.
+        uuid, _ = self.get_focused_task()
+        if uuid:
+            self.activate_command_bar('wait', 'Wait: ', {'uuid': uuid})
+
+    def task_action_edit(self):
+        uuid, _ = self.get_focused_task()
+        if uuid:
+            self.execute_command(['task', uuid, 'edit'])
+            self.task_list.focus_by_task_uuid(uuid)
+
+    def task_action_show(self):
+        uuid, _ = self.get_focused_task()
+        if uuid:
+            self.execute_command(['task', uuid, 'info'], update_report=False)
+            self.task_list.focus_by_task_uuid(uuid)
 
     def setup_autocomplete(self, op):
         callback = self.command_bar.set_edit_text_callback()
