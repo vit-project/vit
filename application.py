@@ -38,6 +38,17 @@ PALETTE = [
     ('button cancel', 'black', 'light gray'),
 ]
 
+class KeyCache(object):
+    def __init__(self, multi_key_cache):
+        self.cached_keys = ''
+        self.multi_key_cache = multi_key_cache
+
+    def get(self, key=None):
+        return '%s%s' % (self.cached_keys, key) if key else self.cached_keys
+
+    def set(self, keys=''):
+        self.cached_keys = keys
+
 class Application():
     def __init__(self, config, task_config, reports, report):
 
@@ -53,10 +64,17 @@ class Application():
         self.actions = self.action_registry.actions
         self.command = Command(self.config)
         self.formatter = formatter.Defaults(self.config, self.task_config)
-        self.setup_keybindings()
+        self.keybinding_parser = KeybindingParser(self.config, self.actions)
+        self.keybindings = self.keybinding_parser.keybindings
+        self.key_cache = KeyCache(self.keybinding_parser.multi_key_cache)
         self.event = event.Emitter()
+        # TODO: TaskTable is dependent on a bunch of setup above, this order
+        # feels brittle.
+        self.build_task_table()
+        self.setup_keybindings()
         self.event.listen('command-bar:keypress', self.command_bar_keypress)
         self.event.listen('task:denotate', self.denotate_task)
+        self.event.listen('task-list:keypress', self.task_list_keypress)
         self.run(self.report)
 
     def register_global_actions(self):
@@ -72,7 +90,7 @@ class Application():
         register('COMMAND_BAR_SEARCH_REVERSE', 'Open the command bar in search reverse mode', self.activate_command_bar_search_reverse)
         register('COMMAND_BAR_SEARCH_NEXT', 'Search next', self.activate_command_bar_search_next)
         register('COMMAND_BAR_SEARCH_PREVIOUS', 'Search previous', self.activate_command_bar_search_previous)
-        register('COMMAND_REFRESH_REPORT', 'Refresh the current report', self.update_report)
+        register('REFRESH_REPORT', 'Refresh the current report', self.update_report)
         register('GLOBAL_ESCAPE', 'Top-level escape function', self.global_escape)
         register('NOOP', 'Used to disable a default keybinding action', self.action_registry.noop)
 
@@ -92,7 +110,7 @@ class Application():
         register('TASK_SHOW', 'Show task details', self.task_action_show)
 
     def setup_keybindings(self):
-        self.keybinding_parser = KeybindingParser(self.config, self.actions)
+        self.keybinding_parser.load_default_keybindings()
         bindings = self.config.items('keybinding')
         def task_id():
             uuid, _ = self.get_focused_task()
@@ -101,12 +119,13 @@ class Application():
             'TASKID': task_id,
         }
         self.keybinding_parser.add_keybindings(bindings=bindings, replacements=replacements)
-        self.keybindings = self.keybinding_parser.keybindings
         self.keybinding_parser.build_multi_key_cache()
-        self.multi_key_cache = self.keybinding_parser.multi_key_cache
-        self.cached_keys = ''
+        # TODO: Migrate multi-key cache to KeyCache() class.
+        self.key_cache.multi_key_cache = self.keybinding_parser.multi_key_cache
 
     def execute_keybinding(self, keybinding):
+        self.key_cache.set()
+        self.update_status_key_cache()
         if 'action' in keybinding:
             keybinding['action']()
         else:
@@ -211,30 +230,26 @@ class Application():
         if 'uuid' in metadata:
             self.task_list.focus_by_task_uuid(metadata['uuid'])
 
+    def task_list_keypress(self, data):
+        self.execute_keybinding(data['keybinding'])
+
     def key_pressed(self, key):
         if is_mouse_event(key):
             return None
-        keys = self.get_cached_keys(key)
+        keys = self.key_cache.get(key)
         if keys in self.keybindings:
-            self.set_cached_keys()
             self.execute_keybinding(self.keybindings[keys])
-        elif keys in self.multi_key_cache:
-            self.set_cached_keys(keys)
+        elif keys in self.key_cache.multi_key_cache:
+            self.key_cache.set(keys)
+            self.update_status_key_cache()
         else:
-            self.set_cached_keys()
-
-    def get_cached_keys(self, key=None):
-        return '%s%s' % (self.cached_keys, key) if key else self.cached_keys
-
-    def set_cached_keys(self, keys=''):
-        self.cached_keys = keys
-        self.update_status_key_cache(self.cached_keys)
+            self.key_cache.set()
+            self.update_status_key_cache()
 
     def on_select(self, row, size, key):
-        keys = self.get_cached_keys(key)
+        keys = self.key_cache.get(key)
         self.activate_message_bar()
         if keys in self.keybindings:
-            self.set_cached_keys()
             self.execute_keybinding(self.keybindings[keys])
         else:
             return key
@@ -342,7 +357,7 @@ class Application():
         raise urwid.ExitMainLoop()
 
     def build_task_table(self):
-        self.table = TaskTable(self.config, self.task_config, self.formatter, on_select=self.on_select, event=self.event)
+        self.table = TaskTable(self.config, self.task_config, self.formatter, on_select=self.on_select, event=self.event, action_registry=self.action_registry, keybindings=self.keybindings, key_cache=self.key_cache)
 
     def update_task_table(self):
         self.table.update_data(self.reports[self.report], self.model.tasks)
@@ -561,7 +576,8 @@ class Application():
 
     # TODO: This is riding on top of status_performance currently, should
     # probably be abstracted
-    def update_status_key_cache(self, keys):
+    def update_status_key_cache(self):
+        keys = self.key_cache.get()
         text = 'Key cache: %s' % keys if keys else ''
         self.status_performance.original_widget.set_text(text)
 
@@ -615,7 +631,6 @@ class Application():
             header=self.header,
             footer=self.footer,
         )
-        self.build_task_table()
         self.update_report(self.report)
 
     def run(self, report):

@@ -15,6 +15,7 @@ DEFAULT_KEYBINDINGS_SECTIONS = ('global', 'command', 'navigation', 'report')
 CONFIG_NAME_SPECIAL_KEY_SUBSTITUTIONS = {
     'colon': ':',
     'equals': '=',
+    'space': ' ',
 }
 
 class KeybindingError(Exception):
@@ -28,7 +29,6 @@ class KeybindingParser(object):
         self.default_keybindings.optionxform=str
         self.keybindings = {}
         self.multi_key_cache = {}
-        self.load_default_keybindings()
 
     def items(self, section):
         try:

@@ -1,6 +1,7 @@
 from operator import itemgetter
 from collections import OrderedDict
 from itertools import repeat
+from functools import partial
 from time import sleep
 # TODO: This isn't implemented in Python < 2.7.
 from functools import cmp_to_key
@@ -12,12 +13,16 @@ MAX_COLUMN_WIDTH = 60
 
 class TaskTable(object):
 
-    def __init__(self, config, task_config, formatter, on_select=None, event=None):
+    def __init__(self, config, task_config, formatter, on_select=None, event=None, action_registry=None, keybindings=None, key_cache=None):
         self.config = config
         self.task_config = task_config
         self.on_select = on_select
         self.event = event
+        self.action_registry = action_registry
+        self.keybindings = keybindings
+        self.key_cache = key_cache
         self.formatter = formatter
+        self.register_task_list_actions()
 
     def set_draw_screen_callback(self, callback):
         self.draw_screen = callback
@@ -29,6 +34,54 @@ class TaskTable(object):
         def task_list_keypress(data):
             self.update_header(data['size'])
         self.event.listen('task-list:keypress', task_list_keypress)
+
+    def register_task_list_actions(self):
+        register = self.action_registry.register
+        register('TASK_LIST_UP', 'Move task list focus up one entry', self.keypress_up)
+        register('TASK_LIST_DOWN', 'Move task list focus down one entry', self.keypress_down)
+        register('TASK_LIST_PAGE_UP', 'Move task list focus up one page', self.keypress_page_up)
+        register('TASK_LIST_PAGE_DOWN', 'Move task list focus down one page', self.keypress_page_down)
+        register('TASK_LIST_HOME', 'Move task list focus to top of the list', self.keypress_home)
+        register('TASK_LIST_END', 'Move task list focus to bottom of the list', self.keypress_end)
+        register('TASK_LIST_SCREEN_TOP', 'Move task list focus to top of the screen', self.keypress_screen_top)
+        register('TASK_LIST_SCREEN_MIDDLE', 'Move task list focus to middle of the screen', self.keypress_screen_middle)
+        register('TASK_LIST_SCREEN_BOTTOM', 'Move task list focus to bottom of the screen', self.keypress_screen_bottom)
+        register('TASK_LIST_FOCUS_VALIGN_CENTER', 'Move focused task to center of the screen', self.keypress_focus_valign_center)
+
+    def keypress_up(self, size):
+        self.listbox.keypress(size, 'up')
+
+    def keypress_down(self, size):
+        self.listbox.keypress(size, 'down')
+
+    def keypress_page_up(self, size):
+        self.listbox.keypress(size, 'page up')
+
+    def keypress_page_down(self, size):
+        self.listbox.keypress(size, 'page down')
+
+    def keypress_home(self, size):
+        self.listbox.set_focus(0)
+
+    def keypress_end(self, size):
+        self.listbox.set_focus(len(self.listbox.body) - 1)
+        self.listbox.set_focus_valign('bottom')
+
+    def keypress_screen_top(self, size):
+        top, _, _ = self.listbox.get_top_middle_bottom_rows(size)
+        self.listbox.focus_by_task_uuid(top.uuid)
+
+    def keypress_screen_middle(self, size):
+        _, middle, _ = self.listbox.get_top_middle_bottom_rows(size)
+        self.listbox.focus_by_task_uuid(middle.uuid)
+
+    def keypress_screen_bottom(self, size):
+        _, _, bottom = self.listbox.get_top_middle_bottom_rows(size)
+        self.listbox.focus_by_task_uuid(bottom.uuid)
+
+    def keypress_focus_valign_center(self, size):
+        self.listbox.set_focus(self.listbox.focus_position)
+        self.listbox.set_focus_valign('middle')
 
     def update_data(self, report, tasks):
         self.report = report
@@ -196,7 +249,7 @@ class TaskTable(object):
     def build_table(self):
         self.contents = [SelectableRow(self.columns, obj, on_select=self.on_select) if isinstance(obj, TaskRow) else ProjectPlaceholderRow(self.columns, obj) for obj in self.rows]
         self.list_walker = urwid.SimpleFocusListWalker(self.contents)
-        self.listbox = TaskListBox(self.list_walker, event=self.event)
+        self.listbox = TaskListBox(self.list_walker, event=self.event, keybindings=self.keybindings, key_cache=self.key_cache)
         self.init_event_listeners()
         list_header = urwid.Columns([(metadata['width'] + 2, urwid.Text(metadata['label'], align='left')) for column, metadata in list(self.columns.items())])
         self.header = urwid.AttrMap(list_header, 'list-header')
@@ -276,9 +329,11 @@ class TaskListBox(urwid.ListBox):
     """Maps task list shortcuts to default ListBox class.
     """
 
-    def __init__(self, body, event=None):
+    def __init__(self, body, event=None, keybindings=None, key_cache=None):
         self.previous_focus_position = None
         self.event = event
+        self.keybindings = keybindings
+        self.key_cache = key_cache
         return super().__init__(body)
 
     def get_top_middle_bottom_rows(self, size):
@@ -302,49 +357,22 @@ class TaskListBox(urwid.ListBox):
         #    return None, None, None
 
     def keypress(self, size, key):
-        """Overrides ListBox.keypress method.
-        """
-        key_handled = False
-        if key in ('j', ' '):
-            self.keypress(size, 'down')
-            key_handled = True
-        elif key in ('ctrl f',):
-            self.keypress(size, 'page down')
-            key_handled = True
-        elif key in ('k',):
-            self.keypress(size, 'up')
-            key_handled = True
-        elif key in ('ctrl b',):
-            self.keypress(size, 'page up')
-            key_handled = True
-        # TODO: Can make 'g' 'gg'?
-        elif key in ('g', '0'):
-            self.set_focus(0)
-            key_handled = True
-        elif key in ('G',):
-            self.set_focus(len(self.body) - 1)
-            self.set_focus_valign('bottom')
-            key_handled = True
-        elif key in ('H', 'M', 'L'):
-            top, middle, bottom = self.get_top_middle_bottom_rows(size)
-            if key in ('H',):
-                self.focus_by_task_uuid(top.uuid)
-            if key in ('M',):
-                self.focus_by_task_uuid(middle.uuid)
-            if key in ('L',):
-                self.focus_by_task_uuid(bottom.uuid)
-            key_handled = True
-        elif key in ('ctrl m',):
-            self.set_focus(self.focus_position)
-            self.set_focus_valign('middle')
-            key_handled = True
-        if key_handled:
+        keys = self.key_cache.get(key)
+        # TODO: It would be better if the keybindings were managed by the
+        # application layer.
+        # TODO: This action_name check is a horrible hack to prevent other
+        # keybindings from being corrupted by the partial function logic below.
+        if keys in self.keybindings and 'action_name' in self.keybindings[keys] and self.keybindings[keys]['action_name'][0:17] == 'ACTION_TASK_LIST_':
+            self.keybindings[keys]['original_action'] = self.keybindings[keys]['original_action'] if 'original_action' in self.keybindings[keys] else self.keybindings[keys]['action']
+            self.keybindings[keys]['action'] = partial(self.keybindings[keys]['original_action'], size)
             data = {
-                'key': key,
+                'keybinding': self.keybindings[keys],
                 'size': size,
             }
             self.event.emit('task-list:keypress', data)
-        return None if key_handled else super().keypress(size, key)
+            return None
+        else:
+            return super().keypress(size, key)
 
     def focus_by_task_id(self, task_id):
         for idx, row in enumerate(self.body):
