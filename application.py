@@ -6,7 +6,7 @@ import subprocess
 import re
 import time
 import copy
-from inspect import isfunction, ismethod
+from inspect import isfunction
 from functools import reduce
 
 import urwid
@@ -107,11 +107,10 @@ class Application():
         self.cached_keys = ''
 
     def execute_keybinding(self, keybinding):
-        keys = keybinding['keys']
-        if isfunction(keys) or ismethod(keys):
-            keys()
+        if 'action' in keybinding:
+            keybinding['action']()
         else:
-            keypresses = self.prepare_keybinding_keypresses(keys)
+            keypresses = self.prepare_keybinding_keypresses(keybinding['keys'])
             self.loop.process_input(keypresses)
 
     def prepare_keybinding_keypresses(self, keypresses):

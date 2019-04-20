@@ -68,7 +68,8 @@ class KeybindingParser(object):
                 if accum['variable_string'] in self.actions:
                     # TODO: Some way to enforce errors if anything besides an
                     # action is declared.
-                    accum['keybinding'] = self.actions[accum['variable_string']]['callback']
+                    accum['action'] = self.actions[accum['variable_string']]['callback']
+                    accum['action_name'] = accum['variable_string']
                 elif accum['variable_string'] in replacements:
                     accum['keybinding'].append(replacements[accum['variable_string']])
                 else:
@@ -81,18 +82,35 @@ class KeybindingParser(object):
                 else:
                     accum['keybinding'].append(char)
             return accum
-        accum = reduce(reducer, value, {'keybinding': [], 'in_brackets': False, 'bracket_string': '', 'in_variable': False, 'variable_string': ''})
-        return accum['keybinding']
+        accum = reduce(reducer, value, {
+            'keybinding': [],
+            'action': None,
+            'action_name': None,
+            'in_brackets': False,
+            'bracket_string': '',
+            'in_variable': False,
+            'variable_string': '',
+        })
+        return accum['keybinding'], accum['action'], accum['action_name']
+
+    def validate_parsed_value(self, key_groups, bound_keys, action):
+        if bound_keys and action:
+            raise_(KeybindingError, "keybindings '%s' unsupported configuration: ACTION_ variables must be used alone." % key_groups)
 
     def add_keybindings(self, bindings=[], replacements={}):
         for key_groups, value in bindings:
+            bound_keys, action, action_name = self.parse_keybinding_value(value, replacements)
+            self.validate_parsed_value(key_groups, bound_keys, action)
             for keys in key_groups.strip().split(','):
                 parsed_keys, has_modifier = self.parse_keybinding_keys(keys)
                 self.keybindings[parsed_keys] = {
-                    # TODO: Actions should probably have their own dict key.
-                    'keys': self.parse_keybinding_value(value, replacements),
                     'has_modifier': has_modifier,
                 }
+                if action:
+                    self.keybindings[parsed_keys]['action'] = action
+                    self.keybindings[parsed_keys]['action_name'] = action_name
+                else:
+                    self.keybindings[parsed_keys]['keys'] = bound_keys
 
     def sort_keybindings_by_len(self, keybindings, min_len=1):
         max_key_length = len(max(keybindings, key=len))
