@@ -1,21 +1,38 @@
 from future.utils import raise_
 from functools import reduce
 
+try:
+    import configparser
+except ImportError:
+    import ConfigParser as configparser
+
+import os
 import re
 
+FILE_DIR = os.path.dirname(os.path.realpath(__file__))
 BRACKETS_REGEX = re.compile("[<>]")
 
 class KeybindingError(Exception):
     pass
 
 class KeybindingParser(object):
-    def __init__(self):
+    def __init__(self, config, actions):
+        self.config = config
+        self.actions = actions
         self.keybindings = {}
         self.multi_key_cache = {}
+        self.load_default_keybindings()
+
+    def load_default_keybindings(self):
+        self.default_keybindings = configparser.SafeConfigParser()
+        self.default_keybindings.optionxform=str
+        self.default_keybindings.read('%s/keybinding/%s.ini' % (FILE_DIR, self.config.get('vit', 'default_keybindings')))
+        bindings = self.default_keybindings.items('keybinding')
+        self.add_keybindings(bindings)
 
     def parse_keybinding_keys(self, keys):
-        parsed_keys = ' '.join(re.sub(BRACKETS_REGEX, ' ', keys).strip().split()).lower()
         has_modifier = bool(re.match(BRACKETS_REGEX, keys))
+        parsed_keys = ' '.join(re.sub(BRACKETS_REGEX, ' ', keys).strip().split()).lower() if has_modifier else keys
         return parsed_keys, has_modifier
 
     def parse_keybinding_value(self, value, replacements={}):
@@ -31,7 +48,11 @@ class KeybindingParser(object):
                 accum['variable_string'] = ''
             elif char == '}':
                 accum['in_variable'] = False
-                if accum['variable_string'] in replacements:
+                if accum['variable_string'] in self.actions:
+                    # TODO: Some way to enforce errors if anything besides an
+                    # action is declared.
+                    accum['keybinding'] = self.actions[accum['variable_string']]['callback']
+                elif accum['variable_string'] in replacements:
                     accum['keybinding'].append(replacements[accum['variable_string']])
                 else:
                     raise_(ValueError, "unknown config variable '%s'" % accum['variable_string'])
@@ -51,6 +72,7 @@ class KeybindingParser(object):
             for keys in key_groups.strip().split(','):
                 parsed_keys, has_modifier = self.parse_keybinding_keys(keys)
                 self.keybindings[parsed_keys] = {
+                    # TODO: Actions should probably have their own dict key.
                     'keys': self.parse_keybinding_value(value, replacements),
                     'has_modifier': has_modifier,
                 }
@@ -85,6 +107,6 @@ class KeybindingParser(object):
                     self.add_keybinding_to_key_cache(to_cache, keybinding, keybindings, key_cache)
                     return processed_keys
                 reduce(keybinding_reducer, keys, [])
-            reduce(keybinding_list_reducer, keybinding_list)
+            reduce(keybinding_list_reducer, keybinding_list, [])
             return key_cache
         self.multi_key_cache = reduce(sorted_keybindings_reducer, sorted_keybindings, {})

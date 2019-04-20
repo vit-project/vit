@@ -6,7 +6,7 @@ import subprocess
 import re
 import time
 import copy
-from inspect import isfunction
+from inspect import isfunction, ismethod
 from functools import reduce
 
 import urwid
@@ -22,6 +22,7 @@ from task_list import TaskTable
 import event
 from multi_widget import MultiWidget
 from command_bar import CommandBar
+from registry import ActionRegistry
 from denotation import DenotationPopupLauncher
 
 PALETTE = [
@@ -46,6 +47,9 @@ class Application():
         self.report = report
         self.extra_filters = []
         self.search_term_active = ''
+        self.action_registry = ActionRegistry()
+        self.register_global_actions()
+        self.actions = self.action_registry.actions
         self.command = Command(self.config)
         self.formatter = formatter.Defaults(self.config, self.task_config)
         self.setup_keybindings()
@@ -54,8 +58,24 @@ class Application():
         self.event.listen('task:denotate', self.denotate_task)
         self.run(self.report)
 
+    def register_global_actions(self):
+        register = self.action_registry.register
+        register('QUIT', 'Quit the application', self.quit)
+        register('QUIT_WITH_CONFIRM', 'Quit the application, after confirmation', self.activate_command_bar_quit_with_confirm)
+        register('TASK_ADD', 'Add a task', self.activate_command_bar_add)
+        register('REPORT_FILTER', 'Filter current report', self.activate_command_bar_filter)
+        register('TASK_UNDO', 'Undo last task change', self.activate_command_bar_undo)
+        register('COMMAND_BAR_EX', "Open the command bar in 'ex' mode", self.activate_command_bar_ex)
+        register('COMMAND_BAR_EX_TASK_READ_WAIT', "Open the command bar in 'ex' mode with '!rw task ' appended", self.activate_command_bar_ex_read_wait_task)
+        register('COMMAND_BAR_SEARCH_FORWARD', 'Open the command bar in search forward mode', self.activate_command_bar_search_forward)
+        register('COMMAND_BAR_SEARCH_REVERSE', 'Open the command bar in search reverse mode', self.activate_command_bar_search_reverse)
+        register('COMMAND_BAR_SEARCH_NEXT', 'Search next', self.activate_command_bar_search_next)
+        register('COMMAND_BAR_SEARCH_PREVIOUS', 'Search previous', self.activate_command_bar_search_previous)
+        register('GLOBAL_ESCAPE', 'Top-level escape function', self.global_escape)
+        register('NOOP', 'Used to disable a default keybinding action', self.action_registry.noop)
+
     def setup_keybindings(self):
-        self.keybinding_parser = KeybindingParser()
+        self.keybinding_parser = KeybindingParser(self.config, self.actions)
         bindings = self.config.items('keybinding')
         replacements = {
             'TASKID': lambda: str(self.get_focused_task())
@@ -63,6 +83,16 @@ class Application():
         self.keybinding_parser.add_keybindings(bindings=bindings, replacements=replacements)
         self.keybindings = self.keybinding_parser.keybindings
         self.keybinding_parser.build_multi_key_cache()
+        self.multi_key_cache = self.keybinding_parser.multi_key_cache
+        self.cached_keys = ''
+
+    def execute_keybinding(self, keybinding):
+        keys = keybinding['keys']
+        if isfunction(keys) or ismethod(keys):
+            keys()
+        else:
+            keypresses = self.prepare_keybinding_keypresses(keys)
+            self.loop.process_input(keypresses)
 
     def prepare_keybinding_keypresses(self, keypresses):
         def reducer(accum, key):
@@ -165,37 +195,26 @@ class Application():
     def key_pressed(self, key):
         if is_mouse_event(key):
             return None
-        # TODO: Should be 'ZZ'.
-        if key in ('Q', 'Z'):
-            self.quit()
-        elif key in ('a',):
-            self.activate_command_bar('add', 'Add: ')
-        elif key in ('f',):
-            self.activate_command_bar('filter', 'Filter: ')
-        elif key in ('u',):
-            self.execute_command(['task', 'undo'])
-        elif key in ('q',):
-            self.activate_command_bar('quit', 'Quit?', {'choices': {'y': True}})
-        elif key in ('t', ':'):
-            metadata = {}
-            uuid = self.get_focused_task()
-            if uuid:
-                metadata['uuid'] = uuid
-            edit_text = '!rw task ' if key in ('t',) else None
-            self.activate_command_bar('ex', ':', metadata, edit_text=edit_text)
-        elif key in ('/',):
-            self.activate_command_bar('search-forward', '/')
-        elif key in ('?',):
-            self.activate_command_bar('search-reverse', '?')
-        elif key in ('n',):
-            self.search()
-        elif key in ('N',):
-            self.search(reverse=True)
-        elif key in ('esc',):
-            self.denotation_pop_up.close_pop_up()
-        elif key in self.keybindings:
-            keypresses = self.prepare_keybinding_keypresses(self.keybindings[key]['keys'])
-            self.loop.process_input(keypresses)
+        keys = self.get_cached_keys(key)
+        # NOTE: Colon and equals sign can't be used as config keys, so this
+        # is currently obtained from config.
+        if key in (self.config.get('command_bar', 'hotkey'),):
+            self.set_cached_keys()
+            self.activate_command_bar_ex()
+        elif keys in self.keybindings:
+            self.set_cached_keys()
+            self.execute_keybinding(self.keybindings[keys])
+        elif keys in self.multi_key_cache:
+            self.set_cached_keys(keys)
+        else:
+            self.set_cached_keys()
+
+    def get_cached_keys(self, key=None):
+        return '%s%s' % (self.cached_keys, key) if key else self.cached_keys
+
+    def set_cached_keys(self, keys=''):
+        self.cached_keys = keys
+        self.update_status_key_cache(self.cached_keys)
 
     def on_select(self, row, size, key):
         self.activate_message_bar()
@@ -445,6 +464,43 @@ class Application():
         self.command_bar.activate(caption, metadata, edit_text)
         self.widget.focus_position = 'footer'
 
+    def activate_command_bar_add(self):
+        self.activate_command_bar('add', 'Add: ')
+
+    def activate_command_bar_filter(self):
+        self.activate_command_bar('filter', 'Filter: ')
+
+    def activate_command_bar_undo(self):
+        self.execute_command(['task', 'undo'])
+
+    def activate_command_bar_quit_with_confirm(self):
+        self.activate_command_bar('quit', 'Quit?', {'choices': {'y': True}})
+
+    def activate_command_bar_ex(self):
+        metadata = {}
+        uuid = self.get_focused_task()
+        if uuid:
+            metadata['uuid'] = uuid
+        self.activate_command_bar('ex', ':', metadata)
+
+    def activate_command_bar_ex_read_wait_task(self):
+        self.activate_command_bar('ex', ':', {}, edit_text='!rw task ')
+
+    def activate_command_bar_search_forward(self):
+        self.activate_command_bar('search-forward', '/')
+
+    def activate_command_bar_search_reverse(self):
+        self.activate_command_bar('search-reverse', '?')
+
+    def activate_command_bar_search_next(self):
+        self.search()
+
+    def activate_command_bar_search_previous(self):
+        self.search(reverse=True)
+
+    def global_escape(self):
+        self.denotation_pop_up.close_pop_up()
+
     def setup_autocomplete(self, op):
         callback = self.command_bar.set_edit_text_callback()
         if op in ('filter', 'add', 'modify'):
@@ -487,6 +543,12 @@ class Application():
 
     def update_status_performance(self, seconds):
         text = 'Exec. time: %dms' % (seconds * 1000)
+        self.status_performance.original_widget.set_text(text)
+
+    # TODO: This is riding on top of status_performance currently, should
+    # probably be abstracted
+    def update_status_key_cache(self, keys):
+        text = 'Key cache: %s' % keys if keys else ''
         self.status_performance.original_widget.set_text(text)
 
     def update_status_context(self):

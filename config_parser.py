@@ -17,7 +17,8 @@ from process import Command
 
 SORT_ORDER_CHARACTERS = ['+', '-']
 SORT_COLLATE_CHARACTERS = ['/']
-DEFAULT_VIT_CONFIG = '~/.vit/vit.conf'
+DEFAULT_VIT_CONFIG_DIR = '~/.vit'
+VIT_CONFIG_FILE = 'config.ini'
 FILTER_EXCLUSION_REGEX = re.compile('^limit:')
 FILTER_PARENS_REGEX = re.compile('([\(\)])')
 CONFIG_BOOLEAN_TRUE_REGEX = re.compile('1|yes|true', re.IGNORECASE)
@@ -26,9 +27,15 @@ DEFAULTS = {
     'taskwarrior': {
         'taskrc': '~/.taskrc',
     },
+    'vit': {
+        'default_keybindings': 'vi',
+    },
     'report': {
         'default_report': 'next',
         'indent_subprojects': True,
+    },
+    'command_bar': {
+        'hotkey': ':',
     },
 }
 
@@ -62,7 +69,8 @@ DATE_FORMAT_MAPPING = {
 class ConfigParser(object):
     def __init__(self):
         self.config = configparser.SafeConfigParser()
-        self.config.read(os.path.expanduser('VIT_CONFIG' in env.user and env.user['VIT_CONFIG'] or DEFAULT_VIT_CONFIG))
+        self.config.optionxform=str
+        self.config.read('%s/%s' % (os.path.expanduser('VIT_CONFIG' in env.user and env.user['VIT_CONFIG'] or DEFAULT_VIT_CONFIG_DIR), VIT_CONFIG_FILE))
         self.subproject_indentable = self.is_subproject_indentable()
 
     def get(self, section, key):
@@ -70,7 +78,7 @@ class ConfigParser(object):
         try:
             value = self.config.get(section, key)
             return self.transform(key, value, default)
-        except configparser.NoOptionError:
+        except (configparser.NoSectionError, configparser.NoOptionError):
             return default
 
     def items(self, section):
