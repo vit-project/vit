@@ -11,6 +11,7 @@ import re
 
 FILE_DIR = os.path.dirname(os.path.realpath(__file__))
 BRACKETS_REGEX = re.compile("[<>]")
+DEFAULT_KEYBINDINGS_SECTIONS = ('global', 'command', 'navigation', 'report')
 
 class KeybindingError(Exception):
     pass
@@ -19,16 +20,23 @@ class KeybindingParser(object):
     def __init__(self, config, actions):
         self.config = config
         self.actions = actions
+        self.default_keybindings = configparser.SafeConfigParser()
+        self.default_keybindings.optionxform=str
         self.keybindings = {}
         self.multi_key_cache = {}
         self.load_default_keybindings()
 
+    def items(self, section):
+        try:
+            return self.default_keybindings.items(section)
+        except configparser.NoSectionError:
+            return []
+
     def load_default_keybindings(self):
-        self.default_keybindings = configparser.SafeConfigParser()
-        self.default_keybindings.optionxform=str
         self.default_keybindings.read('%s/keybinding/%s.ini' % (FILE_DIR, self.config.get('vit', 'default_keybindings')))
-        bindings = self.default_keybindings.items('keybinding')
-        self.add_keybindings(bindings)
+        for section in DEFAULT_KEYBINDINGS_SECTIONS:
+            bindings = self.items(section)
+            self.add_keybindings(bindings)
 
     def parse_keybinding_keys(self, keys):
         has_modifier = bool(re.match(BRACKETS_REGEX, keys))
