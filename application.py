@@ -216,12 +216,7 @@ class Application():
         if is_mouse_event(key):
             return None
         keys = self.get_cached_keys(key)
-        # NOTE: Colon and equals sign can't be used as config keys, so this
-        # is currently obtained from config.
-        if key in (self.config.get('command_bar', 'hotkey'),):
-            self.set_cached_keys()
-            self.activate_command_bar_ex()
-        elif keys in self.keybindings:
+        if keys in self.keybindings:
             self.set_cached_keys()
             self.execute_keybinding(self.keybindings[keys])
         elif keys in self.multi_key_cache:
@@ -239,12 +234,7 @@ class Application():
     def on_select(self, row, size, key):
         keys = self.get_cached_keys(key)
         self.activate_message_bar()
-        # NOTE: Colon and equals sign can't be used as config keys, so this
-        # is currently obtained from config.
-        if keys in (self.config.get('task', 'show_hotkey'),):
-            self.set_cached_keys()
-            self.task_action_show()
-        elif keys in self.keybindings:
+        if keys in self.keybindings:
             self.set_cached_keys()
             self.execute_keybinding(self.keybindings[keys])
         else:

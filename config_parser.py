@@ -34,12 +34,6 @@ DEFAULTS = {
         'default_report': 'next',
         'indent_subprojects': True,
     },
-    'command_bar': {
-        'hotkey': ':',
-    },
-    'task': {
-        'show_hotkey': '=',
-    },
 }
 
 # strftime() works differently on Windows, test here.

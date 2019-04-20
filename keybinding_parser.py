@@ -12,6 +12,10 @@ import re
 FILE_DIR = os.path.dirname(os.path.realpath(__file__))
 BRACKETS_REGEX = re.compile("[<>]")
 DEFAULT_KEYBINDINGS_SECTIONS = ('global', 'command', 'navigation', 'report')
+CONFIG_NAME_SPECIAL_KEY_SUBSTITUTIONS = {
+    'colon': ':',
+    'equals': '=',
+}
 
 class KeybindingError(Exception):
     pass
@@ -38,10 +42,15 @@ class KeybindingParser(object):
             bindings = self.items(section)
             self.add_keybindings(bindings)
 
+    def keybinding_special_keys_substitutions(self, name):
+        if name in CONFIG_NAME_SPECIAL_KEY_SUBSTITUTIONS:
+            name = CONFIG_NAME_SPECIAL_KEY_SUBSTITUTIONS[name]
+        return name
+
     def parse_keybinding_keys(self, keys):
         has_modifier = bool(re.match(BRACKETS_REGEX, keys))
         parsed_keys = ' '.join(re.sub(BRACKETS_REGEX, ' ', keys).strip().split()).lower() if has_modifier else keys
-        return parsed_keys, has_modifier
+        return self.keybinding_special_keys_substitutions(parsed_keys), has_modifier
 
     def parse_keybinding_value(self, value, replacements={}):
         def reducer(accum, char):
