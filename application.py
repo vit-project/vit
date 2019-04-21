@@ -16,6 +16,7 @@ from util import clear_screen, string_to_args, is_mouse_event
 from process import Command
 from task import TaskListModel, TaskAutoComplete
 from keybinding_parser import KeybindingParser
+from color import TaskColorizer
 import version
 
 from task_list import TaskTable
@@ -68,6 +69,7 @@ class Application():
         self.key_cache = KeyCache(self.keybinding_parser.multi_key_cache)
         self.event = event.Emitter()
         self.request_reply = RequestReply()
+        self.task_colorizer = TaskColorizer(self.config, self.task_config)
         # TODO: TaskTable is dependent on a bunch of setup above, this order
         # feels brittle.
         self.build_task_table()
