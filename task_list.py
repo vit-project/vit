@@ -13,14 +13,13 @@ MAX_COLUMN_WIDTH = 60
 
 class TaskTable(object):
 
-    def __init__(self, config, task_config, formatter, on_select=None, event=None, action_registry=None, keybindings=None, key_cache=None):
+    def __init__(self, config, task_config, formatter, on_select=None, event=None, action_registry=None, request_reply=None):
         self.config = config
         self.task_config = task_config
         self.on_select = on_select
         self.event = event
         self.action_registry = action_registry
-        self.keybindings = keybindings
-        self.key_cache = key_cache
+        self.request_reply = request_reply
         self.formatter = formatter
         self.register_task_list_actions()
 
@@ -249,7 +248,7 @@ class TaskTable(object):
     def build_table(self):
         self.contents = [SelectableRow(self.columns, obj, on_select=self.on_select) if isinstance(obj, TaskRow) else ProjectPlaceholderRow(self.columns, obj) for obj in self.rows]
         self.list_walker = urwid.SimpleFocusListWalker(self.contents)
-        self.listbox = TaskListBox(self.list_walker, event=self.event, keybindings=self.keybindings, key_cache=self.key_cache)
+        self.listbox = TaskListBox(self.list_walker, event=self.event, request_reply=self.request_reply)
         self.init_event_listeners()
         list_header = urwid.Columns([(metadata['width'] + 2, urwid.Text(metadata['label'], align='left')) for column, metadata in list(self.columns.items())])
         self.header = urwid.AttrMap(list_header, 'list-header')
@@ -329,11 +328,12 @@ class TaskListBox(urwid.ListBox):
     """Maps task list shortcuts to default ListBox class.
     """
 
-    def __init__(self, body, event=None, keybindings=None, key_cache=None):
+    def __init__(self, body, event=None, request_reply=None):
         self.previous_focus_position = None
         self.event = event
-        self.keybindings = keybindings
-        self.key_cache = key_cache
+        self.request_reply = request_reply
+        self.keybindings = self.request_reply.request('application:keybindings')
+        self.key_cache = self.request_reply.request('application:key_cache')
         return super().__init__(body)
 
     def get_top_middle_bottom_rows(self, size):
@@ -356,15 +356,24 @@ class TaskListBox(urwid.ListBox):
         #    # TODO: Log this?
         #    return None, None, None
 
+    # TODO: This action_name check is a horrible hack to prevent other
+    # keybindings from being corrupted by the partial function logic below.
+    def is_task_list_action(self, keybinding):
+        return 'action_name' in keybinding and keybinding['action_name'][0:17] == 'ACTION_TASK_LIST_'
+
+    def keybinding_original_action(self, keybinding):
+        return keybinding['original_action'] if 'original_action' in keybinding else keybinding['action']
+
+    def keybinding_action_inject_size(self, keybinding, size):
+        return partial(keybinding['original_action'], size)
+
     def keypress(self, size, key):
         keys = self.key_cache.get(key)
-        # TODO: It would be better if the keybindings were managed by the
-        # application layer.
-        # TODO: This action_name check is a horrible hack to prevent other
-        # keybindings from being corrupted by the partial function logic below.
-        if keys in self.keybindings and 'action_name' in self.keybindings[keys] and self.keybindings[keys]['action_name'][0:17] == 'ACTION_TASK_LIST_':
-            self.keybindings[keys]['original_action'] = self.keybindings[keys]['original_action'] if 'original_action' in self.keybindings[keys] else self.keybindings[keys]['action']
-            self.keybindings[keys]['action'] = partial(self.keybindings[keys]['original_action'], size)
+        if keys in self.keybindings and self.is_task_list_action(self.keybindings[keys]):
+            # NOTE: This swap is necessary to prevent re-injecting multiple
+            # size args into the same action callback.
+            self.keybindings[keys]['original_action'] = self.keybinding_original_action(self.keybindings[keys])
+            self.keybindings[keys]['action'] = self.keybinding_action_inject_size(self.keybindings[keys], size)
             data = {
                 'keybinding': self.keybindings[keys],
                 'size': size,

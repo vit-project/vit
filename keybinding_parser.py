@@ -22,9 +22,11 @@ class KeybindingError(Exception):
     pass
 
 class KeybindingParser(object):
-    def __init__(self, config, actions):
+    def __init__(self, config, action_registry):
         self.config = config
-        self.actions = actions
+        self.action_registry = action_registry
+        self.actions = self.action_registry.actions
+        self.noop_action_name = self.action_registry.make_action_name(self.action_registry.noop_action_name)
         self.default_keybindings = configparser.SafeConfigParser()
         self.default_keybindings.optionxform=str
         self.keybindings = {}
@@ -95,6 +97,12 @@ class KeybindingParser(object):
         if bound_keys and action:
             raise_(KeybindingError, "keybindings '%s' unsupported configuration: ACTION_ variables must be used alone." % key_groups)
 
+    def is_noop_action(self, keybinding):
+        return True if 'action' in keybinding and keybinding['action_name'] == self.noop_action_name else False
+
+    def filter_noop_actions(self, keybindings):
+        return {keys:value for (keys, value) in keybindings.items() if not self.is_noop_action(keybindings[keys])}
+
     def add_keybindings(self, bindings=[], replacements={}):
         for key_groups, value in bindings:
             bound_keys, action, action_name = self.parse_keybinding_value(value, replacements)
@@ -109,6 +117,7 @@ class KeybindingParser(object):
                     self.keybindings[parsed_keys]['action_name'] = action_name
                 else:
                     self.keybindings[parsed_keys]['keys'] = bound_keys
+        self.keybindings = self.filter_noop_actions(self.keybindings)
 
     def sort_keybindings_by_len(self, keybindings, min_len=1):
         max_key_length = len(max(keybindings, key=len))

@@ -22,7 +22,7 @@ from task_list import TaskTable
 import event
 from multi_widget import MultiWidget
 from command_bar import CommandBar
-from registry import ActionRegistry
+from registry import ActionRegistry, RequestReply
 from denotation import DenotationPopupLauncher
 
 PALETTE = [
@@ -64,14 +64,15 @@ class Application():
         self.actions = self.action_registry.actions
         self.command = Command(self.config)
         self.formatter = formatter.Defaults(self.config, self.task_config)
-        self.keybinding_parser = KeybindingParser(self.config, self.actions)
-        self.keybindings = self.keybinding_parser.keybindings
+        self.keybinding_parser = KeybindingParser(self.config, self.action_registry)
         self.key_cache = KeyCache(self.keybinding_parser.multi_key_cache)
         self.event = event.Emitter()
+        self.request_reply = RequestReply()
         # TODO: TaskTable is dependent on a bunch of setup above, this order
         # feels brittle.
         self.build_task_table()
         self.setup_keybindings()
+        self.set_request_callbacks()
         self.event.listen('command-bar:keypress', self.command_bar_keypress)
         self.event.listen('task:denotate', self.denotate_task)
         self.event.listen('task-list:keypress', self.task_list_keypress)
@@ -92,7 +93,7 @@ class Application():
         register('COMMAND_BAR_SEARCH_PREVIOUS', 'Search previous', self.activate_command_bar_search_previous)
         register('REFRESH_REPORT', 'Refresh the current report', self.update_report)
         register('GLOBAL_ESCAPE', 'Top-level escape function', self.global_escape)
-        register('NOOP', 'Used to disable a default keybinding action', self.action_registry.noop)
+        register(self.action_registry.noop_action_name, 'Used to disable a default keybinding action', self.action_registry.noop)
 
     def register_task_actions(self):
         register = self.action_registry.register
@@ -122,6 +123,10 @@ class Application():
         self.keybinding_parser.build_multi_key_cache()
         # TODO: Migrate multi-key cache to KeyCache() class.
         self.key_cache.multi_key_cache = self.keybinding_parser.multi_key_cache
+
+    def set_request_callbacks(self):
+        self.request_reply.set_handler('application:keybindings', 'Get keybindings', lambda: self.keybinding_parser.keybindings)
+        self.request_reply.set_handler('application:key_cache', 'Get key cache', lambda: self.key_cache)
 
     def execute_keybinding(self, keybinding):
         self.key_cache.set()
@@ -237,8 +242,8 @@ class Application():
         if is_mouse_event(key):
             return None
         keys = self.key_cache.get(key)
-        if keys in self.keybindings:
-            self.execute_keybinding(self.keybindings[keys])
+        if keys in self.keybinding_parser.keybindings:
+            self.execute_keybinding(self.keybinding_parser.keybindings[keys])
         elif keys in self.key_cache.multi_key_cache:
             self.key_cache.set(keys)
             self.update_status_key_cache()
@@ -249,8 +254,8 @@ class Application():
     def on_select(self, row, size, key):
         keys = self.key_cache.get(key)
         self.activate_message_bar()
-        if keys in self.keybindings:
-            self.execute_keybinding(self.keybindings[keys])
+        if keys in self.keybinding_parser.keybindings:
+            self.execute_keybinding(self.keybinding_parser.keybindings[keys])
         else:
             return key
 
@@ -269,11 +274,13 @@ class Application():
                 self.execute_command(args, **kwargs)
             elif command.isdigit():
                 self.task_list.focus_by_task_id(int(command))
-                metadata.pop('uuid')
+                if 'uuid' in metadata:
+                    metadata.pop('uuid')
             elif command in self.reports:
                 self.extra_filters = args
                 self.update_report(command)
-                metadata.pop('uuid')
+                if 'uuid' in metadata:
+                    metadata.pop('uuid')
             else:
                 # Matches 's/foo/bar/' and s%/foo/bar/, allowing for separators
                 # to be any non-word character.
@@ -357,7 +364,7 @@ class Application():
         raise urwid.ExitMainLoop()
 
     def build_task_table(self):
-        self.table = TaskTable(self.config, self.task_config, self.formatter, on_select=self.on_select, event=self.event, action_registry=self.action_registry, keybindings=self.keybindings, key_cache=self.key_cache)
+        self.table = TaskTable(self.config, self.task_config, self.formatter, on_select=self.on_select, event=self.event, action_registry=self.action_registry, request_reply=self.request_reply)
 
     def update_task_table(self):
         self.table.update_data(self.reports[self.report], self.model.tasks)
