@@ -22,6 +22,17 @@ VIT_CONFIG_FILE = 'config.ini'
 FILTER_EXCLUSION_REGEX = re.compile('^limit:')
 FILTER_PARENS_REGEX = re.compile('([\(\)])')
 CONFIG_BOOLEAN_TRUE_REGEX = re.compile('1|yes|true', re.IGNORECASE)
+# TaskParser expects clean hierachies in the TaskWarrior dotted config names.
+# However, this is occassionally violated, with a leaf ending in both a string
+# value and another branch. The below list contains the config values that
+# violate this convention, and transform them into a single additional branch
+# of value CONFIG_STRING_LEAVES_DEFAULT_BRANCH
+CONFIG_STRING_LEAVES = [
+    'color.calendar.due',
+    'color.due',
+    'color.label',
+]
+CONFIG_STRING_LEAVES_DEFAULT_BRANCH = 'default'
 
 DEFAULTS = {
     'taskwarrior': {
@@ -114,6 +125,11 @@ class TaskParser(object):
         else:
             raise_(RuntimeError, 'Error parsing task config: %s' % stderr)
 
+    def transform_string_leaves(self, hierarchy):
+        if hierarchy in CONFIG_STRING_LEAVES:
+            hierarchy += '.%s' % CONFIG_STRING_LEAVES_DEFAULT_BRANCH
+        return hierarchy
+
     def subtree(self, matcher, walk_subtree=True):
       matcher_regex = matcher
       if walk_subtree:
@@ -121,6 +137,7 @@ class TaskParser(object):
       full_tree = {}
       lines = list(filter(lambda config_pair: re.match(matcher_regex, config_pair[0]), self.task_config))
       for (hierarchy, value) in lines:
+        hierarchy = self.transform_string_leaves(hierarchy)
         parts = hierarchy.split('.')
         tree_location = full_tree
         while True:
