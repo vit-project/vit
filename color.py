@@ -3,30 +3,11 @@ import urwid
 # TODO: This isn't implemented in Python < 2.7.
 from functools import cmp_to_key
 
-COLOR_SUB_REGEX = re.compile('^color(\d\d?\d?)$')
-RGB_SUB_REGEX = re.compile('^rgb(\d\d\d)$')
-GRAY_SUB_REGEX = re.compile('^gray(\d\d?)$')
-FOREGROUND_NAMED_COLOR_MAP = {
-    'red': 'dark red',
-    'green': 'dark green',
-    'blue': 'dark blue',
-    'cyan': 'dark cyan',
-    'magenta': 'dark magenta',
-    'gray': 'light gray',
-}
-BACKGROUND_NAMED_COLOR_MAP = {
-    'red': 'light red',
-    'green': 'light green',
-    'blue': 'light blue',
-    'cyan': 'light cyan',
-    'magenta': 'light magenta',
-    'gray': 'dark gray',
-}
+from color_mappings import task_256_to_urwid_256, task_bright_to_color
+
 VALID_COLOR_MODIFIERS = [
     'bold',
     'underline',
-    # TODO: How to translate this?
-    #'inverse',
 ]
 
 class TaskColorizer(object):
@@ -35,6 +16,7 @@ class TaskColorizer(object):
     def __init__(self, config, task_config):
         self.config = config
         self.task_config = task_config
+        self.task_256_to_urwid_256 = task_256_to_urwid_256()
         self.color_enabled = self.task_config.subtree('color$', walk_subtree=False)['color'] == 'on'
         self.color_config = self.convert_color_config(self.task_config.filter_to_dict('^color\.'))
         self.color_precedence = self.task_config.subtree('rule.')['precedence']['color'].split(',')
@@ -50,26 +32,41 @@ class TaskColorizer(object):
 
     def convert_colors(self, color_config):
         # TODO: Maybe a fancy regex eventually...
-        color_config = color_config.strip()
+        color_config = task_bright_to_color(color_config).strip()
         starts_with_on = color_config[0:3] == 'on '
         parts = list(map(lambda p: p.strip(), color_config.split('on ')))
         foreground, background = (parts[0], parts[1]) if len(parts) > 1 else (None, parts[0]) if starts_with_on else (parts[0], None)
-        return self.convert_foreground(foreground), self.convert_background(background)
+        foreground_parts, background_parts = self.check_invert_color_parts(foreground, background)
+        return self.convert(foreground_parts), self.convert(background_parts)
 
-    def convert_foreground(self, foreground):
-        return ','.join(self.map_named_foreground_colors(self.sort_color_parts(self.convert_color_parts(foreground))))
+    def convert(self, color_parts):
+        sorted_parts = self.sort_color_parts(color_parts)
+        remapped_colors = self.map_named_colors(sorted_parts)
+        return ','.join(remapped_colors)
 
-    def convert_background(self, background):
-        return ','.join(self.map_named_background_colors(self.sort_color_parts(self.convert_color_parts(background))))
+    def map_named_colors(self, color_parts):
+        if len(color_parts) > 0 and color_parts[0] in self.task_256_to_urwid_256:
+            color_parts[0] = self.task_256_to_urwid_256[color_parts[0]]
+        return color_parts
 
-    def convert_color_parts(self, color_parts):
-        parts = list(map(lambda p: self.convert_color(p), color_parts.split())) if color_parts else []
-        if 'bright' in parts:
-            parts.remove('bright')
+    def check_invert_color_parts(self, foreground, background):
+        foreground_parts = self.split_color_parts(foreground)
+        background_parts = self.split_color_parts(background)
+        inverse = False
+        if 'inverse' in foreground_parts:
+            foreground_parts.remove('inverse')
+            inverse = True
+        if 'inverse' in background_parts:
+            background_parts.remove('inverse')
+            inverse = True
+        if inverse:
+            return background_parts, foreground_parts
+        else:
+            return foreground_parts, background_parts
+
+    def split_color_parts(self, color_parts):
+        parts = color_parts.split() if color_parts else []
         return parts
-
-    def convert_color(self, color):
-        return COLOR_SUB_REGEX.sub(r'h\1', RGB_SUB_REGEX.sub(r'#\1', GRAY_SUB_REGEX.sub(r'g\1', color)))
 
     def is_modifier(self, elem):
         return elem in VALID_COLOR_MODIFIERS
@@ -83,13 +80,3 @@ class TaskColorizer(object):
             else:
                 return 0
         return sorted(color_parts, key=cmp_to_key(comparator))
-
-    def map_named_foreground_colors(self, color_parts):
-        if len(color_parts) > 0 and color_parts[0] in FOREGROUND_NAMED_COLOR_MAP:
-            color_parts[0] = FOREGROUND_NAMED_COLOR_MAP[color_parts[0]]
-        return color_parts
-
-    def map_named_background_colors(self, color_parts):
-        if len(color_parts) > 0 and color_parts[0] in BACKGROUND_NAMED_COLOR_MAP:
-            color_parts[0] = BACKGROUND_NAMED_COLOR_MAP[color_parts[0]]
-        return color_parts
