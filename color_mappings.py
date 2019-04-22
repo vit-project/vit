@@ -51,7 +51,8 @@ def task_color_gray_to_g():
     for i in range(0, 24):
         gray_key = 'gray%d' % i
         color_key = 'color%d' % (i + 232)
-        value = 'g%d' % i
+        # NOTE: This is an approximation of the conversion, close enough!
+        value = 'g%d' % (i * 4)
         color_map[gray_key] = value
         color_map[color_key] = value
     return color_map
@@ -65,13 +66,21 @@ def task_color_to_h():
     return color_map
 
 def task_rgb_to_h():
+    index_to_hex = [
+        '0',
+        '6',
+        '8',
+        'a',
+        'd',
+        'f',
+    ]
     color_map = {}
     count = 0
     for r in range(0, 6):
         for g in range(0, 6):
             for b in range(0, 6):
                 key = 'rgb%d%d%d' % (r, g, b)
-                value = 'h%d' % (count + 16)
+                value = '#%s%s%s' % (index_to_hex[r], index_to_hex[g], index_to_hex[b])
                 color_map[key] = value
                 count += 1
     return color_map
