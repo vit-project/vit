@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 
+from importlib import import_module
 from future.utils import raise_
 
 import subprocess
@@ -25,19 +26,6 @@ from multi_widget import MultiWidget
 from command_bar import CommandBar
 from registry import ActionRegistry, RequestReply
 from denotation import DenotationPopupLauncher
-
-PALETTE = [
-    ('list-header', 'black', 'white'),
-    ('reveal focus', 'black', 'dark cyan', 'standout'),
-    ('message status', 'white', 'dark blue', 'standout'),
-    ('message error', 'white', 'dark red', 'standout'),
-    ('status', 'dark blue', 'black'),
-    ('flash off', 'black', 'black', 'standout'),
-    ('flash on', 'white', 'black', 'standout'),
-    ('pop_up', 'white', 'black'),
-    ('button action', 'white', 'dark red'),
-    ('button cancel', 'black', 'light gray'),
-]
 
 class KeyCache(object):
     def __init__(self, multi_key_cache):
@@ -78,6 +66,7 @@ class Application():
         self.event.listen('command-bar:keypress', self.command_bar_keypress)
         self.event.listen('task:denotate', self.denotate_task)
         self.event.listen('task-list:keypress', self.task_list_keypress)
+        self.init_theme()
         self.run(self.report)
 
     def register_global_actions(self):
@@ -129,6 +118,17 @@ class Application():
     def set_request_callbacks(self):
         self.request_reply.set_handler('application:keybindings', 'Get keybindings', lambda: self.keybinding_parser.keybindings)
         self.request_reply.set_handler('application:key_cache', 'Get key cache', lambda: self.key_cache)
+
+    def init_theme(self):
+        theme = self.config.get('vit', 'theme')
+        try:
+            self.theme = import_module('theme.%s' % theme).theme
+        except ImportError:
+            raise_(ImportError, "theme '%s' not found" % theme)
+        self.init_task_colors()
+
+    def init_task_colors(self):
+        self.theme += self.task_colorizer.color_config
 
     def execute_keybinding(self, keybinding):
         self.key_cache.set()
@@ -644,6 +644,6 @@ class Application():
 
     def run(self, report):
         self.build_main_widget(report)
-        self.loop = urwid.MainLoop(self.widget, PALETTE, unhandled_input=self.key_pressed, pop_ups=True)
+        self.loop = urwid.MainLoop(self.widget, self.theme, unhandled_input=self.key_pressed, pop_ups=True)
         self.table.set_draw_screen_callback(self.loop.draw_screen)
         self.loop.run()

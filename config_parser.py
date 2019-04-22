@@ -40,6 +40,7 @@ DEFAULTS = {
     },
     'vit': {
         'default_keybindings': 'vi',
+        'theme': 'default',
     },
     'report': {
         'default_report': 'next',
@@ -130,12 +131,19 @@ class TaskParser(object):
             hierarchy += '.%s' % CONFIG_STRING_LEAVES_DEFAULT_BRANCH
         return hierarchy
 
+    def filter_to_dict(self, matcher_regex):
+        lines = self.filter(matcher_regex)
+        return {self.transform_string_leaves(key): value for key, value in lines}
+
+    def filter(self, matcher_regex):
+        return list(filter(lambda config_pair: re.match(matcher_regex, config_pair[0]), self.task_config))
+
     def subtree(self, matcher, walk_subtree=True):
       matcher_regex = matcher
       if walk_subtree:
           matcher_regex = r'%s' % (('^%s' % matcher).replace('.', '\.'))
       full_tree = {}
-      lines = list(filter(lambda config_pair: re.match(matcher_regex, config_pair[0]), self.task_config))
+      lines = self.filter(matcher_regex)
       for (hierarchy, value) in lines:
         hierarchy = self.transform_string_leaves(hierarchy)
         parts = hierarchy.split('.')
