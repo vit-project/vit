@@ -70,36 +70,38 @@ class Application():
         self.run(self.report)
 
     def register_global_actions(self):
-        register = self.action_registry.register
-        register('QUIT', 'Quit the application', self.quit)
-        register('QUIT_WITH_CONFIRM', 'Quit the application, after confirmation', self.activate_command_bar_quit_with_confirm)
-        register('TASK_ADD', 'Add a task', self.activate_command_bar_add)
-        register('REPORT_FILTER', 'Filter current report', self.activate_command_bar_filter)
-        register('TASK_UNDO', 'Undo last task change', self.activate_command_bar_undo)
-        register('COMMAND_BAR_EX', "Open the command bar in 'ex' mode", self.activate_command_bar_ex)
-        register('COMMAND_BAR_EX_TASK_READ_WAIT', "Open the command bar in 'ex' mode with '!rw task ' appended", self.activate_command_bar_ex_read_wait_task)
-        register('COMMAND_BAR_SEARCH_FORWARD', 'Open the command bar in search forward mode', self.activate_command_bar_search_forward)
-        register('COMMAND_BAR_SEARCH_REVERSE', 'Open the command bar in search reverse mode', self.activate_command_bar_search_reverse)
-        register('COMMAND_BAR_SEARCH_NEXT', 'Search next', self.activate_command_bar_search_next)
-        register('COMMAND_BAR_SEARCH_PREVIOUS', 'Search previous', self.activate_command_bar_search_previous)
-        register('REFRESH_REPORT', 'Refresh the current report', self.update_report)
-        register('GLOBAL_ESCAPE', 'Top-level escape function', self.global_escape)
-        register(self.action_registry.noop_action_name, 'Used to disable a default keybinding action', self.action_registry.noop)
+        self.global_action_registrar = self.action_registry.get_registrar()
+        self.global_action_registrar.register('QUIT', 'Quit the application', self.quit)
+        self.global_action_registrar.register('QUIT_WITH_CONFIRM', 'Quit the application, after confirmation', self.activate_command_bar_quit_with_confirm)
+        self.global_action_registrar.register('TASK_ADD', 'Add a task', self.activate_command_bar_add)
+        self.global_action_registrar.register('REPORT_FILTER', 'Filter current report', self.activate_command_bar_filter)
+        self.global_action_registrar.register('TASK_UNDO', 'Undo last task change', self.activate_command_bar_undo)
+        self.global_action_registrar.register('COMMAND_BAR_EX', "Open the command bar in 'ex' mode", self.activate_command_bar_ex)
+        self.global_action_registrar.register('COMMAND_BAR_EX_TASK_READ_WAIT', "Open the command bar in 'ex' mode with '!rw task ' appended", self.activate_command_bar_ex_read_wait_task)
+        self.global_action_registrar.register('COMMAND_BAR_SEARCH_FORWARD', 'Open the command bar in search forward mode', self.activate_command_bar_search_forward)
+        self.global_action_registrar.register('COMMAND_BAR_SEARCH_REVERSE', 'Open the command bar in search reverse mode', self.activate_command_bar_search_reverse)
+        self.global_action_registrar.register('COMMAND_BAR_SEARCH_NEXT', 'Search next', self.activate_command_bar_search_next)
+        self.global_action_registrar.register('COMMAND_BAR_SEARCH_PREVIOUS', 'Search previous', self.activate_command_bar_search_previous)
+        self.global_action_registrar.register('REFRESH_REPORT', 'Refresh the current report', self.update_report)
+        self.global_action_registrar.register('GLOBAL_ESCAPE', 'Top-level escape function', self.global_escape)
+        self.global_action_registrar.register(self.action_registry.noop_action_name, 'Used to disable a default keybinding action', self.action_registry.noop)
+        self.global_registered_actions = self.global_action_registrar.actions()
 
     def register_task_actions(self):
-        register = self.action_registry.register
-        register('TASK_ANNOTATE', 'Add an annotation to a task', self.task_action_annotate)
-        register('TASK_DELETE', 'Delete task', self.task_action_delete)
-        register('TASK_DENOTATE', 'Denotate a task', self.task_action_denotate)
-        register('TASK_MODIFY', 'Modify task', self.task_action_modify)
-        register('TASK_START_STOP', 'Start/stop task', self.task_action_start_stop)
-        register('TASK_DONE', 'Mark task done', self.task_action_done)
-        register('TASK_PRIORITY', 'Modify task priority', self.task_action_priority)
-        register('TASK_PROJECT', 'Modify task project', self.task_action_project)
-        register('TASK_TAGS', 'Modify task tags', self.task_action_tags)
-        register('TASK_WAIT', 'Wait a task', self.task_action_wait)
-        register('TASK_EDIT', 'Edit a task via the default editor', self.task_action_edit)
-        register('TASK_SHOW', 'Show task details', self.task_action_show)
+        self.task_action_registrar = self.action_registry.get_registrar()
+        self.task_action_registrar.register('TASK_ANNOTATE', 'Add an annotation to a task', self.task_action_annotate)
+        self.task_action_registrar.register('TASK_DELETE', 'Delete task', self.task_action_delete)
+        self.task_action_registrar.register('TASK_DENOTATE', 'Denotate a task', self.task_action_denotate)
+        self.task_action_registrar.register('TASK_MODIFY', 'Modify task', self.task_action_modify)
+        self.task_action_registrar.register('TASK_START_STOP', 'Start/stop task', self.task_action_start_stop)
+        self.task_action_registrar.register('TASK_DONE', 'Mark task done', self.task_action_done)
+        self.task_action_registrar.register('TASK_PRIORITY', 'Modify task priority', self.task_action_priority)
+        self.task_action_registrar.register('TASK_PROJECT', 'Modify task project', self.task_action_project)
+        self.task_action_registrar.register('TASK_TAGS', 'Modify task tags', self.task_action_tags)
+        self.task_action_registrar.register('TASK_WAIT', 'Wait a task', self.task_action_wait)
+        self.task_action_registrar.register('TASK_EDIT', 'Edit a task via the default editor', self.task_action_edit)
+        self.task_action_registrar.register('TASK_SHOW', 'Show task details', self.task_action_show)
+        self.task_registered_actions = self.task_action_registrar.actions()
 
     def setup_keybindings(self):
         self.keybinding_parser.load_default_keybindings()
@@ -246,6 +248,7 @@ class Application():
             return None
         keys = self.key_cache.get(key)
         if keys in self.keybinding_parser.keybindings:
+            self.activate_message_bar()
             self.execute_keybinding(self.keybinding_parser.keybindings[keys])
         elif keys in self.key_cache.multi_key_cache:
             self.key_cache.set(keys)
@@ -254,11 +257,18 @@ class Application():
             self.key_cache.set()
             self.update_status_key_cache()
 
+    def handle_on_select_keypress(self, keys):
+        # TODO: Some of this can probably be abstracted to a keybinding/action
+        # manager.
+        keybindings = self.keybinding_parser.keybindings
+        return keys in keybindings and 'action_name' in keybindings[keys] and keybindings[keys]['action_name'] in self.task_registered_actions
+
     def on_select(self, row, size, key):
         keys = self.key_cache.get(key)
-        self.activate_message_bar()
-        if keys in self.keybinding_parser.keybindings:
+        if self.handle_on_select_keypress(keys):
+            self.activate_message_bar()
             self.execute_keybinding(self.keybinding_parser.keybindings[keys])
+            return None
         else:
             return key
 

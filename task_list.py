@@ -35,17 +35,18 @@ class TaskTable(object):
         self.event.listen('task-list:keypress', task_list_keypress)
 
     def register_task_list_actions(self):
-        register = self.action_registry.register
-        register('TASK_LIST_UP', 'Move task list focus up one entry', self.keypress_up)
-        register('TASK_LIST_DOWN', 'Move task list focus down one entry', self.keypress_down)
-        register('TASK_LIST_PAGE_UP', 'Move task list focus up one page', self.keypress_page_up)
-        register('TASK_LIST_PAGE_DOWN', 'Move task list focus down one page', self.keypress_page_down)
-        register('TASK_LIST_HOME', 'Move task list focus to top of the list', self.keypress_home)
-        register('TASK_LIST_END', 'Move task list focus to bottom of the list', self.keypress_end)
-        register('TASK_LIST_SCREEN_TOP', 'Move task list focus to top of the screen', self.keypress_screen_top)
-        register('TASK_LIST_SCREEN_MIDDLE', 'Move task list focus to middle of the screen', self.keypress_screen_middle)
-        register('TASK_LIST_SCREEN_BOTTOM', 'Move task list focus to bottom of the screen', self.keypress_screen_bottom)
-        register('TASK_LIST_FOCUS_VALIGN_CENTER', 'Move focused task to center of the screen', self.keypress_focus_valign_center)
+        self.action_registrar = self.action_registry.get_registrar()
+        self.action_registrar.register('TASK_LIST_UP', 'Move task list focus up one entry', self.keypress_up)
+        self.action_registrar.register('TASK_LIST_DOWN', 'Move task list focus down one entry', self.keypress_down)
+        self.action_registrar.register('TASK_LIST_PAGE_UP', 'Move task list focus up one page', self.keypress_page_up)
+        self.action_registrar.register('TASK_LIST_PAGE_DOWN', 'Move task list focus down one page', self.keypress_page_down)
+        self.action_registrar.register('TASK_LIST_HOME', 'Move task list focus to top of the list', self.keypress_home)
+        self.action_registrar.register('TASK_LIST_END', 'Move task list focus to bottom of the list', self.keypress_end)
+        self.action_registrar.register('TASK_LIST_SCREEN_TOP', 'Move task list focus to top of the screen', self.keypress_screen_top)
+        self.action_registrar.register('TASK_LIST_SCREEN_MIDDLE', 'Move task list focus to middle of the screen', self.keypress_screen_middle)
+        self.action_registrar.register('TASK_LIST_SCREEN_BOTTOM', 'Move task list focus to bottom of the screen', self.keypress_screen_bottom)
+        self.action_registrar.register('TASK_LIST_FOCUS_VALIGN_CENTER', 'Move focused task to center of the screen', self.keypress_focus_valign_center)
+        self.registered_actions = self.action_registrar.actions()
 
     def keypress_up(self, size):
         self.listbox.keypress(size, 'up')
@@ -248,7 +249,7 @@ class TaskTable(object):
     def build_table(self):
         self.contents = [SelectableRow(self.columns, obj, on_select=self.on_select) if isinstance(obj, TaskRow) else ProjectPlaceholderRow(self.columns, obj) for obj in self.rows]
         self.list_walker = urwid.SimpleFocusListWalker(self.contents)
-        self.listbox = TaskListBox(self.list_walker, event=self.event, request_reply=self.request_reply)
+        self.listbox = TaskListBox(self.list_walker, event=self.event, request_reply=self.request_reply, registered_actions=self.registered_actions)
         self.init_event_listeners()
         list_header = urwid.Columns([(metadata['width'] + 2, urwid.Text(metadata['label'], align='left')) for column, metadata in list(self.columns.items())])
         self.header = urwid.AttrMap(list_header, 'list-header')
@@ -339,10 +340,11 @@ class TaskListBox(urwid.ListBox):
     """Maps task list shortcuts to default ListBox class.
     """
 
-    def __init__(self, body, event=None, request_reply=None):
+    def __init__(self, body, event=None, request_reply=None, registered_actions=None):
         self.previous_focus_position = None
         self.event = event
         self.request_reply = request_reply
+        self.registered_actions = registered_actions
         self.keybindings = self.request_reply.request('application:keybindings')
         self.key_cache = self.request_reply.request('application:key_cache')
         return super().__init__(body)
@@ -367,14 +369,14 @@ class TaskListBox(urwid.ListBox):
         #    # TODO: Log this?
         #    return None, None, None
 
-    # TODO: This action_name check is a horrible hack to prevent other
-    # keybindings from being corrupted by the partial function logic below.
-    def is_task_list_action(self, keybinding):
-        return 'action_name' in keybinding and keybinding['action_name'][0:17] == 'ACTION_TASK_LIST_'
+    def handle_keypress(self, keys):
+        # TODO: Some of this can probably be abstracted to a keybinding/action
+        # manager.
+        return keys in self.keybindings and 'action_name' in self.keybindings[keys] and self.keybindings[keys]['action_name'] in self.registered_actions
 
     def keypress(self, size, key):
         keys = self.key_cache.get(key)
-        if keys in self.keybindings and self.is_task_list_action(self.keybindings[keys]):
+        if self.handle_keypress(keys):
             data = {
                 'keybinding': self.keybindings[keys],
                 'size': size,

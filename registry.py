@@ -1,17 +1,44 @@
 from future.utils import raise_
+import uuid
+
+class ActionRegistrar(object):
+    def __init__(self, registry):
+        self.registry = registry
+        self.uuid = uuid.uuid4()
+
+    def register(self, name, description, callback):
+        self.registry.register(self.uuid, name, description, callback)
+
+    def deregister(self, name=None):
+        if name:
+            self.registry.deregister(name)
+        else:
+            any(self.registry.deregister(action) for _, action in self.actions().items())
+
+    def actions(self):
+        return self.registry.get_registered(self.uuid)
 
 class ActionRegistry(object):
     def __init__(self):
         self.actions = {}
         self.noop_action_name = 'NOOP'
 
-    def register(self, name, description, callback):
+    def get_registrar(self):
+        return ActionRegistrar(self)
+
+    def get_registered(self, registration_id):
+        return list(filter(lambda action: self.actions[action]['registration_id'] == registration_id, self.actions))
+
+    def register(self, registration_id, name, description, callback):
         self.actions[self.make_action_name(name)] = {
+            'name': name,
+            'registration_id': registration_id,
             'description': description,
             'callback': callback,
         }
 
-    def deregister(self, name):
+    def deregister(self, name_or_action):
+        name = name_or_action['name'] if isinstance(name_or_action, dict) else name_or_action
         self.actions.pop(self.make_action_name(name))
 
     def make_action_name(self, name):
