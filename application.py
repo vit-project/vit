@@ -347,11 +347,13 @@ class Application():
         self.search_display_message(reverse)
 
     def search_row_has_search_term(self, row, search_regex):
-        for column in row.data:
-            value = row.data[column]
-            if value and search_regex.search(value):
-                return True
-        return False
+        # TODO: Cleaner way to detect valid searchable row.
+        if hasattr(row, 'data'):
+            for column in row.data:
+                value = row.data[column]
+                if value and search_regex.search(value):
+                    return True
+            return False
 
     def get_focused_task(self):
         if self.widget.focus_position == 'body':
