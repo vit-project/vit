@@ -372,19 +372,9 @@ class TaskListBox(urwid.ListBox):
     def is_task_list_action(self, keybinding):
         return 'action_name' in keybinding and keybinding['action_name'][0:17] == 'ACTION_TASK_LIST_'
 
-    def keybinding_original_action(self, keybinding):
-        return keybinding['original_action'] if 'original_action' in keybinding else keybinding['action']
-
-    def keybinding_action_inject_size(self, keybinding, size):
-        return partial(keybinding['original_action'], size)
-
     def keypress(self, size, key):
         keys = self.key_cache.get(key)
         if keys in self.keybindings and self.is_task_list_action(self.keybindings[keys]):
-            # NOTE: This swap is necessary to prevent re-injecting multiple
-            # size args into the same action callback.
-            self.keybindings[keys]['original_action'] = self.keybinding_original_action(self.keybindings[keys])
-            self.keybindings[keys]['action'] = self.keybinding_action_inject_size(self.keybindings[keys], size)
             data = {
                 'keybinding': self.keybindings[keys],
                 'size': size,

@@ -130,11 +130,12 @@ class Application():
     def init_task_colors(self):
         self.theme += self.task_colorizer.color_config
 
-    def execute_keybinding(self, keybinding):
+    def execute_keybinding(self, *args):
+        keybinding, args = args[0], args[1:]
         self.key_cache.set()
         self.update_status_key_cache()
         if 'action' in keybinding:
-            keybinding['action']()
+            keybinding['action'](*args)
         else:
             keypresses = self.prepare_keybinding_keypresses(keybinding['keys'])
             self.loop.process_input(keypresses)
@@ -238,7 +239,7 @@ class Application():
             self.task_list.focus_by_task_uuid(metadata['uuid'])
 
     def task_list_keypress(self, data):
-        self.execute_keybinding(data['keybinding'])
+        self.execute_keybinding(data['keybinding'], data['size'])
 
     def key_pressed(self, key):
         if is_mouse_event(key):
