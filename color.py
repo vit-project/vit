@@ -25,10 +25,14 @@ class TaskColorizer(object):
         def convert(color):
             key, value = color
             foreground, background = self.convert_colors(value)
-            # TODO: Maybe translate down to basic 16 foreground/background as
-            # well?
-            return (key, '', '', '', foreground, background)
-        return list(map(convert, color_config.items()))
+            # TODO: Non-standard colors need to be translated down to standard.
+            # TODO: Why aren't 256 colors being used when no basic colors are
+            # provided?
+            if foreground == '' and background == '':
+                return None
+            else:
+                return (key, foreground, background, '', foreground, background)
+        return list(filter(lambda c: c, map(convert, color_config.items())))
 
     def convert_colors(self, color_config):
         # TODO: Maybe a fancy regex eventually...
