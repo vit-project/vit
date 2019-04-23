@@ -274,8 +274,9 @@ class SelectableRow(urwid.WidgetWrap):
         self.task = row.task
         self.uuid = row.uuid
         self.id = row.id
+        self.align = align
 
-        self._columns = urwid.Columns([(metadata['width'], urwid.Text(row.data[column], align=align)) for column, metadata in list(columns.items())],
+        self._columns = urwid.Columns([(metadata['width'], self.build_column(column, row.data[column])) for column, metadata in list(columns.items())],
                                        dividechars=space_between)
         self.row = urwid.AttrMap(self._columns, '')
 
@@ -304,6 +305,16 @@ class SelectableRow(urwid.WidgetWrap):
         # ... and update the displayed items.
         for t, (w, _) in zip(contents, self._columns.contents):
             w.set_text(t)
+
+    def build_column(self, column, column_data):
+        markup = (self.display_attr(column), column_data)
+        return urwid.Text(markup, align=self.align)
+
+    def display_attr(self, column):
+        if column == 'tags' and self.task['tags']:
+            return 'color.tagged'
+        return None
+
 
 class ProjectPlaceholderRow(urwid.WidgetWrap):
     """Wraps 'urwid.Columns' for a project placeholder row.
