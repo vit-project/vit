@@ -52,12 +52,12 @@ class Application():
         self.register_task_actions()
         self.actions = self.action_registry.actions
         self.command = Command(self.config)
-        self.formatter = formatter.Defaults(self.config, self.task_config)
+        self.task_colorizer = TaskColorizer(self.config, self.task_config)
+        self.formatter = formatter.Defaults(self.config, self.task_config, self.task_colorizer)
         self.keybinding_parser = KeybindingParser(self.config, self.action_registry)
         self.key_cache = KeyCache(self.keybinding_parser.multi_key_cache)
         self.event = event.Emitter()
         self.request_reply = RequestReply()
-        self.task_colorizer = TaskColorizer(self.config, self.task_config)
         # TODO: TaskTable is dependent on a bunch of setup above, this order
         # feels brittle.
         self.build_task_table()
@@ -130,7 +130,7 @@ class Application():
         self.init_task_colors()
 
     def init_task_colors(self):
-        self.theme += self.task_colorizer.color_config
+        self.theme += self.task_colorizer.display_attrs
 
     def execute_keybinding(self, *args):
         keybinding, args = args[0], args[1:]
@@ -379,7 +379,7 @@ class Application():
         raise urwid.ExitMainLoop()
 
     def build_task_table(self):
-        self.table = TaskTable(self.config, self.task_config, self.formatter, on_select=self.on_select, event=self.event, action_registry=self.action_registry, request_reply=self.request_reply)
+        self.table = TaskTable(self.config, self.task_config, self.formatter, on_select=self.on_select, event=self.event, action_registry=self.action_registry, request_reply=self.request_reply, task_colorizer=self.task_colorizer)
 
     def update_task_table(self):
         self.table.update_data(self.reports[self.report], self.model.tasks)

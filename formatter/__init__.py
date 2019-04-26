@@ -42,9 +42,10 @@ TIME_UNIT_MAP = {
 }
 
 class Defaults(object):
-    def __init__(self, config, task_config):
+    def __init__(self, config, task_config, task_colorizer):
         self.config = config
         self.task_config = task_config
+        self.task_colorizer = task_colorizer
         self.report = self.task_config.translate_date_markers(self.task_config.subtree('dateformat.report'))
         self.annotation = self.task_config.translate_date_markers(self.task_config.subtree('dateformat.annotation'))
 
@@ -88,6 +89,12 @@ class Formatter(object):
 
     def format(self, obj, task):
         return str(obj) if obj else ''
+
+    def has_display_attr(self, display_attr):
+        return display_attr in self.defaults.task_colorizer.display_attrs_available and self.defaults.task_colorizer.display_attrs_available[display_attr]
+
+class Marker(Formatter):
+    pass
 
 class Number(Formatter):
     pass

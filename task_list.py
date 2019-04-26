@@ -10,16 +10,18 @@ import urwid
 import util
 
 MAX_COLUMN_WIDTH = 60
+MARKER_COLUMN_NAME = 'markers'
 
 class TaskTable(object):
 
-    def __init__(self, config, task_config, formatter, on_select=None, event=None, action_registry=None, request_reply=None):
+    def __init__(self, config, task_config, formatter, on_select=None, event=None, action_registry=None, request_reply=None, task_colorizer=None):
         self.config = config
         self.task_config = task_config
         self.on_select = on_select
         self.event = event
         self.action_registry = action_registry
         self.request_reply = request_reply
+        self.task_colorizer = task_colorizer
         self.formatter = formatter
         self.register_task_list_actions()
 
@@ -90,6 +92,7 @@ class TaskTable(object):
         self.rows = []
         self.sort()
         self.set_column_metadata()
+        self.set_marker_columns()
         self.indent_subprojects = self.subproject_indentable()
         self.project_cache = {}
         self.build_rows()
@@ -177,7 +180,18 @@ class TaskTable(object):
     def custom_report_formatter(self):
         return self.report['dateformat'] if 'dateformat' in self.report else None
 
+    def add_markers_column(self):
+        # TODO: Add config option to set different marker formatters?
+        name, formatter_class = self.formatter.get(MARKER_COLUMN_NAME)
+        self.columns[name] = {
+            # TODO: Add config option to set marker label?
+            'label': '',
+            'formatter': formatter_class(self.report, self.formatter),
+            'width': 0,
+        }
+
     def set_column_metadata(self):
+        self.add_markers_column()
         custom_formatter = self.custom_report_formatter()
         for idx, column_formatter in enumerate(self.report['columns']):
             name, formatter_class = self.formatter.get(column_formatter)
@@ -187,18 +201,35 @@ class TaskTable(object):
                 'width': 0,
             }
 
+    def is_marker_column(self, column):
+        return column == MARKER_COLUMN_NAME
+
+    def set_marker_columns(self):
+        # TODO: For now, only colorable columns can be markable, this could
+        # change in the future.
+        self.report_marker_columns = [c for c in self.task_colorizer.colorable_columns if c not in self.columns]
+
     def build_rows(self):
         for task in self.tasks:
             row_data = {}
             self.inject_project_placeholders(task)
             for column, metadata in list(self.columns.items()):
-                current = metadata['width']
                 formatted_value = metadata['formatter'].format(task[column], task)
-                new = len(formatted_value) if formatted_value else 0
-                if new > current and current < MAX_COLUMN_WIDTH:
-                    self.columns[column]['width'] = new < MAX_COLUMN_WIDTH and new or MAX_COLUMN_WIDTH
-                row_data[column] = formatted_value
+                width, text_markup = self.build_row_column(formatted_value)
+                self.update_column_width(column, metadata['width'], width)
+                row_data[column] = text_markup
             self.rows.append(TaskRow(task, row_data))
+
+    def update_column_width(self, column, current_width, new_width):
+        if new_width > current_width and current_width < MAX_COLUMN_WIDTH:
+            self.columns[column]['width'] = new_width if new_width < MAX_COLUMN_WIDTH else MAX_COLUMN_WIDTH
+
+    def build_row_column(self, formatted_value):
+        if isinstance(formatted_value, tuple):
+            return formatted_value
+        else:
+            width = len(formatted_value) if formatted_value else 0
+            return width, formatted_value
 
     def subproject_indentable(self):
         return self.config.subproject_indentable and self.report['subproject_indentable']
@@ -275,9 +306,8 @@ class SelectableRow(urwid.WidgetWrap):
         self.task = row.task
         self.uuid = row.uuid
         self.id = row.id
-        self.align = align
 
-        self._columns = urwid.Columns([(metadata['width'], self.build_column(column, row.data[column])) for column, metadata in list(columns.items())],
+        self._columns = urwid.Columns([(metadata['width'], urwid.Text(row.data[column], align=align)) for column, metadata in list(columns.items())],
                                        dividechars=space_between)
         self.row = urwid.AttrMap(self._columns, '')
 
@@ -306,16 +336,6 @@ class SelectableRow(urwid.WidgetWrap):
         # ... and update the displayed items.
         for t, (w, _) in zip(contents, self._columns.contents):
             w.set_text(t)
-
-    def build_column(self, column, column_data):
-        markup = (self.display_attr(column), column_data)
-        return urwid.Text(markup, align=self.align)
-
-    def display_attr(self, column):
-        if column == 'tags' and self.task['tags']:
-            return 'color.tagged'
-        return None
-
 
 class ProjectPlaceholderRow(urwid.WidgetWrap):
     """Wraps 'urwid.Columns' for a project placeholder row.

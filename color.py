@@ -5,6 +5,19 @@ from functools import cmp_to_key
 
 from color_mappings import task_256_to_urwid_256, task_bright_to_color
 
+COLORABLE_COLUMNS = [
+    'depends',
+    'description',
+    'due',
+    'project',
+    'recur',
+    'scheduled',
+    'start',
+    'status',
+    'tag',
+    # TODO: Will this one work correctly?
+    'uda',
+]
 VALID_COLOR_MODIFIERS = [
     'bold',
     'underline',
@@ -16,23 +29,31 @@ class TaskColorizer(object):
     def __init__(self, config, task_config):
         self.config = config
         self.task_config = task_config
+        self.colorable_columns = COLORABLE_COLUMNS
         self.task_256_to_urwid_256 = task_256_to_urwid_256()
         self.color_enabled = self.task_config.subtree('color$', walk_subtree=False)['color'] == 'on'
-        self.color_config = self.convert_color_config(self.task_config.filter_to_dict('^color\.'))
+        self.display_attrs_available, self.display_attrs = self.convert_color_config(self.task_config.filter_to_dict('^color\.'))
         self.color_precedence = self.task_config.subtree('rule.')['precedence']['color'].split(',')
 
     def convert_color_config(self, color_config):
-        def convert(color):
-            key, value = color
+        display_attrs_available = {}
+        display_attrs = []
+        for key, value in color_config.items():
             foreground, background = self.convert_colors(value)
-            # TODO: Non-standard colors need to be translated down to standard.
-            # TODO: Why aren't 256 colors being used when no basic colors are
-            # provided?
-            if foreground == '' and background == '':
-                return None
-            else:
-                return (key, foreground, background, '', foreground, background)
-        return list(filter(lambda c: c, map(convert, color_config.items())))
+            available = self.has_color_config(foreground, background)
+            display_attrs_available[key] = available
+            if available:
+                display_attrs.append(self.make_display_attr(key, foreground, background))
+        return display_attrs_available, display_attrs
+
+    def make_display_attr(self, display_attr, foreground, background):
+        # TODO: Non-standard colors need to be translated down to standard.
+        # TODO: Why aren't 256 colors being used when no basic colors are
+        # provided?
+        return (display_attr, foreground, background, '', foreground, background)
+
+    def has_color_config(self, foreground, background):
+        return foreground != '' or background != ''
 
     def convert_colors(self, color_config):
         # TODO: Maybe a fancy regex eventually...
@@ -43,6 +64,7 @@ class TaskColorizer(object):
         foreground_parts, background_parts = self.check_invert_color_parts(foreground, background)
         return self.convert(foreground_parts), self.convert(background_parts)
 
+    # TODO: Better method name please...
     def convert(self, color_parts):
         sorted_parts = self.sort_color_parts(color_parts)
         remapped_colors = self.map_named_colors(sorted_parts)
