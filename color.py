@@ -33,7 +33,29 @@ class TaskColorizer(object):
         self.task_256_to_urwid_256 = task_256_to_urwid_256()
         self.color_enabled = self.task_config.subtree('color$', walk_subtree=False)['color'] == 'on'
         self.display_attrs_available, self.display_attrs = self.convert_color_config(self.task_config.filter_to_dict('^color\.'))
+        self.project_display_attrs = self.get_project_display_attrs()
         self.color_precedence = self.task_config.subtree('rule.')['precedence']['color'].split(',')
+        self.add_project_children()
+
+    def add_project_children(self):
+        color_prefix = 'color.project.'
+        color_prefex_len = len(color_prefix)
+        for (display_attr, fg16, bg16, m, fg256, bg256) in self.project_display_attrs:
+            for entry in self.task_config.projects:
+                attr = '%s%s' % (color_prefix, entry)
+                if not self.has_display_attr(attr) and entry.startswith('%s.' % display_attr[color_prefex_len:]):
+                    self.display_attrs_available[attr] = True
+                    self.display_attrs.append((attr, fg16, bg16, m, fg256, bg256))
+
+    def has_display_attr(self, display_attr):
+        return display_attr in self.display_attrs_available and self.display_attrs_available[display_attr]
+
+
+    def get_project_display_attrs(self):
+        return sorted([(a, fg16, bg16, m, fg256, bg256) for (a, fg16, bg16, m, fg256, bg256) in self.display_attrs if self.display_attrs_available[a] and self.is_project_display_attr(a)], reverse=True)
+
+    def is_project_display_attr(self, display_attr):
+        return display_attr[0:14] == 'color.project.'
 
     def convert_color_config(self, color_config):
         display_attrs_available = {}

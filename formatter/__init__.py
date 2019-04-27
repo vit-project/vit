@@ -76,11 +76,14 @@ class Defaults(object):
 
     def format_subproject_indented(self, project_parts):
         if len(project_parts) == 1:
-            return project_parts[0]
+            subproject = project_parts[0]
+            return (len(subproject), '', '', subproject)
         else:
             subproject = project_parts.pop()
             space_padding = (len(project_parts) * 2) - 1
-            return '%s%s %s' % (' ' * space_padding, u'\u21aa', subproject)
+            marker = u'\u21aa '
+            width = space_padding + len(marker) + len(subproject)
+            return (width, ' ' * space_padding , marker, subproject)
 
 class Formatter(object):
     def __init__(self, report, defaults, **kwargs):
@@ -91,7 +94,10 @@ class Formatter(object):
         return str(obj) if obj else ''
 
     def has_display_attr(self, display_attr):
-        return display_attr in self.defaults.task_colorizer.display_attrs_available and self.defaults.task_colorizer.display_attrs_available[display_attr]
+        return self.defaults.task_colorizer.has_display_attr(display_attr)
+
+    def markup_element(self, obj):
+        return (self.color(obj), obj)
 
 class Marker(Formatter):
     pass

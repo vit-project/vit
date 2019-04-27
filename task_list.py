@@ -265,8 +265,9 @@ class TaskTable(object):
 
     def inject_project_placeholder(self, project_parts):
         project = '.'.join(project_parts)
-        placeholder = self.formatter.format_subproject_indented(project_parts)
-        self.rows.append(ProjectRow(project, placeholder))
+        (width, spaces, marker, subproject) = self.formatter.format_subproject_indented(project_parts)
+        # TODO: This is pretty ugly...
+        self.rows.append(ProjectRow(project, [spaces, marker, (self.columns['project']['formatter'].color(project), subproject)]))
 
     def clean_empty_columns(self):
         self.columns = {c:m for c,m in list(self.columns.items()) if m['width'] > 0}

@@ -19,9 +19,6 @@ class Tags(List):
                     text_markup += [',']
             return (width, text_markup)
 
-    def markup_element(self, tag):
-        return (self.color(tag), tag)
-
     def color(self, tag):
         custom = 'color.tag.%s' % tag
         if self.has_display_attr(custom):

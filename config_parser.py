@@ -115,8 +115,13 @@ class TaskParser(object):
     def __init__(self, config):
         self.config = config
         self.task_config = []
+        self.projects = []
         self.reports = {}
         self.command = Command(self.config)
+        self.get_task_config()
+        self.get_projects()
+
+    def get_task_config(self):
         returncode, stdout, stderr = self.command.run('task _show', capture_output=True)
         if returncode == 0:
             lines = list(filter(lambda x: True if x else False, stdout.split("\n")))
@@ -125,6 +130,15 @@ class TaskParser(object):
                 self.task_config.append((hierarchy, values))
         else:
             raise_(RuntimeError, 'Error parsing task config: %s' % stderr)
+
+    def get_projects(self):
+        returncode, stdout, stderr = self.command.run('task _projects', capture_output=True)
+        if returncode == 0:
+            self.projects = stdout.split("\n")
+            # Ditch the trailing newline.
+            self.projects.pop()
+        else:
+            raise_(RuntimeError, 'Error parsing task projects: %s' % stderr)
 
     def transform_string_leaves(self, hierarchy):
         if hierarchy in CONFIG_STRING_LEAVES:
