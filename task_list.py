@@ -120,6 +120,8 @@ class TaskTable(object):
 
     def set_project_column_header(self, parents=None):
         column_index = self.task_config.get_column_index(self.report['name'], 'project')
+        if self.has_marker_column():
+            column_index += 1
         (widget, _) = self.header.original_widget.contents[column_index]
         label = self.project_label_for_parents(parents)
         widget.set_text(label)
@@ -203,6 +205,9 @@ class TaskTable(object):
 
     def is_marker_column(self, column):
         return column == MARKER_COLUMN_NAME
+
+    def has_marker_column(self):
+        return MARKER_COLUMN_NAME in self.columns
 
     def set_marker_columns(self):
         # TODO: For now, only colorable columns can be markable, this could
