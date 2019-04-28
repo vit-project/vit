@@ -81,9 +81,9 @@ class Defaults(object):
         else:
             subproject = project_parts.pop()
             space_padding = (len(project_parts) * 2) - 1
-            marker = u'\u21aa '
-            width = space_padding + len(marker) + len(subproject)
-            return (width, ' ' * space_padding , marker, subproject)
+            indicator = u'\u21aa '
+            width = space_padding + len(indicator) + len(subproject)
+            return (width, ' ' * space_padding , indicator, subproject)
 
 class Formatter(object):
     def __init__(self, report, defaults, **kwargs):

@@ -29,13 +29,15 @@ class TaskColorizer(object):
     def __init__(self, config, task_config):
         self.config = config
         self.task_config = task_config
+        self.include_subprojects = self.config.get('color', 'include_subprojects')
         self.colorable_columns = COLORABLE_COLUMNS
         self.task_256_to_urwid_256 = task_256_to_urwid_256()
         self.color_enabled = self.task_config.subtree('color$', walk_subtree=False)['color'] == 'on'
         self.display_attrs_available, self.display_attrs = self.convert_color_config(self.task_config.filter_to_dict('^color\.'))
         self.project_display_attrs = self.get_project_display_attrs()
         self.color_precedence = self.task_config.subtree('rule.')['precedence']['color'].split(',')
-        self.add_project_children()
+        if self.include_subprojects:
+            self.add_project_children()
 
     def add_project_children(self):
         color_prefix = 'color.project.'

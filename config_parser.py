@@ -46,6 +46,31 @@ DEFAULTS = {
         'default_report': 'next',
         'indent_subprojects': True,
     },
+    'marker': {
+        'enabled': True,
+        'header_label': '',
+        'columns': 'all',
+        'active.label': '(A)',
+        'blocked.label': '(BD)',
+        'blocking.label': '(BG)',
+        'completed.label': '(C)',
+        'deleted.label': '(X)',
+        'due.label': '(D)',
+        'due.today.label': '(DT)',
+        'keyword.label': '(K)',
+        'overdue.label': '(OD)',
+        'project.label': '(P)',
+        'project.none.label': '',
+        'recurring.label': '(R)',
+        'scheduled.label': '(S)',
+        'tag.label': '(T)',
+        'tag.none.label': '',
+        'uda.label': '(U)',
+        'uda.priority.none.label': '',
+    },
+    'color': {
+        'include_subprojects': True,
+    },
 }
 
 # strftime() works differently on Windows, test here.

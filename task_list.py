@@ -17,12 +17,14 @@ class TaskTable(object):
     def __init__(self, config, task_config, formatter, on_select=None, event=None, action_registry=None, request_reply=None, task_colorizer=None):
         self.config = config
         self.task_config = task_config
+        self.formatter = formatter
         self.on_select = on_select
         self.event = event
         self.action_registry = action_registry
         self.request_reply = request_reply
         self.task_colorizer = task_colorizer
-        self.formatter = formatter
+        self.markers_enabled = self.config.get('marker', 'enabled')
+        self.set_markable_columns()
         self.register_task_list_actions()
 
     def set_draw_screen_callback(self, callback):
@@ -183,17 +185,16 @@ class TaskTable(object):
         return self.report['dateformat'] if 'dateformat' in self.report else None
 
     def add_markers_column(self):
-        # TODO: Add config option to set different marker formatters?
         name, formatter_class = self.formatter.get(MARKER_COLUMN_NAME)
         self.columns[name] = {
-            # TODO: Add config option to set marker label?
-            'label': '',
+            'label': self.config.get('marker', 'header_label'),
             'formatter': formatter_class(self.report, self.formatter),
             'width': 0,
         }
 
     def set_column_metadata(self):
-        self.add_markers_column()
+        if self.markers_enabled:
+            self.add_markers_column()
         custom_formatter = self.custom_report_formatter()
         for idx, column_formatter in enumerate(self.report['columns']):
             name, formatter_class = self.formatter.get(column_formatter)
@@ -209,10 +210,14 @@ class TaskTable(object):
     def has_marker_column(self):
         return MARKER_COLUMN_NAME in self.columns
 
+    def set_markable_columns(self):
+        marker_config_columns = self.config.get('marker', 'columns')
+        self.markable_columns = self.task_colorizer.colorable_columns if marker_config_columns == 'all' else marker_config_columns.split(',')
+
     def set_marker_columns(self):
         # TODO: For now, only colorable columns can be markable, this could
         # change in the future.
-        self.report_marker_columns = [c for c in self.task_colorizer.colorable_columns if c not in self.columns]
+        self.report_marker_columns = [c for c in self.markable_columns if c not in self.columns]
 
     def build_rows(self):
         for task in self.tasks:
@@ -270,9 +275,9 @@ class TaskTable(object):
 
     def inject_project_placeholder(self, project_parts):
         project = '.'.join(project_parts)
-        (width, spaces, marker, subproject) = self.formatter.format_subproject_indented(project_parts)
+        (width, spaces, indicator, subproject) = self.formatter.format_subproject_indented(project_parts)
         # TODO: This is pretty ugly...
-        self.rows.append(ProjectRow(project, [spaces, marker, (self.columns['project']['formatter'].color(project), subproject)]))
+        self.rows.append(ProjectRow(project, [spaces, indicator, (self.columns['project']['formatter'].color(project), subproject)]))
 
     def clean_empty_columns(self):
         self.columns = {c:m for c,m in list(self.columns.items()) if m['width'] > 0}
