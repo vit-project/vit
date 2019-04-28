@@ -41,11 +41,10 @@ class TaskColorizer(object):
 
     def add_project_children(self):
         color_prefix = 'color.project.'
-        color_prefix_len = len(color_prefix)
         for (display_attr, fg16, bg16, m, fg256, bg256) in self.project_display_attrs:
             for entry in self.task_config.projects:
                 attr = '%s%s' % (color_prefix, entry)
-                if not self.has_display_attr(attr) and entry.startswith('%s.' % display_attr[color_prefix_len:]):
+                if not self.has_display_attr(attr) and attr.startswith('%s.' % display_attr):
                     self.display_attrs_available[attr] = True
                     self.display_attrs.append((attr, fg16, bg16, m, fg256, bg256))
 
