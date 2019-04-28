@@ -9,6 +9,8 @@ from functools import cmp_to_key
 import urwid
 import util
 
+from markers import Markers
+
 MAX_COLUMN_WIDTH = 60
 MARKER_COLUMN_NAME = 'markers'
 
@@ -23,7 +25,7 @@ class TaskTable(object):
         self.action_registry = action_registry
         self.request_reply = request_reply
         self.task_colorizer = task_colorizer
-        self.markers_enabled = self.config.get('marker', 'enabled')
+        self.markers = Markers(self.config, self.task_config)
         self.set_markable_columns()
         self.register_task_list_actions()
 
@@ -187,13 +189,13 @@ class TaskTable(object):
     def add_markers_column(self):
         name, formatter_class = self.formatter.get(MARKER_COLUMN_NAME)
         self.columns[name] = {
-            'label': self.config.get('marker', 'header_label'),
+            'label': self.markers.header_label,
             'formatter': formatter_class(self.report, self.formatter),
             'width': 0,
         }
 
     def set_column_metadata(self):
-        if self.markers_enabled:
+        if self.markers.enabled:
             self.add_markers_column()
         custom_formatter = self.custom_report_formatter()
         for idx, column_formatter in enumerate(self.report['columns']):
@@ -211,8 +213,7 @@ class TaskTable(object):
         return MARKER_COLUMN_NAME in self.columns
 
     def set_markable_columns(self):
-        marker_config_columns = self.config.get('marker', 'columns')
-        self.markable_columns = self.task_colorizer.colorable_columns if marker_config_columns == 'all' else marker_config_columns.split(',')
+        self.markable_columns = self.task_colorizer.colorable_columns if self.markers.columns == 'all' else self.markers.columns.split(',')
 
     def set_marker_columns(self):
         # TODO: For now, only colorable columns can be markable, this could

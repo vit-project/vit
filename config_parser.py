@@ -50,23 +50,7 @@ DEFAULTS = {
         'enabled': True,
         'header_label': '',
         'columns': 'all',
-        'active.label': '(A)',
-        'blocked.label': '(BD)',
-        'blocking.label': '(BG)',
-        'completed.label': '(C)',
-        'deleted.label': '(X)',
-        'due.label': '(D)',
-        'due.today.label': '(DT)',
-        'keyword.label': '(K)',
-        'overdue.label': '(OD)',
-        'project.label': '(P)',
-        'project.none.label': '',
-        'recurring.label': '(R)',
-        'scheduled.label': '(S)',
-        'tag.label': '(T)',
-        'tag.none.label': '',
-        'uda.label': '(U)',
-        'uda.priority.none.label': '',
+        'include_subprojects': True,
     },
     'color': {
         'include_subprojects': True,
@@ -105,6 +89,7 @@ class ConfigParser(object):
         self.config = configparser.SafeConfigParser()
         self.config.optionxform=str
         self.config.read('%s/%s' % (os.path.expanduser('VIT_CONFIG' in env.user and env.user['VIT_CONFIG'] or DEFAULT_VIT_CONFIG_DIR), VIT_CONFIG_FILE))
+        self.defaults = DEFAULTS
         self.subproject_indentable = self.is_subproject_indentable()
 
     def get(self, section, key):
