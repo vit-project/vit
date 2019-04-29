@@ -100,8 +100,9 @@ class Formatter(object):
 
 class Marker(Formatter):
     def __init__(self, report, defaults, report_marker_columns):
-        self.columns = report_marker_columns
         super().__init__(report, defaults)
+        self.columns = report_marker_columns
+        self.labels = self.defaults.markers.labels
         self.set_column_attrs()
 
     def set_column_attrs(self):
