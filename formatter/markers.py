@@ -2,12 +2,22 @@ from formatter import Marker
 
 class Markers(Marker):
     def format(self, _, task):
-        if task['tags']:
-            return '(T)'
-        else:
-            return ''
+        text_markup = []
+        width = 0
+        if self.mark_tags and task['tags']:
+            width, text_markup = self.format_tags(width, text_markup, task['tags'])
+        return (width, '' if width == 0 else text_markup)
 
-    def display_attr(self, column, task):
-        if column == 'tags' and task['tags']:
-            return 'color.tagged'
-        return None
+    def format_tags(self, width, text_markup, tags):
+        if (len(tags) == 1):
+            tag = list(tags)[0]
+            custom_label = 'tag.%s.label' % tag
+            label = self.labels['tag.label'] if not custom_label in self.labels else self.labels[custom_label]
+            width += len(label)
+            text_markup += [(self.colorizer.tag(tag), label)]
+            return width, text_markup
+        else:
+            label = self.labels['tag.label']
+            width += len(label)
+            text_markup += [(self.colorizer.tag(''), label)]
+            return width, text_markup
