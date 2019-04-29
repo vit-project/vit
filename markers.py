@@ -65,11 +65,12 @@ class Markers(object):
 
     def add_project_children(self):
         project_prefix = 'project.'
+        label_suffix = '.label'
         for label, marker in self.get_project_labels():
             for entry in self.task_config.projects:
                 new_label = '%s%s' % (project_prefix, entry)
-                if not self.has_label(new_label) and new_label.startswith(label):
-                    self.labels[new_label] = marker
+                if not self.has_label(new_label) and new_label.startswith(label[:-len(label_suffix)]):
+                    self.labels['%s%s' % (new_label, label_suffix)] = marker
 
     def get_project_labels(self):
         return sorted([(label, marker) for label, marker in self.labels.items() if self.is_project_label(label)], reverse=True)
