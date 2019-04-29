@@ -17,7 +17,8 @@ from util import clear_screen, string_to_args, is_mouse_event
 from process import Command
 from task import TaskListModel, TaskAutoComplete
 from keybinding_parser import KeybindingParser
-from color import TaskColorizer
+from markers import Markers
+from color import TaskColorConfig, TaskColorizer
 import version
 
 from task_list import TaskTable
@@ -52,8 +53,10 @@ class Application():
         self.register_task_actions()
         self.actions = self.action_registry.actions
         self.command = Command(self.config)
-        self.task_colorizer = TaskColorizer(self.config, self.task_config)
-        self.formatter = formatter.Defaults(self.config, self.task_config, self.task_colorizer)
+        self.markers = Markers(self.config, self.task_config)
+        self.task_color_config = TaskColorConfig(self.config, self.task_config)
+        self.task_colorizer = TaskColorizer(self.task_color_config)
+        self.formatter = formatter.Defaults(self.config, self.task_config, self.markers, self.task_colorizer)
         self.keybinding_parser = KeybindingParser(self.config, self.action_registry)
         self.key_cache = KeyCache(self.keybinding_parser.multi_key_cache)
         self.event = event.Emitter()
@@ -130,7 +133,7 @@ class Application():
         self.init_task_colors()
 
     def init_task_colors(self):
-        self.theme += self.task_colorizer.display_attrs
+        self.theme += self.task_color_config.display_attrs
 
     def execute_keybinding(self, *args):
         keybinding, args = args[0], args[1:]
@@ -379,7 +382,7 @@ class Application():
         raise urwid.ExitMainLoop()
 
     def build_task_table(self):
-        self.table = TaskTable(self.config, self.task_config, self.formatter, on_select=self.on_select, event=self.event, action_registry=self.action_registry, request_reply=self.request_reply, task_colorizer=self.task_colorizer)
+        self.table = TaskTable(self.config, self.task_config, self.formatter, on_select=self.on_select, event=self.event, action_registry=self.action_registry, request_reply=self.request_reply, markers=self.markers)
 
     def update_task_table(self):
         self.table.update_data(self.reports[self.report], self.model.tasks)

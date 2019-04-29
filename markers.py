@@ -1,3 +1,16 @@
+MARKABLE_COLUMNS = [
+    'depends',
+    'description',
+    'due',
+    'project',
+    'recur',
+    'scheduled',
+    'start',
+    'status',
+    'tag',
+    # TODO: Will this one work correctly?
+    'uda',
+]
 LABEL_DEFAULTS = {
     'active.label': '(A)',
     'blocked.label': '(BD)',
@@ -24,11 +37,16 @@ class Markers(object):
         self.task_config = task_config
         self.enabled = self.config.get('marker', 'enabled')
         if self.enabled:
-            self.columns = self.config.get('marker', 'columns')
+            self.markable_columns = MARKABLE_COLUMNS
+            self.configured_columns = self.config.get('marker', 'columns')
+            self.set_columns()
             self.header_label = self.config.get('marker', 'header_label')
             self.include_subprojects = self.config.get('marker', 'include_subprojects')
             self.compose_labels()
             self.set_none_label_attributes()
+
+    def set_columns(self):
+        self.columns = self.markable_columns if self.configured_columns == 'all' else self.configured_columns.split(',')
 
     def compose_labels(self):
         self.labels = LABEL_DEFAULTS.copy()

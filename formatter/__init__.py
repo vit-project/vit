@@ -42,9 +42,10 @@ TIME_UNIT_MAP = {
 }
 
 class Defaults(object):
-    def __init__(self, config, task_config, task_colorizer):
+    def __init__(self, config, task_config, markers, task_colorizer):
         self.config = config
         self.task_config = task_config
+        self.markers = markers
         self.task_colorizer = task_colorizer
         self.report = self.task_config.translate_date_markers(self.task_config.subtree('dateformat.report'))
         self.annotation = self.task_config.translate_date_markers(self.task_config.subtree('dateformat.annotation'))
@@ -89,18 +90,22 @@ class Formatter(object):
     def __init__(self, report, defaults, **kwargs):
         self.report = report
         self.defaults = defaults
+        self.colorizer = self.defaults.task_colorizer
 
     def format(self, obj, task):
         return str(obj) if obj else ''
 
-    def has_display_attr(self, display_attr):
-        return self.defaults.task_colorizer.has_display_attr(display_attr)
-
     def markup_element(self, obj):
-        return (self.color(obj), obj)
+        return (self.colorize(obj), obj)
 
 class Marker(Formatter):
-    pass
+    def __init__(self, report, defaults, report_marker_columns):
+        self.columns = report_marker_columns
+        super().__init__(report, defaults)
+        self.set_column_attrs()
+
+    def set_column_attrs(self):
+        any(setattr(self, 'mark_%s' % column, column in self.columns) for column in self.defaults.markers.markable_columns)
 
 class Number(Formatter):
     pass

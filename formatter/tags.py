@@ -19,10 +19,5 @@ class Tags(List):
                     text_markup += [',']
             return (width, text_markup)
 
-    def color(self, tag):
-        custom = 'color.tag.%s' % tag
-        if self.has_display_attr(custom):
-            return custom
-        elif self.has_display_attr('color.tagged'):
-            return 'color.tagged'
-        return None
+    def colorize(self, tag):
+        return self.colorizer.tag(tag)

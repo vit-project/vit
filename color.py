@@ -5,32 +5,18 @@ from functools import cmp_to_key
 
 from color_mappings import task_256_to_urwid_256, task_bright_to_color
 
-COLORABLE_COLUMNS = [
-    'depends',
-    'description',
-    'due',
-    'project',
-    'recur',
-    'scheduled',
-    'start',
-    'status',
-    'tag',
-    # TODO: Will this one work correctly?
-    'uda',
-]
 VALID_COLOR_MODIFIERS = [
     'bold',
     'underline',
 ]
 
-class TaskColorizer(object):
+class TaskColorConfig(object):
     """Colorized task output.
     """
     def __init__(self, config, task_config):
         self.config = config
         self.task_config = task_config
         self.include_subprojects = self.config.get('color', 'include_subprojects')
-        self.colorable_columns = COLORABLE_COLUMNS
         self.task_256_to_urwid_256 = task_256_to_urwid_256()
         self.color_enabled = self.task_config.subtree('color$', walk_subtree=False)['color'] == 'on'
         self.display_attrs_available, self.display_attrs = self.convert_color_config(self.task_config.filter_to_dict('^color\.'))
@@ -128,3 +114,19 @@ class TaskColorizer(object):
             else:
                 return 0
         return sorted(color_parts, key=cmp_to_key(comparator))
+
+class TaskColorizer(object):
+    def __init__(self, color_config):
+        self.color_config = color_config
+
+    def project(self, project):
+        display_attr = 'color.project.%s' % project
+        return display_attr if self.color_config.has_display_attr(display_attr) else None
+
+    def tag(self, tag):
+        custom = 'color.tag.%s' % tag
+        if self.color_config.has_display_attr(custom):
+            return custom
+        elif self.color_config.has_display_attr('color.tagged'):
+            return 'color.tagged'
+        return None

@@ -9,14 +9,12 @@ from functools import cmp_to_key
 import urwid
 import util
 
-from markers import Markers
-
 MAX_COLUMN_WIDTH = 60
 MARKER_COLUMN_NAME = 'markers'
 
 class TaskTable(object):
 
-    def __init__(self, config, task_config, formatter, on_select=None, event=None, action_registry=None, request_reply=None, task_colorizer=None):
+    def __init__(self, config, task_config, formatter, on_select=None, event=None, action_registry=None, request_reply=None, markers=None):
         self.config = config
         self.task_config = task_config
         self.formatter = formatter
@@ -24,9 +22,7 @@ class TaskTable(object):
         self.event = event
         self.action_registry = action_registry
         self.request_reply = request_reply
-        self.task_colorizer = task_colorizer
-        self.markers = Markers(self.config, self.task_config)
-        self.set_markable_columns()
+        self.markers = markers
         self.register_task_list_actions()
 
     def set_draw_screen_callback(self, callback):
@@ -95,8 +91,12 @@ class TaskTable(object):
         self.columns = OrderedDict()
         self.rows = []
         self.sort()
+        if self.markers.enabled:
+            self.add_markers_column()
         self.set_column_metadata()
-        self.set_marker_columns()
+        if self.markers.enabled:
+            self.set_marker_columns()
+            self.inject_marker_formatter()
         self.indent_subprojects = self.subproject_indentable()
         self.project_cache = {}
         self.build_rows()
@@ -183,26 +183,33 @@ class TaskTable(object):
             else:
                 self.tasks = sorted(self.tasks, key=cmp_to_key(comparator))
 
-    def custom_report_formatter(self):
-        return self.report['dateformat'] if 'dateformat' in self.report else None
+    def custom_formatter_kwargs(self):
+        kwargs = {}
+        if 'dateformat' in self.report:
+            kwargs['custom_formatter'] = self.report['dateformat']
+        return kwargs
 
     def add_markers_column(self):
-        name, formatter_class = self.formatter.get(MARKER_COLUMN_NAME)
+        name, _ = self.formatter.get(MARKER_COLUMN_NAME)
         self.columns[name] = {
             'label': self.markers.header_label,
-            'formatter': formatter_class(self.report, self.formatter),
             'width': 0,
         }
 
+    def set_marker_columns(self):
+        self.report_marker_columns = [c for c in self.markers.columns if c not in self.columns]
+
+    def inject_marker_formatter(self):
+        name, formatter_class = self.formatter.get(MARKER_COLUMN_NAME)
+        self.columns[name]['formatter'] = formatter_class(self.report, self.formatter, self.report_marker_columns)
+
     def set_column_metadata(self):
-        if self.markers.enabled:
-            self.add_markers_column()
-        custom_formatter = self.custom_report_formatter()
+        kwargs = self.custom_formatter_kwargs()
         for idx, column_formatter in enumerate(self.report['columns']):
             name, formatter_class = self.formatter.get(column_formatter)
             self.columns[name] = {
                 'label': self.report['labels'][idx],
-                'formatter': formatter_class(self.report, self.formatter, custom_formatter=custom_formatter),
+                'formatter': formatter_class(self.report, self.formatter, **kwargs),
                 'width': 0,
             }
 
@@ -211,14 +218,6 @@ class TaskTable(object):
 
     def has_marker_column(self):
         return MARKER_COLUMN_NAME in self.columns
-
-    def set_markable_columns(self):
-        self.markable_columns = self.task_colorizer.colorable_columns if self.markers.columns == 'all' else self.markers.columns.split(',')
-
-    def set_marker_columns(self):
-        # TODO: For now, only colorable columns can be markable, this could
-        # change in the future.
-        self.report_marker_columns = [c for c in self.markable_columns if c not in self.columns]
 
     def build_rows(self):
         for task in self.tasks:

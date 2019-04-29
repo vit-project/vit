@@ -14,11 +14,10 @@ class Project(String):
     def format_subproject_indented(self, project, task):
         parts = project.split('.')
         (width, spaces, marker, subproject) = self.defaults.format_subproject_indented(parts)
-        return (width, [spaces, marker, (self.color(project), subproject)])
+        return (width, [spaces, marker, (self.colorize(project), subproject)])
 
     def is_subproject_indentable(self):
         return self.defaults.config.subproject_indentable and self.report['subproject_indentable']
 
-    def color(self, project):
-        display_attr = 'color.project.%s' % project
-        return display_attr if self.has_display_attr(display_attr) else None
+    def colorize(self, project):
+        return self.colorizer.project(project)
