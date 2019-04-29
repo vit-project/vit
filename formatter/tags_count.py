@@ -2,7 +2,11 @@ from formatter.tags import Tags
 
 class TagsCount(Tags):
     def format(self, tags, task):
-        if tags and len(tags) > 0:
-            return "[%d]" % len(tags)
+        if not tags:
+            return (0, '')
+        elif len(tags) == 1:
+            return (3, (self.colorizer.tag(list(tags)[0]), '[1]'))
         else:
-            return ''
+            tag_length = len(tags)
+            indicator = '[%d]' % tag_length
+            return (tag_length + 2, (self.colorizer.tag(''), indicator))
