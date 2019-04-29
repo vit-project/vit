@@ -7,7 +7,7 @@ MARKABLE_COLUMNS = [
     'scheduled',
     'start',
     'status',
-    'tag',
+    'tags',
     # TODO: Will this one work correctly?
     'uda',
 ]
