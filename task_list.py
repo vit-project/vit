@@ -277,7 +277,7 @@ class TaskTable(object):
         project = '.'.join(project_parts)
         (width, spaces, indicator, subproject) = self.formatter.format_subproject_indented(project_parts)
         # TODO: This is pretty ugly...
-        self.rows.append(ProjectRow(project, [spaces, indicator, (self.columns['project']['formatter'].color(project), subproject)]))
+        self.rows.append(ProjectRow(project, [spaces, indicator, (self.columns['project']['formatter'].colorize(project), subproject)]))
 
     def clean_empty_columns(self):
         self.columns = {c:m for c,m in list(self.columns.items()) if m['width'] > 0}
