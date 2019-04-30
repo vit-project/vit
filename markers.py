@@ -41,6 +41,7 @@ class Markers(object):
             self.configured_columns = self.config.get('marker', 'columns')
             self.set_columns()
             self.header_label = self.config.get('marker', 'header_label')
+            self.require_color = self.config.get('marker', 'require_color')
             self.include_subprojects = self.config.get('marker', 'include_subprojects')
             self.compose_labels()
             self.set_none_label_attributes()

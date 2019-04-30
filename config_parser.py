@@ -50,6 +50,7 @@ DEFAULTS = {
         'enabled': True,
         'header_label': '',
         'columns': 'all',
+        'require_color': True,
         'include_subprojects': True,
     },
     'color': {

@@ -121,6 +121,7 @@ class Marker(Formatter):
         super().__init__(None, report, defaults)
         self.columns = report_marker_columns
         self.labels = self.defaults.markers.labels
+        self.require_color = self.defaults.markers.require_color
         self.set_column_attrs()
 
     def set_column_attrs(self):
