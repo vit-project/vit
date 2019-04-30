@@ -200,6 +200,24 @@ class Application():
             elif op == 'filter':
                 self.extra_filters = args
                 self.update_report()
+            elif op == 'project':
+                # TODO: Validation if more than one arg passed.
+                project = args[0] if len(args) > 0 else ''
+                task = self.model.task_project(metadata['uuid'], project)
+                if task:
+                    self.table.flash_focus()
+                    self.update_report()
+                    self.activate_message_bar('Task %s project updated' % self.model.task_id(task['uuid']))
+            elif op == 'wait':
+                # TODO: Validation if more than one arg passed.
+                wait = args[0] if len(args) > 0 else ''
+                returncode, stdout, stderr = self.command.run(['task', metadata['uuid'], 'modify', 'wait:%s' % wait], capture_output=True)
+                if returncode == 0:
+                    self.table.flash_focus()
+                    self.update_report()
+                    self.activate_message_bar('Task %s wait updated' % self.model.task_id(metadata['uuid']))
+                else:
+                    self.activate_message_bar("Error setting wait: %s" % stderr, 'error')
             elif len(args) > 0:
                 if op == 'add':
                     self.execute_command(['task', 'add'] + args)
@@ -214,28 +232,12 @@ class Application():
                         self.table.flash_focus()
                         self.update_report()
                         self.activate_message_bar('Annotated task %s' % self.model.task_id(task['uuid']))
-                elif op == 'project':
-                    # TODO: Validation if more than one arg passed.
-                    task = self.model.task_project(metadata['uuid'], args[0])
-                    if task:
-                        self.table.flash_focus()
-                        self.update_report()
-                        self.activate_message_bar('Task %s project updated' % self.model.task_id(task['uuid']))
                 elif op == 'tag':
                     task = self.model.task_tags(metadata['uuid'], args)
                     if task:
                         self.table.flash_focus()
                         self.update_report()
                         self.activate_message_bar('Task %s tags updated' % self.model.task_id(task['uuid']))
-                elif op == 'wait':
-                    # TODO: Validation if more than one arg passed.
-                    returncode, stdout, stderr = self.command.run(['task', metadata['uuid'], 'modify', 'wait:%s' % args[0]], capture_output=True)
-                    if returncode == 0:
-                        self.table.flash_focus()
-                        self.update_report()
-                        self.activate_message_bar('Task %s wait updated' % self.model.task_id(metadata['uuid']))
-                    else:
-                        self.activate_message_bar("Error setting wait: %s" % stderr, 'error')
                 elif op in ('search-forward', 'search-reverse'):
                     self.search_set_term(data['text'])
                     self.search(reverse=(op == 'search-reverse'))
