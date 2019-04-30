@@ -119,9 +119,19 @@ class TaskColorizer(object):
     def __init__(self, color_config):
         self.color_config = color_config
 
+    def project_none(self):
+        if self.color_config.has_display_attr('color.project.none'):
+            return 'color.project.none'
+        return None
+
     def project(self, project):
         display_attr = 'color.project.%s' % project
         return display_attr if self.color_config.has_display_attr(display_attr) else None
+
+    def tag_none(self):
+        if self.color_config.has_display_attr('color.tag.none'):
+            return 'color.tag.none'
+        return None
 
     def tag(self, tag):
         custom = 'color.tag.%s' % tag
