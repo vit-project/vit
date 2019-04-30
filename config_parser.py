@@ -54,6 +54,7 @@ DEFAULTS = {
     },
     'color': {
         'include_subprojects': True,
+        'none_label': '[NONE]',
     },
 }
 

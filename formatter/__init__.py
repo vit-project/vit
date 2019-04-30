@@ -49,6 +49,8 @@ class Defaults(object):
         self.task_colorizer = task_colorizer
         self.report = self.task_config.translate_date_markers(self.task_config.subtree('dateformat.report'))
         self.annotation = self.task_config.translate_date_markers(self.task_config.subtree('dateformat.annotation'))
+        self.udas = uda.get_configured(self.task_config)
+        self.none_label = config.get('color', 'none_label')
 
     def get_formatter_class(self, parts):
         formatter_module_name = '_'.join(parts)
@@ -87,20 +89,36 @@ class Defaults(object):
             return (width, ' ' * space_padding , indicator, subproject)
 
 class Formatter(object):
-    def __init__(self, report, defaults, **kwargs):
+    def __init__(self, column, report, defaults, **kwargs):
+        self.column = column
         self.report = report
         self.defaults = defaults
         self.colorizer = self.defaults.task_colorizer
 
     def format(self, obj, task):
-        return str(obj) if obj else ''
+        if not obj:
+            return self.empty()
+        obj = str(obj)
+        return (len(obj), self.markup_element(obj))
+
+    def empty(self):
+        return (0, '')
 
     def markup_element(self, obj):
         return (self.colorize(obj), obj)
 
+    def markup_none(self, color):
+        if color:
+            return (len(self.defaults.none_label), (color, self.defaults.none_label))
+        else:
+            return self.empty()
+
+    def colorize(self, obj):
+        return None
+
 class Marker(Formatter):
     def __init__(self, report, defaults, report_marker_columns):
-        super().__init__(report, defaults)
+        super().__init__(None, report, defaults)
         self.columns = report_marker_columns
         self.labels = self.defaults.markers.labels
         self.set_column_attrs()
@@ -118,12 +136,15 @@ class Duration(Formatter):
     pass
 
 class DateTime(Formatter):
-    def __init__(self, report, defaults, custom_formatter=None):
-        self.custom_formatter = custom_formatter
-        super().__init__(report, defaults)
+    def __init__(self, column, report, defaults, **kwargs):
+        self.custom_formatter = None if not 'custom_formatter' in kwargs else kwargs['custom_formatter']
+        super().__init__(column, report, defaults)
 
     def format(self, dt, task):
-        return dt.strftime(self.custom_formatter or self.defaults.report) if dt else ''
+        if not dt:
+            return (0, '')
+        formatted_date = dt.strftime(self.custom_formatter or self.defaults.report)
+        return (len(formatted_date), (self.colorize(dt), formatted_date))
 
     def format_duration_vague(self, seconds):
         test = seconds
