@@ -6,7 +6,7 @@ class Project(String):
         self.indent_subprojects = self.is_subproject_indentable()
 
     def format(self, project, task):
-        return self.format_project(project, task) if project else (0, '')
+        return self.format_project(project, task) if project else self.empty()
 
     def format_project(self, project, task):
         return self.format_subproject_indented(project, task) if self.indent_subprojects else (len(project), self.markup_element(project))

@@ -3,7 +3,7 @@ from formatter.tags import Tags
 class TagsCount(Tags):
     def format(self, tags, task):
         if not tags:
-            return (0, '')
+            return self.empty()
         elif len(tags) == 1:
             return (3, (self.colorizer.tag(list(tags)[0]), '[1]'))
         else:

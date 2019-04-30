@@ -102,7 +102,7 @@ class Formatter(object):
         return (len(obj), self.markup_element(obj))
 
     def empty(self):
-        return (0, '')
+        return self.empty()
 
     def markup_element(self, obj):
         return (self.colorize(obj), obj)
@@ -142,7 +142,7 @@ class DateTime(Formatter):
 
     def format(self, dt, task):
         if not dt:
-            return (0, '')
+            return self.empty()
         formatted_date = dt.strftime(self.custom_formatter or self.defaults.report)
         return (len(formatted_date), (self.colorize(dt), formatted_date))
 

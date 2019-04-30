@@ -3,7 +3,7 @@ from formatter import List
 class Tags(List):
     def format(self, tags, task):
         if not tags:
-            return (0, '')
+            return self.empty()
         elif len(tags) == 1:
             tag = list(tags)[0]
             return (len(tag), self.markup_element(tag))
