@@ -130,3 +130,39 @@ class TaskColorizer(object):
         elif self.color_config.has_display_attr('color.tagged'):
             return 'color.tagged'
         return None
+
+    def uda_none(self, name):
+        none_value = 'color.uda.%s.none' % name
+        if self.color_config.has_display_attr(none_value):
+            return none_value
+        return None
+
+    def uda_common(self, name, value):
+        custom = 'color.uda.%s' % name
+        if self.color_config.has_display_attr(custom):
+            return custom
+        elif self.color_config.has_display_attr('color.uda'):
+            return 'color.uda'
+        return None
+
+    def uda_string(self, name, value):
+        if not value:
+            return self.uda_none(name)
+        else:
+            custom_value = 'color.uda.%s.%s' % (name, value)
+            if self.color_config.has_display_attr(custom_value):
+                return custom_value
+            return self.uda_common(name, value)
+
+    def uda_numeric(self, name, value):
+        return self.uda_string(name, value)
+
+    def uda_duration(self, name, value):
+        return self.uda_string(name, value)
+
+    def uda_date(self, name, value):
+        if not value:
+            return self.uda_none(name)
+        else:
+            # TODO: Maybe some special string indicators here?
+            return self.uda_common(name, value)
