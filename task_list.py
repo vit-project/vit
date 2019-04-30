@@ -183,7 +183,7 @@ class TaskTable(object):
             else:
                 self.tasks = sorted(self.tasks, key=cmp_to_key(comparator))
 
-    def custom_formatter_kwargs(self):
+    def column_formatter_kwargs(self):
         kwargs = {}
         if 'dateformat' in self.report:
             kwargs['custom_formatter'] = self.report['dateformat']
@@ -204,12 +204,12 @@ class TaskTable(object):
         self.columns[name]['formatter'] = formatter_class(self.report, self.formatter, self.report_marker_columns)
 
     def set_column_metadata(self):
-        kwargs = self.custom_formatter_kwargs()
+        kwargs = self.column_formatter_kwargs()
         for idx, column_formatter in enumerate(self.report['columns']):
             name, formatter_class = self.formatter.get(column_formatter)
             self.columns[name] = {
                 'label': self.report['labels'][idx],
-                'formatter': formatter_class(self.report, self.formatter, **kwargs),
+                'formatter': formatter_class(name, self.report, self.formatter, **kwargs),
                 'width': 0,
             }
 
