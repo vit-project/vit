@@ -1,8 +1,8 @@
 from formatter import String
 
 class Project(String):
-    def __init__(self, report, defaults, **kwargs):
-        super().__init__(report, defaults)
+    def __init__(self, column, report, defaults, **kwargs):
+        super().__init__(column, report, defaults)
         self.indent_subprojects = self.is_subproject_indentable()
 
     def format(self, project, task):
