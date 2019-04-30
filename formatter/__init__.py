@@ -102,7 +102,7 @@ class Formatter(object):
         return (len(obj), self.markup_element(obj))
 
     def empty(self):
-        return self.empty()
+        return (0, '')
 
     def markup_element(self, obj):
         return (self.colorize(obj), obj)
