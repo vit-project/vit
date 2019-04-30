@@ -1,4 +1,4 @@
-from formatter import String
+from formatter.uda_string import UdaString
 
-class Priority(String):
+class Priority(UdaString):
     pass
