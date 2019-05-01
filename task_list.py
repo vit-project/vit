@@ -3,6 +3,7 @@ from collections import OrderedDict
 from itertools import repeat
 from functools import partial
 from time import sleep
+import re
 # TODO: This isn't implemented in Python < 2.7.
 from functools import cmp_to_key
 
@@ -11,6 +12,7 @@ import util
 
 MAX_COLUMN_WIDTH = 60
 MARKER_COLUMN_NAME = 'markers'
+BRACKETS_REGEX = re.compile("[<>]")
 
 class TaskTable(object):
 
@@ -50,17 +52,20 @@ class TaskTable(object):
         self.action_registrar.register('TASK_LIST_FOCUS_VALIGN_CENTER', 'Move focused task to center of the screen', self.keypress_focus_valign_center)
         self.registered_actions = self.action_registrar.actions()
 
+    # NOTE: The non-standard key presses work around infinite recursion while
+    #       allowing the up, down, page up, and page down keys to be controlled
+    #       from the keybinding file.
     def keypress_up(self, size):
-        self.listbox.keypress(size, 'up')
+        self.listbox.keypress(size, '<Up>')
 
     def keypress_down(self, size):
-        self.listbox.keypress(size, 'down')
+        self.listbox.keypress(size, '<Down>')
 
     def keypress_page_up(self, size):
-        self.listbox.keypress(size, 'page up')
+        self.listbox.keypress(size, '<Page Up>')
 
     def keypress_page_down(self, size):
-        self.listbox.keypress(size, 'page down')
+        self.listbox.keypress(size, '<Page Down>')
 
     def keypress_home(self, size):
         self.listbox.set_focus(0)
@@ -417,6 +422,11 @@ class TaskListBox(urwid.ListBox):
             self.event.emit('task-list:keypress', data)
             return None
         else:
+            # NOTE: These are special key presses passed to allow navigation
+            #       keys to be managed via keybinding configuration. They are
+            #       converted back to standard key presses here.
+            if key in ['<Up>', '<Down>', '<Page Up>', '<Page Down>']:
+                key = re.sub(BRACKETS_REGEX, '', key).lower()
             return super().keypress(size, key)
 
     def focus_by_task_id(self, task_id):
