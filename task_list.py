@@ -194,6 +194,7 @@ class TaskTable(object):
         self.columns[name] = {
             'label': self.markers.header_label,
             'width': 0,
+            'align': 'right',
         }
 
     def set_marker_columns(self):
@@ -211,6 +212,7 @@ class TaskTable(object):
                 'label': self.report['labels'][idx],
                 'formatter': formatter_class(name, self.report, self.formatter, **kwargs),
                 'width': 0,
+                'align': 'left',
             }
 
     def is_marker_column(self, column):
@@ -313,12 +315,12 @@ class SelectableRow(urwid.WidgetWrap):
     This class has been slightly modified, but essentially corresponds to this class posted on stackoverflow.com:
     https://stackoverflow.com/questions/52106244/how-do-you-combine-multiple-tui-forms-to-write-more-complex-applications#answer-52174629"""
 
-    def __init__(self, columns, row, *, align="left", on_select=None, space_between=2):
+    def __init__(self, columns, row, *, on_select=None, space_between=2):
         self.task = row.task
         self.uuid = row.uuid
         self.id = row.id
 
-        self._columns = urwid.Columns([(metadata['width'], urwid.Text(row.data[column], align=align)) for column, metadata in list(columns.items())],
+        self._columns = urwid.Columns([(metadata['width'], urwid.Text(row.data[column], align=metadata['align'])) for column, metadata in list(columns.items())],
                                        dividechars=space_between)
         self.row = urwid.AttrMap(self._columns, '')
 
@@ -352,12 +354,12 @@ class ProjectPlaceholderRow(urwid.WidgetWrap):
     """Wraps 'urwid.Columns' for a project placeholder row.
     """
 
-    def __init__(self, columns, row, align="left", space_between=2):
+    def __init__(self, columns, row, space_between=2):
         self.uuid = None
         self.id = None
         self.project = row.project
         self.placeholder = row.placeholder
-        self._columns = urwid.Columns([(metadata['width'], urwid.Text(row.placeholder if column == 'project' else '', align=align)) for column, metadata in list(columns.items())],
+        self._columns = urwid.Columns([(metadata['width'], urwid.Text(row.placeholder if column == 'project' else '', align=metadata['align'])) for column, metadata in list(columns.items())],
                                        dividechars=space_between)
         self.row = urwid.AttrMap(self._columns, '')
 
