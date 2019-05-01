@@ -1,3 +1,5 @@
+import uda
+
 MARKABLE_COLUMNS = [
     'depends',
     'description',
@@ -8,8 +10,6 @@ MARKABLE_COLUMNS = [
     'start',
     'status',
     'tags',
-    # TODO: Will this one work correctly?
-    'uda',
 ]
 LABEL_DEFAULTS = {
     'active.label': '(A)',
@@ -28,7 +28,6 @@ LABEL_DEFAULTS = {
     'tag.label': '(T)',
     'tag.none.label': '',
     'uda.label': '(U)',
-    'uda.priority.none.label': '',
 }
 
 class Markers(object):
@@ -37,7 +36,8 @@ class Markers(object):
         self.task_config = task_config
         self.enabled = self.config.get('marker', 'enabled')
         if self.enabled:
-            self.markable_columns = MARKABLE_COLUMNS
+            self.udas = uda.get_configured(self.task_config)
+            self.markable_columns = MARKABLE_COLUMNS + list(self.udas.keys())
             self.configured_columns = self.config.get('marker', 'columns')
             self.set_columns()
             self.header_label = self.config.get('marker', 'header_label')
@@ -51,6 +51,8 @@ class Markers(object):
 
     def compose_labels(self):
         self.labels = LABEL_DEFAULTS.copy()
+        for uda in list(self.udas.keys()):
+            self.labels['uda.%s.none.label' % uda] = ''
         for key, value in self.config.items('marker'):
             if key not in self.config.defaults['marker']:
                 self.labels[key] = value

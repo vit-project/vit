@@ -8,6 +8,9 @@ class Markers(Marker):
             width, text_markup = self.format_tags(width, text_markup, task['tags'])
         if self.mark_project:
             width, text_markup = self.format_project(width, text_markup, task['project'])
+        for uda_name, uda_type in self.udas.items():
+            if getattr(self, 'mark_%s' % uda_name):
+                width, text_markup = self.format_uda(width, text_markup, uda_name, uda_type, task[uda_name])
         return (width, '' if width == 0 else text_markup)
 
     def color_required(self, color):
@@ -45,4 +48,15 @@ class Markers(Marker):
             color = self.colorizer.project(project)
             custom_label = 'project.%s.label' % project
             label = self.labels['project.label'] if not custom_label in self.labels else self.labels[custom_label]
+            return self.add_label(color, label, width, text_markup)
+
+    def format_uda(self, width, text_markup, uda_name, uda_type, value):
+        if not value:
+            color = self.colorizer.uda_none(uda_name)
+            label = self.labels['uda.%s.none.label' % uda_name]
+            return self.add_label(color, label, width, text_markup)
+        else:
+            color = getattr(self.colorizer, 'uda_%s' % uda_type)(uda_name, value)
+            custom_label = 'uda.%s.label' % uda_name
+            label = self.labels['uda.label'] if not custom_label in self.labels else self.labels[custom_label]
             return self.add_label(color, label, width, text_markup)

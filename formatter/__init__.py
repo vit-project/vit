@@ -49,7 +49,6 @@ class Defaults(object):
         self.task_colorizer = task_colorizer
         self.report = self.task_config.translate_date_markers(self.task_config.subtree('dateformat.report'))
         self.annotation = self.task_config.translate_date_markers(self.task_config.subtree('dateformat.annotation'))
-        self.udas = uda.get_configured(self.task_config)
         self.none_label = config.get('color', 'none_label')
 
     def get_formatter_class(self, parts):
@@ -121,6 +120,7 @@ class Marker(Formatter):
         super().__init__(None, report, defaults)
         self.columns = report_marker_columns
         self.labels = self.defaults.markers.labels
+        self.udas = self.defaults.markers.udas
         self.require_color = self.defaults.markers.require_color
         self.set_column_attrs()
 
