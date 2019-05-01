@@ -27,7 +27,8 @@ LABEL_DEFAULTS = {
     'scheduled.label': '(S)',
     'tag.label': '(T)',
     'tag.none.label': '',
-    'uda.label': '(U)',
+    'uda.label': '',
+    'uda.priority.label': '(PR)',
 }
 
 class Markers(object):
