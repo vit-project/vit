@@ -72,6 +72,8 @@ class Application():
         self.init_theme()
         self.run(self.report)
 
+    # TODO: Move this to the top-level frame? unhandled_input in the main loop
+    #       eats Ctrl-l, and the topmost place is where that should live.
     def register_global_actions(self):
         self.global_action_registrar = self.action_registry.get_registrar()
         self.global_action_registrar.register('QUIT', 'Quit the application', self.quit)
@@ -85,13 +87,15 @@ class Application():
         self.global_action_registrar.register('COMMAND_BAR_SEARCH_REVERSE', 'Open the command bar in search reverse mode', self.activate_command_bar_search_reverse)
         self.global_action_registrar.register('COMMAND_BAR_SEARCH_NEXT', 'Search next', self.activate_command_bar_search_next)
         self.global_action_registrar.register('COMMAND_BAR_SEARCH_PREVIOUS', 'Search previous', self.activate_command_bar_search_previous)
-        self.global_action_registrar.register('REFRESH_REPORT', 'Refresh the current report', self.update_report)
         self.global_action_registrar.register('GLOBAL_ESCAPE', 'Top-level escape function', self.global_escape)
         self.global_action_registrar.register(self.action_registry.noop_action_name, 'Used to disable a default keybinding action', self.action_registry.noop)
         self.global_registered_actions = self.global_action_registrar.actions()
 
     def register_task_actions(self):
         self.task_action_registrar = self.action_registry.get_registrar()
+        # TODO: Move this with the rest of the global actions if they get
+        #       moved to a top-level frame.
+        self.task_action_registrar.register('REFRESH_REPORT', 'Refresh the current report', self.update_report)
         self.task_action_registrar.register('TASK_ANNOTATE', 'Add an annotation to a task', self.task_action_annotate)
         self.task_action_registrar.register('TASK_DELETE', 'Delete task', self.task_action_delete)
         self.task_action_registrar.register('TASK_DENOTATE', 'Denotate a task', self.task_action_denotate)
