@@ -5,7 +5,6 @@ import re
 import subprocess
 
 import env
-import config
 from util import clear_screen, is_string, string_to_args
 
 DEFAULT_CONFIRM = 'Press Enter to continue...'

@@ -2,7 +2,6 @@
 
 import sys
 
-import config
 from config_parser import ConfigParser, TaskParser
 from application import Application
 from tasklib import TaskWarrior
