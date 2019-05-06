@@ -1,4 +1,5 @@
 from future.utils import raise_
+from shutil import copyfile
 
 import os
 import re
@@ -90,9 +91,42 @@ class ConfigParser(object):
     def __init__(self):
         self.config = configparser.SafeConfigParser()
         self.config.optionxform=str
-        self.config.read('%s/%s' % (os.path.expanduser('VIT_CONFIG' in env.user and env.user['VIT_CONFIG'] or DEFAULT_VIT_CONFIG_DIR), VIT_CONFIG_FILE))
+        self.user_config_filepath = '%s/%s' % (os.path.expanduser('VIT_CONFIG' in env.user and env.user['VIT_CONFIG'] or DEFAULT_VIT_CONFIG_DIR), VIT_CONFIG_FILE)
+        if not self.config_file_exists(self.user_config_filepath):
+            self.optional_create_config_file(self.user_config_filepath)
+        self.config.read(self.user_config_filepath)
         self.defaults = DEFAULTS
         self.subproject_indentable = self.is_subproject_indentable()
+
+    def config_file_exists(self, filepath):
+        try:
+            open(filepath, 'r').close()
+            return True
+        except FileNotFoundError:
+            return False
+
+    def optional_create_config_file(self, filepath):
+        prompt = "%s doesn't exist, create? (y/n): " % filepath
+        try:
+            answer = input(prompt)
+        except:
+            answer = raw_input(prompt)
+        if answer in ['y', 'Y']:
+            self.create_config_file(filepath)
+            prompt = "\n%s created. This is the default user configuration file. \n\nIt is heavily commented with explanations and lists the default values for all available user configuration variables. Check it out!\n\nPress enter to continue..." % filepath
+            try:
+                input(prompt)
+            except:
+                raw_input(prompt)
+
+    def create_config_file(self, filepath):
+        dirname = os.path.dirname(filepath)
+        try:
+            os.mkdir(dirname)
+        except FileExistsError:
+            pass
+        basedir = os.path.dirname(os.path.realpath(__file__))
+        copyfile('%s/config/config.sample.ini' % basedir, filepath)
 
     def get(self, section, key):
         default = DEFAULTS[section][key]
