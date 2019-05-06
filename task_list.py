@@ -142,7 +142,7 @@ class TaskTable(object):
         if len(self.contents) > 0:
             if self.listbox.previous_focus_position != self.listbox.focus_position:
                 if self.listbox.previous_focus_position is not None and self.listbox.previous_focus_position < len(self.contents):
-                    self.update_focus_attr({}, position=self.listbox.previous_focus_position)
+                    self.contents[self.listbox.previous_focus_position].reset_attr_map()
                 if self.listbox.focus_position is not None:
                     self.update_focus_attr('reveal focus')
             self.listbox.previous_focus_position = self.listbox.focus_position
@@ -150,10 +150,9 @@ class TaskTable(object):
             self.listbox.previous_focus_position = None
 
     def update_focus_attr(self, attr, position=None):
-        attr = attr if isinstance(attr, dict) else {None: attr}
         if position is None:
             position = self.listbox.focus_position
-        self.contents[position].row.set_attr_map(attr)
+        self.contents[position].row.set_attr_map({None: attr})
 
     def flash_focus(self, repeat_times=2, pause_seconds=0.1):
         if len(self.contents) > 0:
@@ -295,8 +294,16 @@ class TaskTable(object):
             if metadata['width'] < label_len:
                 self.columns[column]['width'] = label_len
 
+    def task_row_striping_reset(self):
+        self.task_alt_row = False
+
+    def task_row_striping(self):
+        self.task_alt_row = not self.task_alt_row
+        return self.task_alt_row
+
     def build_table(self):
-        self.contents = [SelectableRow(self.columns, obj, on_select=self.on_select) if isinstance(obj, TaskRow) else ProjectPlaceholderRow(self.columns, obj) for obj in self.rows]
+        self.task_row_striping_reset()
+        self.contents = [SelectableRow(self.columns, obj, on_select=self.on_select, alt_row=self.task_row_striping()) if isinstance(obj, TaskRow) else ProjectPlaceholderRow(self.columns, obj, alt_row=self.task_row_striping()) for obj in self.rows]
         self.list_walker = urwid.SimpleFocusListWalker(self.contents)
         self.listbox = TaskListBox(self.list_walker, event=self.event, request_reply=self.request_reply, registered_actions=self.registered_actions)
         self.init_event_listeners()
@@ -320,20 +327,28 @@ class SelectableRow(urwid.WidgetWrap):
     This class has been slightly modified, but essentially corresponds to this class posted on stackoverflow.com:
     https://stackoverflow.com/questions/52106244/how-do-you-combine-multiple-tui-forms-to-write-more-complex-applications#answer-52174629"""
 
-    def __init__(self, columns, row, *, on_select=None, space_between=2):
+    def __init__(self, columns, row, *, on_select=None, alt_row=False, space_between=2):
         self.task = row.task
         self.uuid = row.uuid
         self.id = row.id
+        self.alt_row = alt_row
 
         self._columns = urwid.Columns([(metadata['width'], urwid.Text(row.data[column], align=metadata['align'])) for column, metadata in list(columns.items())],
                                        dividechars=space_between)
-        self.row = urwid.AttrMap(self._columns, '')
+        self.set_display_attr()
+        self.row = urwid.AttrMap(self._columns, self.display_attr)
 
         # Wrap 'urwid.Columns'.
         super().__init__(self.row)
 
         # A hook which defines the behavior that is executed when a specified key is pressed.
         self.on_select = on_select
+
+    def set_display_attr(self):
+        self.display_attr = self.alt_row and 'alt-task-row' or ''
+
+    def reset_attr_map(self):
+        self.row.set_attr_map({None: self.display_attr})
 
     def __repr__(self):
         return "{}(id={}, uuid={})".format(self.__class__.__name__,
@@ -359,17 +374,26 @@ class ProjectPlaceholderRow(urwid.WidgetWrap):
     """Wraps 'urwid.Columns' for a project placeholder row.
     """
 
-    def __init__(self, columns, row, space_between=2):
+    def __init__(self, columns, row, alt_row=False, space_between=2):
         self.uuid = None
         self.id = None
+        self.alt_row = alt_row
         self.project = row.project
         self.placeholder = row.placeholder
-        self._columns = urwid.Columns([(metadata['width'], urwid.Text(row.placeholder if column == 'project' else '', align=metadata['align'])) for column, metadata in list(columns.items())],
-                                       dividechars=space_between)
-        self.row = urwid.AttrMap(self._columns, '')
+        self._columns = urwid.Columns([(metadata['width'], urwid.Text(row.placeholder if column == 'project' else '', align=metadata['align'])) for column, metadata in list(columns.items())], dividechars=space_between)
+
+        self.set_display_attr()
+        self.row = urwid.AttrMap(self._columns, self.display_attr)
 
         # Wrap 'urwid.Columns'.
         super().__init__(self.row)
+
+    def set_display_attr(self):
+        self.display_attr = self.alt_row and 'alt-task-row' or ''
+
+    def reset_attr_map(self):
+        self.row.set_attr_map({None: self.display_attr})
+        pass
 
     def __repr__(self):
         return "{}(placeholder={})".format(self.__class__.__name__, self.placeholder)

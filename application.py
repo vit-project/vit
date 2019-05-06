@@ -669,4 +669,8 @@ class Application():
         self.build_main_widget(report)
         self.loop = urwid.MainLoop(self.widget, self.theme, unhandled_input=self.key_pressed, pop_ups=True)
         self.table.set_draw_screen_callback(self.loop.draw_screen)
+        try:
+            self.loop.screen.set_terminal_properties(colors=256)
+        except:
+            pass
         self.loop.run()
