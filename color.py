@@ -118,6 +118,25 @@ class TaskColorConfig(object):
 class TaskColorizer(object):
     def __init__(self, color_config):
         self.color_config = color_config
+        self.init_keywords()
+
+    def init_keywords(self):
+        try:
+            self.keywords = self.color_config.task_config.subtree('color.')['keyword']
+            self.any_keywords_regex = re.compile('(%s)' % '|'.join(self.keywords.keys()))
+        except KeyError:
+            self.keywords = []
+            self.any_keywords_regex = None
+
+    def has_keywords(self, text):
+        return self.any_keywords_regex and self.any_keywords_regex.search(text)
+
+    def extract_keyword_parts(self, text):
+        if self.has_keywords(text):
+            parts = self.any_keywords_regex.split(text)
+            first_part = parts.pop(0)
+            return first_part, parts
+        return None, None
 
     def project_none(self):
         if self.color_config.has_display_attr('color.project.none'):
@@ -176,3 +195,8 @@ class TaskColorizer(object):
         else:
             # TODO: Maybe some special string indicators here?
             return self.uda_common(name, value)
+
+    def keyword(self, text):
+        # TODO: Any way to optimize storing this display attr name?
+        value = 'color.keyword.%s' % text
+        return None if not self.color_config.has_display_attr(value) else value
