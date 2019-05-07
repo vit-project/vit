@@ -46,6 +46,7 @@ DEFAULTS = {
     'report': {
         'default_report': 'next',
         'indent_subprojects': True,
+        'row_striping': True,
     },
     'marker': {
         'enabled': True,
@@ -156,6 +157,9 @@ class ConfigParser(object):
 
     def is_subproject_indentable(self):
         return self.get('report', 'indent_subprojects')
+
+    def row_striping_enabled(self):
+        return self.get('report', 'row_striping')
 
 class TaskParser(object):
     def __init__(self, config):
