@@ -11,6 +11,8 @@ class Markers(Marker):
         for uda_name, uda_type in self.udas.items():
             if getattr(self, 'mark_%s' % uda_name):
                 width, text_markup = self.format_uda(width, text_markup, uda_name, uda_type, task[uda_name])
+        if task['uuid'] in self.blocking_tasks:
+            width, text_markup = self.format_blocking(width, text_markup)
         return (width, '' if width == 0 else text_markup)
 
     def color_required(self, color):
@@ -60,3 +62,8 @@ class Markers(Marker):
             custom_label = 'uda.%s.label' % uda_name
             label = self.labels['uda.label'] if not custom_label in self.labels else self.labels[custom_label]
             return self.add_label(color, label, width, text_markup)
+
+    def format_blocking(self, width, text_markup):
+        color = self.colorizer.blocking()
+        label = self.labels['blocking.label']
+        return self.add_label(color, label, width, text_markup)

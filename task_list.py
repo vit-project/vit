@@ -39,6 +39,9 @@ class TaskTable(object):
             self.update_header(data['size'])
         self.event.listen('task-list:keypress', task_list_keypress)
 
+    def get_blocking_task_uuids(self):
+        return self.request_reply.request('application:blocking_task_uuids')
+
     def register_task_list_actions(self):
         self.action_registrar = self.action_registry.get_registrar()
         self.action_registrar.register('TASK_LIST_UP', 'Move task list focus up one entry', self.keypress_up)
@@ -207,7 +210,7 @@ class TaskTable(object):
 
     def inject_marker_formatter(self):
         name, formatter_class = self.formatter.get(MARKER_COLUMN_NAME)
-        self.columns[name]['formatter'] = formatter_class(self.report, self.formatter, self.report_marker_columns)
+        self.columns[name]['formatter'] = formatter_class(self.report, self.formatter, self.report_marker_columns, self.get_blocking_task_uuids())
 
     def set_column_metadata(self):
         kwargs = self.column_formatter_kwargs()

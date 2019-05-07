@@ -127,6 +127,7 @@ class Application():
     def set_request_callbacks(self):
         self.request_reply.set_handler('application:keybindings', 'Get keybindings', lambda: self.keybinding_parser.keybindings)
         self.request_reply.set_handler('application:key_cache', 'Get key cache', lambda: self.key_cache)
+        self.request_reply.set_handler('application:blocking_task_uuids', 'Get blocking task uuids', lambda: self.blocking_task_uuids)
 
     def init_theme(self):
         theme = self.config.get('vit', 'theme')
@@ -561,6 +562,13 @@ class Application():
             self.execute_command(['task', uuid, 'info'], update_report=False)
             self.task_list.focus_by_task_uuid(uuid)
 
+    def refresh_blocking_task_uuids(self):
+        returncode, stdout, stderr = self.command.run(['task', 'uuids', '+BLOCKING'], capture_output=True)
+        if returncode == 0:
+            self.blocking_task_uuids = stdout.split()
+        else:
+            raise_(RuntimeError, "Error retrieving blocking task UUIDs: %s" % stderr)
+
     def setup_autocomplete(self, op):
         callback = self.command_bar.set_edit_text_callback()
         if op in ('filter', 'add', 'modify'):
@@ -639,6 +647,7 @@ class Application():
         if report:
             self.report = report
         self.task_config.get_projects()
+        self.refresh_blocking_task_uuids()
         self.model.update_report(self.report, self.extra_filters)
         self.update_task_table()
         self.update_status_report()

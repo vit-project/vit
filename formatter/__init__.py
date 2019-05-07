@@ -116,9 +116,10 @@ class Formatter(object):
         return None
 
 class Marker(Formatter):
-    def __init__(self, report, defaults, report_marker_columns):
+    def __init__(self, report, defaults, report_marker_columns, blocking_task_uuids):
         super().__init__(None, report, defaults)
         self.columns = report_marker_columns
+        self.blocking_tasks = blocking_task_uuids
         self.labels = self.defaults.markers.labels
         self.udas = self.defaults.markers.udas
         self.require_color = self.defaults.markers.require_color

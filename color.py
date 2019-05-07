@@ -200,3 +200,8 @@ class TaskColorizer(object):
         # TODO: Any way to optimize storing this display attr name?
         value = 'color.keyword.%s' % text
         return None if not self.color_config.has_display_attr(value) else value
+
+    def blocking(self):
+        if self.color_config.has_display_attr('color.blocking'):
+            return 'color.blocking'
+        return None
