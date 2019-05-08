@@ -44,7 +44,7 @@ class Description(String):
                 last_color, last_part = accum[-1]
                 color, part = self.markup_element(part)
                 if color == last_color:
-                    accum[-1][1] += '%s%s' % (last_part, part)
+                    accum[-1] = (last_color, last_part + part)
                     return accum
                 else:
                     return accum + [(color, part)]
