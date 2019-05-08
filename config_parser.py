@@ -198,7 +198,7 @@ class TaskParser(object):
 
     def filter_to_dict(self, matcher_regex):
         lines = self.filter(matcher_regex)
-        return {self.transform_string_leaves(key): value for key, value in lines}
+        return {key: value for key, value in lines}
 
     def filter(self, matcher_regex):
         return list(filter(lambda config_pair: re.match(matcher_regex, config_pair[0]), self.task_config))
@@ -210,6 +210,9 @@ class TaskParser(object):
       full_tree = {}
       lines = self.filter(matcher_regex)
       for (hierarchy, value) in lines:
+        # NOTE: This is necessary in order to convert TaskWarrior's dotted
+        # config syntax into a full tree, as some leaves are both branches
+        # and leaves.
         hierarchy = self.transform_string_leaves(hierarchy)
         parts = hierarchy.split('.')
         tree_location = full_tree
