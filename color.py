@@ -35,9 +35,17 @@ class TaskColorConfig(object):
                     self.display_attrs.append((attr, fg16, bg16, m, fg256, bg256))
 
     def has_display_attr(self, display_attr):
+        # TODO: There are only a few attributes that need to have their names
+        # transformed by task_config.transform_string_leaves() -- would it be
+        # better just to hard code them in the colorizer, or use this function
+        # against all display attrs? Concerned about the overhead...
         display_attr = self.task_config.transform_string_leaves(display_attr)
         return display_attr in self.display_attrs_available and self.display_attrs_available[display_attr]
 
+    # TODO: There are only a few attributes that need to have their names
+    # transformed by task_config.transform_string_leaves() -- would it be
+    # better just to hard code them in the colorizer, or use this function
+    # against all display attrs? Concerned about the overhead...
     def display_attr(self, display_attr):
         return self.task_config.transform_string_leaves(display_attr)
 
