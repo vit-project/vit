@@ -56,6 +56,7 @@ DEFAULTS = {
         'include_subprojects': True,
     },
     'color': {
+        'enabled': True,
         'include_subprojects': True,
         'none_label': '[NONE]',
     },

@@ -18,7 +18,11 @@ class TaskColorConfig(object):
         self.task_config = task_config
         self.include_subprojects = self.config.get('color', 'include_subprojects')
         self.task_256_to_urwid_256 = task_256_to_urwid_256()
-        self.color_enabled = self.task_config.subtree('color$', walk_subtree=False)['color'] == 'on'
+        # NOTE: Because TaskWarrior disables color on piped commands, and I don't
+        # see any portable way to get output from a system command in Python
+        # without pipes, the 'color' config setting in TaskWarrior is not used, and
+        # instead a custom setting is used.
+        self.color_enabled = self.config.get('color', 'enabled')
         self.display_attrs_available, self.display_attrs = self.convert_color_config(self.task_config.filter_to_dict('^color\.'))
         self.project_display_attrs = self.get_project_display_attrs()
         self.color_precedence = self.task_config.subtree('rule.')['precedence']['color'].split(',')
@@ -130,6 +134,7 @@ class TaskColorConfig(object):
 class TaskColorizer(object):
     def __init__(self, color_config):
         self.color_config = color_config
+        self.color_disabled = not self.color_config.color_enabled
         self.init_keywords()
 
     def init_keywords(self):
@@ -151,20 +156,28 @@ class TaskColorizer(object):
         return None, None
 
     def project_none(self):
+        if self.color_disabled:
+            return None
         if self.color_config.has_display_attr('color.project.none'):
             return 'color.project.none'
         return None
 
     def project(self, project):
+        if self.color_disabled:
+            return None
         display_attr = 'color.project.%s' % project
         return display_attr if self.color_config.has_display_attr(display_attr) else None
 
     def tag_none(self):
+        if self.color_disabled:
+            return None
         if self.color_config.has_display_attr('color.tag.none'):
             return 'color.tag.none'
         return None
 
     def tag(self, tag):
+        if self.color_disabled:
+            return None
         custom = 'color.tag.%s' % tag
         if self.color_config.has_display_attr(custom):
             return custom
@@ -173,12 +186,16 @@ class TaskColorizer(object):
         return None
 
     def uda_none(self, name):
+        if self.color_disabled:
+            return None
         none_value = 'color.uda.%s.none' % name
         if self.color_config.has_display_attr(none_value):
             return none_value
         return None
 
     def uda_common(self, name, value):
+        if self.color_disabled:
+            return None
         custom = 'color.uda.%s' % name
         if self.color_config.has_display_attr(custom):
             return custom
@@ -187,6 +204,8 @@ class TaskColorizer(object):
         return None
 
     def uda_string(self, name, value):
+        if self.color_disabled:
+            return None
         if not value:
             return self.uda_none(name)
         else:
@@ -196,12 +215,18 @@ class TaskColorizer(object):
             return self.uda_common(name, value)
 
     def uda_numeric(self, name, value):
+        if self.color_disabled:
+            return None
         return self.uda_string(name, value)
 
     def uda_duration(self, name, value):
+        if self.color_disabled:
+            return None
         return self.uda_string(name, value)
 
     def uda_date(self, name, value):
+        if self.color_disabled:
+            return None
         if not value:
             return self.uda_none(name)
         else:
@@ -209,16 +234,22 @@ class TaskColorizer(object):
             return self.uda_common(name, value)
 
     def keyword(self, text):
+        if self.color_disabled:
+            return None
         # TODO: Any way to optimize storing this display attr name?
         value = 'color.keyword.%s' % text
         return None if not self.color_config.has_display_attr(value) else value
 
     def blocking(self):
+        if self.color_disabled:
+            return None
         if self.color_config.has_display_attr('color.blocking'):
             return 'color.blocking'
         return None
 
     def due(self, state):
+        if self.color_disabled:
+            return None
         if state:
             value = 'color.%s' % state
             if self.color_config.has_display_attr(value):
