@@ -1,7 +1,7 @@
 import re
 import urwid
 # TODO: This isn't implemented in Python < 2.7.
-from functools import cmp_to_key
+from functools import cmp_to_key, wraps
 
 from color_mappings import task_256_to_urwid_256, task_bright_to_color
 
@@ -39,19 +39,7 @@ class TaskColorConfig(object):
                     self.display_attrs.append((attr, fg16, bg16, m, fg256, bg256))
 
     def has_display_attr(self, display_attr):
-        # TODO: There are only a few attributes that need to have their names
-        # transformed by task_config.transform_string_leaves() -- would it be
-        # better just to hard code them in the colorizer, or use this function
-        # against all display attrs? Concerned about the overhead...
-        display_attr = self.task_config.transform_string_leaves(display_attr)
         return display_attr in self.display_attrs_available and self.display_attrs_available[display_attr]
-
-    # TODO: There are only a few attributes that need to have their names
-    # transformed by task_config.transform_string_leaves() -- would it be
-    # better just to hard code them in the colorizer, or use this function
-    # against all display attrs? Concerned about the overhead...
-    def display_attr(self, display_attr):
-        return self.task_config.transform_string_leaves(display_attr)
 
     def get_project_display_attrs(self):
         return sorted([(a, fg16, bg16, m, fg256, bg256) for (a, fg16, bg16, m, fg256, bg256) in self.display_attrs if self.display_attrs_available[a] and self.is_project_display_attr(a)], reverse=True)
@@ -132,9 +120,15 @@ class TaskColorConfig(object):
         return sorted(color_parts, key=cmp_to_key(comparator))
 
 class TaskColorizer(object):
+    class Decorator(object):
+        def color_enabled(func):
+            @wraps(func)
+            def verify_color_enabled(self, *args, **kwargs):
+                return func(self, *args, **kwargs) if self.color_enabled else None
+            return verify_color_enabled
     def __init__(self, color_config):
         self.color_config = color_config
-        self.color_disabled = not self.color_config.color_enabled
+        self.color_enabled = self.color_config.color_enabled
         self.init_keywords()
 
     def init_keywords(self):
@@ -155,29 +149,25 @@ class TaskColorizer(object):
             return first_part, parts
         return None, None
 
+    @Decorator.color_enabled
     def project_none(self):
-        if self.color_disabled:
-            return None
         if self.color_config.has_display_attr('color.project.none'):
             return 'color.project.none'
         return None
 
+    @Decorator.color_enabled
     def project(self, project):
-        if self.color_disabled:
-            return None
         display_attr = 'color.project.%s' % project
         return display_attr if self.color_config.has_display_attr(display_attr) else None
 
+    @Decorator.color_enabled
     def tag_none(self):
-        if self.color_disabled:
-            return None
         if self.color_config.has_display_attr('color.tag.none'):
             return 'color.tag.none'
         return None
 
+    @Decorator.color_enabled
     def tag(self, tag):
-        if self.color_disabled:
-            return None
         custom = 'color.tag.%s' % tag
         if self.color_config.has_display_attr(custom):
             return custom
@@ -185,17 +175,15 @@ class TaskColorizer(object):
             return 'color.tagged'
         return None
 
+    @Decorator.color_enabled
     def uda_none(self, name):
-        if self.color_disabled:
-            return None
         none_value = 'color.uda.%s.none' % name
         if self.color_config.has_display_attr(none_value):
             return none_value
         return None
 
+    @Decorator.color_enabled
     def uda_common(self, name, value):
-        if self.color_disabled:
-            return None
         custom = 'color.uda.%s' % name
         if self.color_config.has_display_attr(custom):
             return custom
@@ -203,9 +191,8 @@ class TaskColorizer(object):
             return 'color.uda'
         return None
 
+    @Decorator.color_enabled
     def uda_string(self, name, value):
-        if self.color_disabled:
-            return None
         if not value:
             return self.uda_none(name)
         else:
@@ -214,44 +201,38 @@ class TaskColorizer(object):
                 return custom_value
             return self.uda_common(name, value)
 
+    @Decorator.color_enabled
     def uda_numeric(self, name, value):
-        if self.color_disabled:
-            return None
         return self.uda_string(name, value)
 
+    @Decorator.color_enabled
     def uda_duration(self, name, value):
-        if self.color_disabled:
-            return None
         return self.uda_string(name, value)
 
+    @Decorator.color_enabled
     def uda_date(self, name, value):
-        if self.color_disabled:
-            return None
         if not value:
             return self.uda_none(name)
         else:
             # TODO: Maybe some special string indicators here?
             return self.uda_common(name, value)
 
+    @Decorator.color_enabled
     def keyword(self, text):
-        if self.color_disabled:
-            return None
         # TODO: Any way to optimize storing this display attr name?
         value = 'color.keyword.%s' % text
         return None if not self.color_config.has_display_attr(value) else value
 
+    @Decorator.color_enabled
     def blocking(self):
-        if self.color_disabled:
-            return None
         if self.color_config.has_display_attr('color.blocking'):
             return 'color.blocking'
         return None
 
+    @Decorator.color_enabled
     def due(self, state):
-        if self.color_disabled:
-            return None
         if state:
             value = 'color.%s' % state
             if self.color_config.has_display_attr(value):
-                return self.color_config.display_attr(value)
+                return value
         return None
