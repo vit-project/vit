@@ -35,7 +35,11 @@ class TaskColorConfig(object):
                     self.display_attrs.append((attr, fg16, bg16, m, fg256, bg256))
 
     def has_display_attr(self, display_attr):
+        display_attr = self.task_config.transform_string_leaves(display_attr)
         return display_attr in self.display_attrs_available and self.display_attrs_available[display_attr]
+
+    def display_attr(self, display_attr):
+        return self.task_config.transform_string_leaves(display_attr)
 
     def get_project_display_attrs(self):
         return sorted([(a, fg16, bg16, m, fg256, bg256) for (a, fg16, bg16, m, fg256, bg256) in self.display_attrs if self.display_attrs_available[a] and self.is_project_display_attr(a)], reverse=True)
@@ -204,4 +208,11 @@ class TaskColorizer(object):
     def blocking(self):
         if self.color_config.has_display_attr('color.blocking'):
             return 'color.blocking'
+        return None
+
+    def due(self, state):
+        if state:
+            value = 'color.%s' % state
+            if self.color_config.has_display_attr(value):
+                return self.color_config.display_attr(value)
         return None

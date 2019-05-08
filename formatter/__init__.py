@@ -1,5 +1,5 @@
 from importlib import import_module
-import datetime
+from datetime import datetime, timedelta
 from tzlocal import get_localzone
 
 import uda
@@ -49,6 +49,8 @@ class Defaults(object):
         self.task_colorizer = task_colorizer
         self.report = self.task_config.translate_date_markers(self.task_config.subtree('dateformat.report'))
         self.annotation = self.task_config.translate_date_markers(self.task_config.subtree('dateformat.annotation'))
+        self.zone = get_localzone()
+        self.due_days = int(self.task_config.subtree('due'))
         self.none_label = config.get('color', 'none_label')
 
     def get_formatter_class(self, parts):
@@ -86,6 +88,24 @@ class Defaults(object):
             indicator = u'\u21aa '
             width = space_padding + len(indicator) + len(subproject)
             return (width, ' ' * space_padding , indicator, subproject)
+
+    def recalculate_due_datetimes(self):
+        self.now = datetime.now(self.zone)
+        # NOTE: For some reason using self.zone for the tzinfo below results
+        # in the tzinfo object having a zone of 'LMT', which is wrong. Using
+        # the tzinfo associated with self.now returns the correct value, no
+        # idea why this glitch happens.
+        self.end_of_day = datetime(self.now.year, self.now.month, self.now.day, 23, 59, 59, tzinfo=self.now.tzinfo)
+        self.due_soon = self.end_of_day + timedelta(days=self.due_days)
+
+    def get_due_state(self, due):
+        if due < self.now:
+            return 'overdue'
+        elif due <= self.end_of_day:
+            return 'due.today'
+        elif due < self.due_soon:
+            return 'due'
+        return None
 
 class Formatter(object):
     def __init__(self, column, report, defaults, **kwargs):
@@ -145,8 +165,14 @@ class DateTime(Formatter):
     def format(self, dt, task):
         if not dt:
             return self.empty()
-        formatted_date = dt.strftime(self.custom_formatter or self.defaults.report)
-        return (len(formatted_date), (self.colorize(dt), formatted_date))
+        formatted_date = self.format_datetime(dt)
+        return (len(formatted_date), self.markup_element(dt, formatted_date))
+
+    def format_datetime(self, dt):
+        return dt.strftime(self.custom_formatter or self.defaults.report)
+
+    def markup_element(self, dt, formatted_date):
+        return (self.colorize(dt), formatted_date)
 
     def format_duration_vague(self, seconds):
         test = seconds
@@ -176,14 +202,14 @@ class DateTime(Formatter):
     def age(self, dt):
         if dt == None:
             return ''
-        now = datetime.datetime.now(get_localzone())
+        now = datetime.now(self.defaults.zone)
         seconds = (now - dt).total_seconds()
         return self.format_duration_vague(seconds)
 
     def countdown(self, dt):
         if dt == None:
             return ''
-        now = datetime.datetime.now(get_localzone())
+        now = datetime.now(self.defaults.zone)
         if dt < now:
             return ''
         seconds = (dt - now).total_seconds()
@@ -192,14 +218,14 @@ class DateTime(Formatter):
     def relative(self, dt):
         if dt == None:
             return ''
-        now = datetime.datetime.now(get_localzone())
+        now = datetime.now(self.defaults.zone)
         seconds = (dt - now).total_seconds()
         return self.format_duration_vague(seconds)
 
     def remaining(self, dt):
         if dt == None:
             return ''
-        now = datetime.datetime.now(get_localzone())
+        now = datetime.now(self.defaults.zone)
         if dt < now:
             return ''
         seconds = (dt - now).total_seconds()

@@ -648,6 +648,7 @@ class Application():
             self.report = report
         self.task_config.get_projects()
         self.refresh_blocking_task_uuids()
+        self.formatter.recalculate_due_datetimes()
         self.model.update_report(self.report, self.extra_filters)
         self.update_task_table()
         self.update_status_report()
