@@ -160,7 +160,17 @@ class String(Formatter):
     pass
 
 class Duration(Formatter):
-    pass
+    def format(self, obj, task):
+        if not obj:
+            return self.empty()
+        formatted_duration = self.format_duration(obj)
+        return (len(formatted_duration), self.markup_element(obj, formatted_duration))
+
+    def format_duration(self, obj):
+        return obj
+
+    def markup_element(self, obj, formatted_duration):
+        return (self.colorize(obj), formatted_duration)
 
 class DateTime(Formatter):
     def __init__(self, column, report, defaults, **kwargs):

@@ -252,3 +252,7 @@ class TaskColorizer(object):
     @Decorator.color_enabled
     def active(self, active):
         return None if not active else 'color.active'
+
+    @Decorator.color_enabled
+    def recurring(self, recur):
+        return None if not recur else 'color.recurring'
