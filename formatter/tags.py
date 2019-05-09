@@ -1,6 +1,6 @@
-from formatter import List
+from formatter import Formatter
 
-class Tags(List):
+class Tags(Formatter):
     def format(self, tags, task):
         if not tags:
             return self.markup_none(self.colorizer.tag_none())
