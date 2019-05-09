@@ -98,14 +98,19 @@ class Defaults(object):
         self.end_of_day = datetime(self.now.year, self.now.month, self.now.day, 23, 59, 59, tzinfo=self.now.tzinfo)
         self.due_soon = self.end_of_day + timedelta(days=self.due_days)
 
-    def get_due_state(self, due):
-        if due < self.now:
-            return 'overdue'
-        elif due <= self.end_of_day:
-            return 'due.today'
-        elif due < self.due_soon:
-            return 'due'
+    def get_due_state(self, due, task):
+        if task['status'] == 'pending':
+            if due < self.now:
+                return 'overdue'
+            elif due <= self.end_of_day:
+                return 'due.today'
+            elif due < self.due_soon:
+                return 'due'
         return None
+
+    def get_active_state(self, start, task):
+        end = task['end']
+        return task['status'] == 'pending' and start and start <= self.now and (not end or end > self.now)
 
 class Formatter(object):
     def __init__(self, column, report, defaults, **kwargs):
@@ -165,14 +170,14 @@ class DateTime(Formatter):
     def format(self, dt, task):
         if not dt:
             return self.empty()
-        formatted_date = self.format_datetime(dt)
-        return (len(formatted_date), self.markup_element(dt, formatted_date))
+        formatted_date = self.format_datetime(dt, task)
+        return (len(formatted_date), self.markup_element(dt, formatted_date, task))
 
-    def format_datetime(self, dt):
+    def format_datetime(self, dt, task):
         return dt.strftime(self.custom_formatter or self.defaults.report)
 
-    def markup_element(self, dt, formatted_date):
-        return (self.colorize(dt), formatted_date)
+    def markup_element(self, dt, formatted_date, task):
+        return (self.colorize(dt, task), formatted_date)
 
     def format_duration_vague(self, seconds):
         test = seconds

@@ -250,5 +250,5 @@ class TaskColorizer(object):
         return None if not depends else 'color.blocked'
 
     @Decorator.color_enabled
-    def active(self, start):
-        return None if not start else 'color.active'
+    def active(self, active):
+        return None if not active else 'color.active'

@@ -9,13 +9,13 @@ class Markers(Marker):
         if self.mark_project:
             width, text_markup = self.format_project(width, text_markup, task['project'])
         if self.mark_due and task['due']:
-            width, text_markup = self.format_due(width, text_markup, task['due'])
+            width, text_markup = self.format_due(width, text_markup, task['due'], task)
         if self.mark_status:
             width, text_markup = self.format_status(width, text_markup, task['status'])
         if self.mark_depends and task['depends']:
             width, text_markup = self.format_blocked(width, text_markup, task['depends'])
         if self.mark_start and task['start']:
-            width, text_markup = self.format_active(width, text_markup, task['start'])
+            width, text_markup = self.format_active(width, text_markup, task['start'], task)
         for uda_name, uda_type in self.udas.items():
             if getattr(self, 'mark_%s' % uda_name):
                 width, text_markup = self.format_uda(width, text_markup, uda_name, uda_type, task[uda_name])
@@ -60,8 +60,8 @@ class Markers(Marker):
             label = self.labels['project.label'] if not custom_label in self.labels else self.labels[custom_label]
             return self.add_label(color, label, width, text_markup)
 
-    def format_due(self, width, text_markup, due):
-        due_state = self.defaults.get_due_state(due)
+    def format_due(self, width, text_markup, due, task):
+        due_state = self.defaults.get_due_state(due, task)
         if due_state:
             color = self.colorizer.due(due_state)
             label = self.labels['%s.label' % due_state]
@@ -96,7 +96,10 @@ class Markers(Marker):
         label = self.labels['blocked.label']
         return self.add_label(color, label, width, text_markup)
 
-    def format_active(self, width, text_markup, start):
-        color = self.colorizer.active(start)
-        label = self.labels['active.label']
-        return self.add_label(color, label, width, text_markup)
+    def format_active(self, width, text_markup, start, task):
+        active = self.defaults.get_active_state(start, task)
+        if active:
+            color = self.colorizer.active(active)
+            label = self.labels['active.label']
+            return self.add_label(color, label, width, text_markup)
+        return width, text_markup
