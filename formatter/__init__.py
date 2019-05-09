@@ -42,6 +42,14 @@ TIME_UNIT_MAP = {
      },
 }
 
+INDICATORS = [
+    'active',
+    'dependency',
+    'recurrence',
+    'tag',
+]
+UDA_DEFAULT_INDICATOR = 'U'
+
 class Defaults(object):
     def __init__(self, config, task_config, markers, task_colorizer):
         self.config = config
@@ -53,6 +61,16 @@ class Defaults(object):
         self.zone = get_localzone()
         self.due_days = int(self.task_config.subtree('due'))
         self.none_label = config.get('color', 'none_label')
+        self.build_indicators()
+
+    def build_indicators(self):
+        for indicator in INDICATORS:
+            label = self.task_config.subtree('%s.indicator' % indicator)
+            setattr(self, 'indicator_%s' % indicator, label)
+        self.indicator_uda = {}
+        for uda_name in uda.get_configured(self.task_config).keys():
+            label = self.task_config.subtree('uda.%s.indicator' % uda_name) or UDA_DEFAULT_INDICATOR
+            self.indicator_uda[uda_name] = label
 
     def get_formatter_class(self, parts):
         formatter_module_name = '_'.join(parts)
@@ -73,10 +91,15 @@ class Defaults(object):
         else:
             uda_metadata = uda.get(name, self.task_config)
             if uda_metadata:
-                uda_type = uda_metadata['type'] if 'type' in uda_metadata else 'string'
-                formatter_class = self.get_formatter_class(['uda', uda_type])
-                if formatter_class:
+                is_indicator = parts[-1] == 'indicator'
+                if is_indicator:
+                    formatter_class = self.get_formatter_class(['uda', 'indicator'])
                     return name, formatter_class
+                else:
+                    uda_type = uda_metadata['type'] if 'type' in uda_metadata else 'string'
+                    formatter_class = self.get_formatter_class(['uda', uda_type])
+                    if formatter_class:
+                        return name, formatter_class
         return name, Formatter
 
     def format_subproject_indented(self, project_parts):

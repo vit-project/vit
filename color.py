@@ -218,6 +218,10 @@ class TaskColorizer(object):
             return self.uda_common(name, value)
 
     @Decorator.color_enabled
+    def uda_indicator(self, name, value):
+        return self.uda_string(name, value)
+
+    @Decorator.color_enabled
     def keyword(self, text):
         # TODO: Any way to optimize storing this display attr name?
         value = 'color.keyword.%s' % text

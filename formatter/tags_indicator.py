@@ -5,4 +5,4 @@ class TagsIndicator(Tags):
         if not tags:
             return self.markup_none(self.colorizer.tag_none())
         else:
-            return (1, (self.colorizer.tag(''), '+'))
+            return (1, (self.colorizer.tag(''), self.defaults.indicator_tag))
