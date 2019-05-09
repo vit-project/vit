@@ -10,6 +10,10 @@ class Markers(Marker):
             width, text_markup = self.format_project(width, text_markup, task['project'])
         if self.mark_due and task['due']:
             width, text_markup = self.format_due(width, text_markup, task['due'])
+        if self.mark_status:
+            width, text_markup = self.format_status(width, text_markup, task['status'])
+        if self.mark_depends and task['depends']:
+            width, text_markup = self.format_blocked(width, text_markup, task['depends'])
         for uda_name, uda_type in self.udas.items():
             if getattr(self, 'mark_%s' % uda_name):
                 width, text_markup = self.format_uda(width, text_markup, uda_name, uda_type, task[uda_name])
@@ -76,4 +80,16 @@ class Markers(Marker):
     def format_blocking(self, width, text_markup):
         color = self.colorizer.blocking()
         label = self.labels['blocking.label']
+        return self.add_label(color, label, width, text_markup)
+
+    def format_status(self, width, text_markup, status):
+        if status == 'completed' or status == 'deleted':
+            color = self.colorizer.status(status)
+            label = self.labels['%s.label' % status]
+            return self.add_label(color, label, width, text_markup)
+        return width, text_markup
+
+    def format_blocked(self, width, text_markup, depends):
+        color = self.colorizer.blocked(depends)
+        label = self.labels['blocked.label']
         return self.add_label(color, label, width, text_markup)
