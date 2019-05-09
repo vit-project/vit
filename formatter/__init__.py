@@ -232,5 +232,15 @@ class DateTime(Formatter):
         return self.format_duration_vague(seconds)
 
 class List(Formatter):
+
     def format(self, obj, task):
+        if not obj:
+            return self.empty()
+        formatted = self.format_list(obj, task)
+        return (len(formatted), self.markup_element(obj, formatted))
+
+    def markup_element(self, obj, formatted):
+        return (self.colorize(obj), formatted)
+
+    def format_list(self, obj, task):
         return ','.join(obj) if obj else ''

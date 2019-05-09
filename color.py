@@ -236,3 +236,15 @@ class TaskColorizer(object):
             if self.color_config.has_display_attr(value):
                 return value
         return None
+
+    @Decorator.color_enabled
+    def status(self, status):
+        if status == 'completed' or status == 'deleted':
+            value = 'color.%s' % status
+            if self.color_config.has_display_attr(value):
+                return value
+        return None
+
+    @Decorator.color_enabled
+    def blocked(self, depends):
+        return None if not depends else 'color.blocked'
