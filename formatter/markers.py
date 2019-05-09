@@ -18,6 +18,10 @@ class Markers(Marker):
             width, text_markup = self.format_active(width, text_markup, task['start'], task)
         if self.mark_recur and task['recur']:
             width, text_markup = self.format_recurring(width, text_markup, task['recur'])
+        if self.mark_scheduled and task['scheduled']:
+            width, text_markup = self.format_scheduled(width, text_markup, task['scheduled'], task)
+        if self.mark_until and task['until']:
+            width, text_markup = self.format_until(width, text_markup, task['until'], task)
         for uda_name, uda_type in self.udas.items():
             if getattr(self, 'mark_%s' % uda_name):
                 width, text_markup = self.format_uda(width, text_markup, uda_name, uda_type, task[uda_name])
@@ -110,3 +114,20 @@ class Markers(Marker):
         color = self.colorizer.recurring(recur)
         label = self.labels['recurring.label']
         return self.add_label(color, label, width, text_markup)
+
+    def format_scheduled(self, width, text_markup, scheduled, task):
+        scheduled = self.defaults.get_scheduled_state(scheduled, task)
+        if scheduled:
+            color = self.colorizer.scheduled(scheduled)
+            label = self.labels['scheduled.label']
+            return self.add_label(color, label, width, text_markup)
+        return width, text_markup
+
+
+    def format_until(self, width, text_markup, until, task):
+        until = self.defaults.get_until_state(until, task)
+        if until:
+            color = self.colorizer.until(until)
+            label = self.labels['until.label']
+            return self.add_label(color, label, width, text_markup)
+        return width, text_markup

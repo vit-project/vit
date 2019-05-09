@@ -10,6 +10,7 @@ MARKABLE_COLUMNS = [
     'start',
     'status',
     'tags',
+    'until',
 ]
 LABEL_DEFAULTS = {
     'active.label': '(A)',
@@ -29,6 +30,7 @@ LABEL_DEFAULTS = {
     'tag.none.label': '',
     'uda.label': '',
     'uda.priority.label': '(PR)',
+    'until.label': '(U)',
 }
 
 class Markers(object):

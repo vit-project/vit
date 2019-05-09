@@ -2,6 +2,7 @@ from importlib import import_module
 from datetime import datetime, timedelta
 from tzlocal import get_localzone
 
+import util
 import uda
 
 TIME_UNIT_MAP = {
@@ -99,7 +100,7 @@ class Defaults(object):
         self.due_soon = self.end_of_day + timedelta(days=self.due_days)
 
     def get_due_state(self, due, task):
-        if task['status'] == 'pending':
+        if util.task_pending(task):
             if due < self.now:
                 return 'overdue'
             elif due <= self.end_of_day:
@@ -110,7 +111,13 @@ class Defaults(object):
 
     def get_active_state(self, start, task):
         end = task['end']
-        return task['status'] == 'pending' and start and start <= self.now and (not end or end > self.now)
+        return util.task_pending(task) and start and start <= self.now and (not end or end > self.now)
+
+    def get_scheduled_state(self, scheduled, task):
+        return scheduled and not util.task_completed(task)
+
+    def get_until_state(self, until, task):
+        return until and not util.task_completed(task)
 
 class Formatter(object):
     def __init__(self, column, report, defaults, **kwargs):

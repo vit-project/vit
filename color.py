@@ -256,3 +256,11 @@ class TaskColorizer(object):
     @Decorator.color_enabled
     def recurring(self, recur):
         return None if not recur else 'color.recurring'
+
+    @Decorator.color_enabled
+    def scheduled(self, scheduled):
+        return None if not scheduled else 'color.scheduled'
+
+    @Decorator.color_enabled
+    def until(self, until):
+        return None if not until else 'color.until'
