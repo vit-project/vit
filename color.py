@@ -59,10 +59,8 @@ class TaskColorConfig(object):
         return display_attrs_available, display_attrs
 
     def make_display_attr(self, display_attr, foreground, background):
-        # TODO: Non-standard colors need to be translated down to standard.
-        # TODO: Why aren't 256 colors being used when no basic colors are
-        # provided?
-        return (display_attr, foreground, background, '', foreground, background)
+        # TODO: 256 colors need to be translated down to 16 color mode.
+        return (display_attr, '', '', '', foreground, background)
 
     def has_color_config(self, foreground, background):
         return foreground != '' or background != ''
