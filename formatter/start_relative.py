@@ -1,5 +1,5 @@
 from formatter.start import Start
 
 class StartRelative(Start):
-    def format(self, start, task):
+    def format_datetime(self, start):
         return self.relative(start)
