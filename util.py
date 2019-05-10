@@ -44,3 +44,6 @@ def project_get_subproject_and_parents(project):
     subproject = parts.pop()
     parents = parts if len(parts) > 0 else None
     return subproject, parents
+
+def project_get_root(project):
+    return project.split('.')[0] if project else None
