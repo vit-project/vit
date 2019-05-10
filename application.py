@@ -545,7 +545,6 @@ class Application():
             self.activate_command_bar('tag', 'Tag: ', {'uuid': uuid})
 
     def task_action_wait(self):
-        # TODO: Detect if task is already waiting, if so do confirm to un-wait.
         uuid, _ = self.get_focused_task()
         if uuid:
             self.activate_command_bar('wait', 'Wait: ', {'uuid': uuid})

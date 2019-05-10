@@ -4,7 +4,6 @@ from itertools import repeat
 from functools import partial
 from time import sleep
 import re
-# TODO: This isn't implemented in Python < 2.7.
 from functools import cmp_to_key
 
 import urwid

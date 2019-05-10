@@ -1,6 +1,5 @@
 import re
 import urwid
-# TODO: This isn't implemented in Python < 2.7.
 from functools import cmp_to_key, wraps
 
 from color_mappings import task_256_to_urwid_256, task_bright_to_color
