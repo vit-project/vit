@@ -54,6 +54,7 @@ class AnnotationListBox(urwid.ListBox):
         attr = 'reveal focus' if op == 'focus' else 'button cancel'
         self.update_focus_attr(attr)
 
+    # TODO: Can these be converted to keybinding/actions?
     def keypress(self, size, key):
         """Overrides ListBox.keypress method.
         """
