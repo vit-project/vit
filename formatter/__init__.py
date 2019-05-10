@@ -52,6 +52,8 @@ INDICATORS = [
 ]
 UDA_DEFAULT_INDICATOR = 'U'
 
+DEFAULT_DESCRIPTION_TRUNCATE_LEN=20
+
 class Defaults(object):
     def __init__(self, config, task_config, markers, task_colorizer):
         self.config = config
@@ -60,6 +62,7 @@ class Defaults(object):
         self.task_colorizer = task_colorizer
         self.report = self.task_config.translate_date_markers(self.task_config.subtree('dateformat.report'))
         self.annotation = self.task_config.translate_date_markers(self.task_config.subtree('dateformat.annotation'))
+        self.description_truncate_len = DEFAULT_DESCRIPTION_TRUNCATE_LEN
         self.zone = get_localzone()
         self.epoch_datetime = datetime(1970, 1, 1, tzinfo=timezone('UTC'))
         self.due_days = int(self.task_config.subtree('due'))
@@ -77,13 +80,17 @@ class Defaults(object):
 
     def get_formatter_class(self, parts):
         formatter_module_name = '_'.join(parts)
-        formatter_class_name = ''.join([p.capitalize() for p in parts])
+        formatter_class_name = self.file_to_class_name(formatter_module_name)
         try:
             formatter_module = import_module('formatter.%s' % formatter_module_name)
         except ImportError:
             return None
         formatter_class = getattr(formatter_module, formatter_class_name)
         return formatter_class
+
+    def file_to_class_name(self, file_name):
+        words = file_name.split('_')
+        return ''.join((w.capitalize() for w in words))
 
     def get(self, column_formatter):
         parts = column_formatter.split('.')
