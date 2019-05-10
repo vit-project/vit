@@ -1,6 +1,8 @@
+import math
 from importlib import import_module
 from datetime import datetime, timedelta
 from tzlocal import get_localzone
+from pytz import timezone
 
 import util
 import uda
@@ -59,6 +61,7 @@ class Defaults(object):
         self.report = self.task_config.translate_date_markers(self.task_config.subtree('dateformat.report'))
         self.annotation = self.task_config.translate_date_markers(self.task_config.subtree('dateformat.annotation'))
         self.zone = get_localzone()
+        self.epoch_datetime = datetime(1970, 1, 1, tzinfo=timezone('UTC'))
         self.due_days = int(self.task_config.subtree('due'))
         self.none_label = config.get('color', 'none_label')
         self.build_indicators()
@@ -275,6 +278,28 @@ class DateTime(Formatter):
             return ''
         seconds = (dt - now).total_seconds()
         return self.format_duration_vague(seconds)
+
+    def epoch(self, dt):
+        if dt == None:
+            return ''
+        return str(round((dt - self.defaults.epoch_datetime).total_seconds()))
+
+    # Taken from https://github.com/dannyzed/julian
+    def julian(self, dt):
+        if dt == None:
+            return ''
+        a = math.floor((14-dt.month)/12)
+        y = dt.year + 4800 - a
+        m = dt.month + 12*a - 3
+        jdn = dt.day + math.floor((153*m + 2)/5) + 365*y + math.floor(y/4) - math.floor(y/100) + math.floor(y/400) - 32045
+        jd = jdn + (dt.hour - 12) / 24 + dt.minute / 1440 + dt.second / 86400 + dt.microsecond / 86400000000
+        return str(jd)
+
+    def iso(self, dt):
+        if dt == None:
+            return ''
+        dt = dt.replace(tzinfo=timezone('UTC'))
+        return dt.isoformat()
 
 class List(Formatter):
 
