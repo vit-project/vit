@@ -1,6 +1,6 @@
 theme = [
     ('list-header', 'black', 'white', '', 'black', 'white'),
-    ('alt-task-row', 'white', 'dark gray', '', 'white', 'g22'),
+    ('striped-table-row', 'white', 'dark gray', '', 'white', 'g22'),
     ('reveal focus', 'black', 'dark cyan', 'standout', 'black', 'dark cyan'),
     ('message status', 'white', 'dark blue', 'standout', 'white', 'dark blue'),
     ('message error', 'white', 'dark red', 'standout', 'white', 'dark red'),

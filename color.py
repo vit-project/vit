@@ -12,9 +12,11 @@ VALID_COLOR_MODIFIERS = [
 class TaskColorConfig(object):
     """Colorized task output.
     """
-    def __init__(self, config, task_config):
+    def __init__(self, config, task_config, theme, theme_alt_backgrounds):
         self.config = config
         self.task_config = task_config
+        self.theme = theme
+        self.theme_alt_backgrounds = theme_alt_backgrounds
         self.include_subprojects = self.config.get('color', 'include_subprojects')
         self.task_256_to_urwid_256 = task_256_to_urwid_256()
         # NOTE: Because TaskWarrior disables color on piped commands, and I don't
@@ -23,10 +25,25 @@ class TaskColorConfig(object):
         # instead a custom setting is used.
         self.color_enabled = self.config.get('color', 'enabled')
         self.display_attrs_available, self.display_attrs = self.convert_color_config(self.task_config.filter_to_dict('^color\.'))
+        self.inject_alt_background_display_attrs()
         self.project_display_attrs = self.get_project_display_attrs()
         self.color_precedence = self.task_config.subtree('rule.')['precedence']['color'].split(',')
         if self.include_subprojects:
             self.add_project_children()
+
+    def inject_alt_background_display_attrs(self):
+        for display_attr in self.display_attrs.copy():
+            name, display_attr_foreground_16, display_attr_background_16, _mono, display_attr_foreground_256, display_attr_background_256 = display_attr
+            for modifier, alt_backgrounds in self.theme_alt_backgrounds.items():
+                display_attr_modifier = name + modifier
+                if self.has_display_attr(name):
+                    self.display_attrs_available[display_attr_modifier] = True
+                    alt_background_16, alt_background_256 = alt_backgrounds
+                    new_background_16 = alt_background_16 if display_attr_background_16 == '' else display_attr_background_16
+                    new_background_256 = alt_background_256 if display_attr_background_256 == '' else display_attr_background_256
+                    self.display_attrs.append(self.make_display_attr(display_attr_modifier, display_attr_foreground_256, new_background_256, foreground_16=display_attr_foreground_16, background_16=new_background_16))
+                else:
+                    self.display_attrs_available[display_attr_modifier] = False
 
     def add_project_children(self):
         color_prefix = 'color.project.'
@@ -57,9 +74,11 @@ class TaskColorConfig(object):
                 display_attrs.append(self.make_display_attr(key, foreground, background))
         return display_attrs_available, display_attrs
 
-    def make_display_attr(self, display_attr, foreground, background):
+    def make_display_attr(self, display_attr, foreground, background, foreground_16=None, background_16=None):
         # TODO: 256 colors need to be translated down to 16 color mode.
-        return (display_attr, '', '', '', foreground, background)
+        foreground_16 = '' if foreground_16 is None else foreground_16
+        background_16 = '' if background_16 is None else background_16
+        return (display_attr, foreground_16, background_16, '', foreground, background)
 
     def has_color_config(self, foreground, background):
         return foreground != '' or background != ''
@@ -126,6 +145,8 @@ class TaskColorizer(object):
     def __init__(self, color_config):
         self.color_config = color_config
         self.color_enabled = self.color_config.color_enabled
+        self.theme_alt_backgrounds = self.color_config.theme_alt_backgrounds
+        self.background_modifier = ''
         self.init_keywords()
 
     def init_keywords(self):
@@ -146,8 +167,17 @@ class TaskColorizer(object):
             return first_part, parts
         return None, None
 
+    def set_background_modifier(self, modifier=''):
+        self.background_modifier = modifier if modifier in self.theme_alt_backgrounds else ''
+
+    def add_background_modifier(self, display_attr):
+        return display_attr + self.background_modifier
+
+    def make_display_attr(self, display_attr):
+        return self.add_background_modifier(display_attr)
+
     def get_display_attr(self, display_attr):
-        return display_attr if self.color_config.has_display_attr(display_attr) else None
+        return self.make_display_attr(display_attr) if self.color_config.has_display_attr(display_attr) else None
 
     @Decorator.color_enabled
     def project_none(self):
@@ -163,11 +193,11 @@ class TaskColorizer(object):
 
     @Decorator.color_enabled
     def tag(self, tag):
-        custom = 'color.tag.%s' % tag
-        if self.color_config.has_display_attr(custom):
-            return custom
+        custom_value = 'color.tag.%s' % tag
+        if self.color_config.has_display_attr(custom_value):
+            return self.make_display_attr(custom_value)
         elif self.color_config.has_display_attr('color.tagged'):
-            return 'color.tagged'
+            return self.make_display_attr('color.tagged')
         return None
 
     @Decorator.color_enabled
@@ -176,11 +206,11 @@ class TaskColorizer(object):
 
     @Decorator.color_enabled
     def uda_common(self, name, value):
-        custom = 'color.uda.%s' % name
-        if self.color_config.has_display_attr(custom):
-            return custom
+        custom_value = 'color.uda.%s' % name
+        if self.color_config.has_display_attr(custom_value):
+            return self.make_display_attr(custom_value)
         elif self.color_config.has_display_attr('color.uda'):
-            return 'color.uda'
+            return self.make_display_attr('color.uda')
         return None
 
     @Decorator.color_enabled
@@ -190,7 +220,7 @@ class TaskColorizer(object):
         else:
             custom_value = 'color.uda.%s.%s' % (name, value)
             if self.color_config.has_display_attr(custom_value):
-                return custom_value
+                return self.make_display_attr(custom_value)
             return self.uda_common(name, value)
 
     @Decorator.color_enabled
@@ -227,7 +257,7 @@ class TaskColorizer(object):
         if status == 'completed' or status == 'deleted':
             value = 'color.%s' % status
             if self.color_config.has_display_attr(value):
-                return value
+                return self.make_display_attr(value)
         return None
 
     @Decorator.color_enabled

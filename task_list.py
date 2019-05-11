@@ -229,15 +229,17 @@ class TaskTable(object):
         return MARKER_COLUMN_NAME in self.columns
 
     def build_rows(self):
+        self.task_row_striping_reset()
         for task in self.tasks:
             row_data = {}
             self.inject_project_placeholders(task)
+            alt_row = self.task_row_striping()
             for column, metadata in list(self.columns.items()):
                 formatted_value = metadata['formatter'].format(task[column], task)
                 width, text_markup = self.build_row_column(formatted_value)
                 self.update_column_width(column, metadata['width'], width)
                 row_data[column] = text_markup
-            self.rows.append(TaskRow(task, row_data))
+            self.rows.append(TaskRow(task, row_data, alt_row))
 
     def update_column_width(self, column, current_width, new_width):
         if new_width > current_width and current_width < MAX_COLUMN_WIDTH:
@@ -286,7 +288,8 @@ class TaskTable(object):
         project = '.'.join(project_parts)
         (width, spaces, indicator, subproject) = self.formatter.format_subproject_indented(project_parts)
         # TODO: This is pretty ugly...
-        self.rows.append(ProjectRow(project, [spaces, indicator, (self.columns['project']['formatter'].colorize(project), subproject)]))
+        alt_row = self.task_row_striping()
+        self.rows.append(ProjectRow(project, [spaces, indicator, (self.columns['project']['formatter'].colorize(project), subproject)], alt_row))
 
     def clean_empty_columns(self):
         self.columns = {c:m for c,m in list(self.columns.items()) if m['width'] > 0}
@@ -297,17 +300,21 @@ class TaskTable(object):
             if metadata['width'] < label_len:
                 self.columns[column]['width'] = label_len
 
+    def get_alt_row_background_modifier(self):
+        return '.striped-table-row'
+
     def task_row_striping_reset(self):
         self.task_alt_row = False
 
     def task_row_striping(self):
         if self.row_striping:
             self.task_alt_row = not self.task_alt_row
+            modifier = self.task_alt_row and self.get_alt_row_background_modifier() or ''
+            self.formatter.task_colorizer.set_background_modifier(modifier)
         return self.task_alt_row
 
     def build_table(self):
-        self.task_row_striping_reset()
-        self.contents = [SelectableRow(self.columns, obj, on_select=self.on_select, alt_row=self.task_row_striping()) if isinstance(obj, TaskRow) else ProjectPlaceholderRow(self.columns, obj, alt_row=self.task_row_striping()) for obj in self.rows]
+        self.contents = [SelectableRow(self.columns, obj, on_select=self.on_select) if isinstance(obj, TaskRow) else ProjectPlaceholderRow(self.columns, obj) for obj in self.rows]
         self.list_walker = urwid.SimpleFocusListWalker(self.contents)
         self.listbox = TaskListBox(self.list_walker, event=self.event, request_reply=self.request_reply, registered_actions=self.registered_actions)
         self.init_event_listeners()
@@ -315,27 +322,29 @@ class TaskTable(object):
         self.header = urwid.AttrMap(list_header, 'list-header')
 
 class TaskRow():
-    def __init__(self, task, data):
+    def __init__(self, task, data, alt_row):
         self.task = task
         self.data = data
+        self.alt_row = alt_row
         self.uuid = self.task['uuid']
         self.id = self.task['id']
 
 class ProjectRow():
-    def __init__(self, project, placeholder):
+    def __init__(self, project, placeholder, alt_row):
         self.project = project
         self.placeholder = placeholder
+        self.alt_row = alt_row
 
 class SelectableRow(urwid.WidgetWrap):
     """Wraps 'urwid.Columns' to make it selectable.
     This class has been slightly modified, but essentially corresponds to this class posted on stackoverflow.com:
     https://stackoverflow.com/questions/52106244/how-do-you-combine-multiple-tui-forms-to-write-more-complex-applications#answer-52174629"""
 
-    def __init__(self, columns, row, *, on_select=None, alt_row=False, space_between=2):
+    def __init__(self, columns, row, *, on_select=None, space_between=2):
         self.task = row.task
         self.uuid = row.uuid
         self.id = row.id
-        self.alt_row = alt_row
+        self.alt_row = row.alt_row
 
         self._columns = urwid.Columns([(metadata['width'], urwid.Text(row.data[column], align=metadata['align'])) for column, metadata in list(columns.items())],
                                        dividechars=space_between)
@@ -349,7 +358,7 @@ class SelectableRow(urwid.WidgetWrap):
         self.on_select = on_select
 
     def set_display_attr(self):
-        self.display_attr = self.alt_row and 'alt-task-row' or ''
+        self.display_attr = self.alt_row and 'striped-table-row' or ''
 
     def reset_attr_map(self):
         self.row.set_attr_map({None: self.display_attr})
@@ -378,10 +387,10 @@ class ProjectPlaceholderRow(urwid.WidgetWrap):
     """Wraps 'urwid.Columns' for a project placeholder row.
     """
 
-    def __init__(self, columns, row, alt_row=False, space_between=2):
+    def __init__(self, columns, row, space_between=2):
         self.uuid = None
         self.id = None
-        self.alt_row = alt_row
+        self.alt_row = row.alt_row
         self.project = row.project
         self.placeholder = row.placeholder
         self._columns = urwid.Columns([(metadata['width'], urwid.Text(row.placeholder if column == 'project' else '', align=metadata['align'])) for column, metadata in list(columns.items())], dividechars=space_between)
@@ -393,7 +402,7 @@ class ProjectPlaceholderRow(urwid.WidgetWrap):
         super().__init__(self.row)
 
     def set_display_attr(self):
-        self.display_attr = self.alt_row and 'alt-task-row' or ''
+        self.display_attr = self.alt_row and 'striped-table-row' or ''
 
     def reset_attr_map(self):
         self.row.set_attr_map({None: self.display_attr})

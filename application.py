@@ -54,7 +54,10 @@ class Application():
         self.actions = self.action_registry.actions
         self.command = Command(self.config)
         self.markers = Markers(self.config, self.task_config)
-        self.task_color_config = TaskColorConfig(self.config, self.task_config)
+        self.theme = self.init_theme()
+        self.theme_alt_backgrounds = self.get_theme_alt_backgrounds()
+        self.task_color_config = TaskColorConfig(self.config, self.task_config, self.theme, self.theme_alt_backgrounds)
+        self.init_task_colors()
         self.task_colorizer = TaskColorizer(self.task_color_config)
         self.formatter = formatter.Defaults(self.config, self.task_config, self.markers, self.task_colorizer)
         self.keybinding_parser = KeybindingParser(self.config, self.action_registry)
@@ -69,7 +72,6 @@ class Application():
         self.event.listen('command-bar:keypress', self.command_bar_keypress)
         self.event.listen('task:denotate', self.denotate_task)
         self.event.listen('task-list:keypress', self.task_list_keypress)
-        self.init_theme()
         self.run(self.report)
 
     # TODO: Move this to the top-level frame? unhandled_input in the main loop
@@ -132,10 +134,20 @@ class Application():
     def init_theme(self):
         theme = self.config.get('vit', 'theme')
         try:
-            self.theme = import_module('theme.%s' % theme).theme
+            return import_module('theme.%s' % theme).theme
         except ImportError:
             raise_(ImportError, "theme '%s' not found" % theme)
-        self.init_task_colors()
+
+    def get_theme_setting(self, setting):
+        for s in self.theme:
+            if s[0] == setting:
+                return s
+
+    def get_theme_alt_backgrounds(self):
+        stiped_table_row = self.get_theme_setting('striped-table-row')
+        return {
+            '.striped-table-row': (stiped_table_row[2], stiped_table_row[5]),
+        }
 
     def init_task_colors(self):
         self.theme += self.task_color_config.display_attrs
