@@ -240,12 +240,13 @@ class Application():
                     self.activate_message_bar("Error setting wait: %s" % stderr, 'error')
             elif len(args) > 0:
                 if op == 'add':
-                    self.execute_command(['task', 'add'] + args)
-                    self.activate_message_bar('Task added')
+                    if self.execute_command(['task', 'add'] + args, wait=self.wait):
+                        self.activate_message_bar('Task added')
                 elif op == 'modify':
                     # TODO: Will this break if user clicks another list item
                     # before hitting enter?
-                    self.execute_command(['task', metadata['uuid'], 'modify'] + args)
+                    if self.execute_command(['task', metadata['uuid'], 'modify'] + args, wait=self.wait):
+                        self.activate_message_bar('Task %s modified' % self.model.task_id(metadata['uuid']))
                 elif op == 'annotate':
                     task = self.model.task_annotate(metadata['uuid'], data['text'])
                     if task:
@@ -309,6 +310,9 @@ class Application():
                     kwargs['update_report'] = False
                 if command in ('!', '!r'):
                     kwargs['confirm'] = None
+                    kwargs['wait'] = False
+                else:
+                    kwargs['wait'] = True
                 self.execute_command(args, **kwargs)
             elif command.isdigit():
                 self.task_list.focus_by_task_id(int(command))
@@ -456,16 +460,36 @@ class Application():
         self.footer.add_widget('command', self.command_bar)
         self.footer.add_widget('message', self.message_bar)
 
+    def command_error(self, returncode, error_message):
+        if returncode != 0:
+            self.activate_message_bar("Command error: %s" % error_message, 'error')
+            return True
+        return False
+
     def execute_command(self, args, **kwargs):
         update_report = True
+        wait = True
         if 'update_report' in kwargs:
-            update_report = kwargs['update_report']
-            kwargs.pop('update_report')
+            update_report = kwargs.pop('update_report')
+        if 'wait' in kwargs:
+            wait = kwargs.pop('wait')
+            if not wait:
+                kwargs['confirm'] = None
         self.loop.stop()
-        self.command.result(args, **kwargs)
-        if update_report:
+        # TODO: This is a shitty hack, if not waiting, then we must
+        # override the confirmation setting for recurring tasks.
+        if not wait and args[0] == 'task':
+            args.insert(1, 'rc.recurrence.confirmation=no')
+        def execute():
+            returncode, output = self.command.result(args, **kwargs)
+            if self.command_error(returncode, output):
+                return False
+            return True
+        success = execute()
+        if update_report and success:
             self.update_report()
         self.loop.start()
+        return success
 
     def activate_command_bar(self, op, caption, metadata={}, edit_text=None):
         metadata['op'] = op
@@ -603,7 +627,7 @@ class Application():
     def task_action_edit(self):
         uuid, _ = self.get_focused_task()
         if uuid:
-            self.execute_command(['task', uuid, 'edit'])
+            self.execute_command(['task', uuid, 'edit'], wait=self.wait)
             self.task_list.focus_by_task_uuid(uuid)
 
     def task_action_show(self):

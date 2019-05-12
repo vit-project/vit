@@ -47,7 +47,7 @@ class Command(object):
                 raw_input(confirm)
         if clear:
             clear_screen()
-        return output
+        return returncode, output
 
     def filter_errors(self, error_string):
         if not error_string:
