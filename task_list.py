@@ -134,9 +134,10 @@ class TaskTable(object):
         column_index = self.task_config.get_column_index(self.report['name'], 'project')
         if self.has_marker_column():
             column_index += 1
-        (widget, _) = self.header.original_widget.contents[column_index]
+        (columns_widget, _) = self.header.original_widget.contents[column_index]
+        (widget, _) = columns_widget.contents[0]
         label = self.project_label_for_parents(parents)
-        widget.set_text(label)
+        widget.original_widget.original_widget.set_text(label)
 
     def project_label_for_parents(self, parents):
         return '.'.join(parents) if parents else self.task_config.get_column_label(self.report['name'], 'project')
@@ -318,8 +319,25 @@ class TaskTable(object):
         self.list_walker = urwid.SimpleFocusListWalker(self.contents)
         self.listbox = TaskListBox(self.list_walker, event=self.event, request_reply=self.request_reply, registered_actions=self.registered_actions)
         self.init_event_listeners()
-        list_header = urwid.Columns([(metadata['width'] + 2, urwid.Text(metadata['label'], align='left')) for column, metadata in list(self.columns.items())])
+        self.make_header()
+
+    def make_header(self):
+        columns_list = list(self.columns.items())
+        last_column, _ = columns_list[-1]
+        columns = [self.make_header_column(column, metadata, column == last_column) for column, metadata in columns_list]
+        columns.append(self.make_padding('list-header-column'))
+        list_header = urwid.Columns(columns)
         self.header = urwid.AttrMap(list_header, 'list-header')
+
+    def make_header_column(self, column, metadata, is_last, separator_width=2):
+        total_width = metadata['width'] + separator_width
+        column_content = urwid.AttrMap(urwid.Padding(urwid.Text(metadata['label'], align='left')), 'list-header-column')
+        padding_content = self.make_padding(is_last and 'list-header-column' or 'list-header-column-separator')
+        columns = urwid.Columns([(metadata['width'], column_content), (separator_width, padding_content)])
+        return (total_width, columns)
+
+    def make_padding(self, display_attr):
+        return urwid.AttrMap(urwid.Padding(urwid.Text('')), display_attr)
 
 class TaskRow():
     def __init__(self, task, data, alt_row):
