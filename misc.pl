@@ -86,9 +86,9 @@ sub task_version {
 
 sub task_info {
   my $n = $_[0];
-  my $id = $report2taskid[$task_selected_idx];
-  &audit("EXEC $task $id information 2>&1");
-  open(IN,"task $id information 2>&1 |");
+  my $uuid = $report2taskuuid[$task_selected_idx];
+  &audit("EXEC $task $uuid information 2>&1");
+  open(IN,"task $uuid information 2>&1 |");
   while(<IN>) {
     chop;
     $_ =~ s/\x1b.*?m//g; # decolorize

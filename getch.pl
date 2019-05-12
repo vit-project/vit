@@ -62,7 +62,7 @@ sub getch_loop {
       }
 
       if ( $ch eq "e" ) {
-        &shell_exec("task $report2taskid[$task_selected_idx] edit",'wait');
+        &shell_exec("task $report2taskuuid[$task_selected_idx] edit",'wait');
         $reread_needed = 1;
         last CASE;
       }
@@ -225,7 +225,7 @@ sub getch_loop {
           $current_command = "ls project:$p";
           $reread_needed = 1;
         } else {
-          &shell_exec("task $report2taskid[$task_selected_idx] information",'forcewait');
+          &shell_exec("task $report2taskuuid[$task_selected_idx] information",'forcewait');
         }
         last CASE;
       }

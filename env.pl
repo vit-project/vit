@@ -19,6 +19,8 @@ sub init_shell_env {
 
 sub init_task_env {
   my @reports;
+  my %reports_columns;
+  my %reports_labels;
   my $id_column = 0;
   my ($header_color,$task_header_color,$vit_header_color);
   &audit("EXEC $task show 2>&1");
@@ -50,8 +52,13 @@ sub init_task_env {
       $default_command =~ s/\s+$//g;
       next;
     }
-    if ( $_ =~ /report\.(.*?)\.columns/ ) {
+    if ( $_ =~ /report\.(.*?)\.columns\s*(.*)/ ) {
       push(@reports, $1);
+      $reports_columns{$1} = $2;
+      next;
+    }
+    if ( $_ =~ /report\.(.*?)\.labels\s*(.*)/ ) {
+      $reports_labels{$1} = $2;
       next;
     }
     if ( $_ =~ /The color .* is not recognized/ ) {
@@ -107,6 +114,8 @@ sub init_task_env {
   push(@reports,'summary');
   @report_types = sort(@reports);
 
+  $report_columns = "uuid,$reports_columns{$default_command}";
+  $report_labels = "UUID,$reports_labels{$default_command}";
 }
 
 return 1;

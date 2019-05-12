@@ -39,6 +39,7 @@ sub task_add {
 #------------------------------------------------------------------
 
 sub task_annotate {
+  my $uuid = $report2taskuuid[$task_selected_idx];
   my $id = $report2taskid[$task_selected_idx];
   my $str = &prompt_str("Annotate: ");
   if ( $str eq '' ) {
@@ -57,7 +58,7 @@ sub task_annotate {
   # an end double-quote, and a begin-single-quote that will begin the rest of
   # the quoting. In summary, we rely on the sh and bash feature of stringing together multiple types of quotes
   $str =~ s/'/'"'"'/g;
-  my ($es,$result) = &task_exec("$id annotate '$str'");
+  my ($es,$result) = &task_exec("$uuid annotate '$str'");
   if ( $es != 0 ) {
     $error_msg = $result;
     &draw_error_msg();
@@ -72,7 +73,7 @@ sub task_annotate {
 
 sub task_den_or_del {
   my ($ch, $str, $yes);
-  my $id = $report2taskid[$task_selected_idx];
+  my $uuid = $report2taskuuid[$task_selected_idx];
   for my $t (0 .. $#{ $report_tokens[$task_selected_idx] } ) {
     $str .= "$report_tokens[$task_selected_idx][$t]";
   }
@@ -88,8 +89,8 @@ sub task_den_or_del {
     }
   }
   my ($es,$result) = ($target eq "annotation")
-                   ? &task_exec("$id denotate \"$str\"")
-                   : &task_exec("$id delete rc.confirmation:no");
+                   ? &task_exec("$uuid denotate \"$str\"")
+                   : &task_exec("$uuid delete rc.confirmation:no");
   if ( $es != 0 ) {
     $error_msg = $result;
     &draw_error_msg();
@@ -105,9 +106,9 @@ sub task_den_or_del {
 
 sub task_start_stop {
   my ($ch, $str, $yes);
-  my $id = $report2taskid[$task_selected_idx];
+  my $uuid = $report2taskuuid[$task_selected_idx];
 
-  my ($state, $result1) = &task_exec("$id active");
+  my ($state, $result1) = &task_exec("$uuid active");
   my $prompt = "stop";
   $feedback_msg = "Stopped task";
 
@@ -124,7 +125,7 @@ sub task_start_stop {
     }
   }
 
-  my ($es, $result2) = &task_exec("$id $prompt");
+  my ($es, $result2) = &task_exec("$uuid $prompt");
   if ( $es != 0 ) {
     $error_msg = $result2;
     &draw_error_msg();
@@ -139,6 +140,7 @@ sub task_start_stop {
 
 sub task_done {
   my ($ch, $str, $yes);
+  my $uuid = $report2taskuuid[$task_selected_idx];
   my $id = $report2taskid[$task_selected_idx];
   if ($confirmation) {
     $yes = &prompt_y("Mark task $id done? ");
@@ -147,7 +149,7 @@ sub task_done {
       return;
     }
   }
-  my ($es,$result) = &task_exec("$id done");
+  my ($es,$result) = &task_exec("$uuid done");
   if ( $es != 0 ) {
     $error_msg = $result;
     &draw_error_msg();
@@ -185,15 +187,14 @@ sub task_filter {
 
 sub task_modify {
   my $args = $_[0];
-  my $id = $report2taskid[$task_selected_idx];
-  &shell_exec("$task $id modify $args",'wait');
+  my $uuid = $report2taskuuid[$task_selected_idx];
+  &shell_exec("$task $uuid modify $args",'wait');
   $reread_needed = 1;
 }
 
 #------------------------------------------------------------------
 
 sub task_modify_prompt {
-  my $id = $report2taskid[$task_selected_idx];
   my $str = &prompt_str("Modify: ");
   if ( $str eq '' ) {
     &draw_prompt_line('');
@@ -206,6 +207,7 @@ sub task_modify_prompt {
 #------------------------------------------------------------------
 
 sub task_set_priority {
+  my $uuid = $report2taskuuid[$task_selected_idx];
   my $id = $report2taskid[$task_selected_idx];
   my $prio = &task_info('Priority');
   if ( $prio eq '' ) {
@@ -217,7 +219,7 @@ sub task_set_priority {
     if ( $p eq 'N' ) {
       $p = '';
     }
-    my ($es,$result) = &task_exec("$id modify 'priority:$p'");
+    my ($es,$result) = &task_exec("$uuid modify 'priority:$p'");
     if ( $es != 0 ) {
       $error_msg = $result;
       &draw_error_msg();
@@ -236,6 +238,7 @@ sub task_set_priority {
 #------------------------------------------------------------------
 
 sub task_set_project {
+  my $uuid = $report2taskuuid[$task_selected_idx];
   my $id = $report2taskid[$task_selected_idx];
   my $p = &prompt_str("Project: ");
   if ( $p eq '' ) {
@@ -247,7 +250,7 @@ sub task_set_project {
     beep();
     return;
   }
-  my ($es,$result) = &task_exec("$id modify 'project:$p'");
+  my ($es,$result) = &task_exec("$uuid modify 'project:$p'");
   if ( $es != 0 ) {
     $error_msg = $result;
     &draw_error_msg();
@@ -261,13 +264,14 @@ sub task_set_project {
 #------------------------------------------------------------------
 
 sub task_set_wait {
+  my $uuid = $report2taskuuid[$task_selected_idx];
   my $id = $report2taskid[$task_selected_idx];
   my $w = &prompt_str("Wait: ");
   if ( $w eq '' ) {
     &draw_prompt_line('');
     return;
   }
-  my ($es,$result) = &task_exec("$id modify 'wait:$w'");
+  my ($es,$result) = &task_exec("$uuid modify 'wait:$w'");
   if ( $es != 0 ) {
     $error_msg = $result;
     &draw_error_msg();
@@ -281,6 +285,7 @@ sub task_set_wait {
 #------------------------------------------------------------------
 
 sub task_set_tag {
+  my $uuid = $report2taskuuid[$task_selected_idx];
   my $id = $report2taskid[$task_selected_idx];
   my $tags = &prompt_str("Tag: ");
   if ( $tags eq '' ) {
@@ -307,7 +312,7 @@ sub task_set_tag {
       $t = $mod . $t;
     }
 
-    my ($es,$result) = &task_exec("$id modify '$t'");
+    my ($es,$result) = &task_exec("$uuid modify '$t'");
     if ( $es != 0 ) {
       $error_msg = $result;
       &draw_error_msg();
@@ -348,7 +353,7 @@ sub shell_command {
     }
   }
 
-  $cmd =~ s/%TASKID/$report2taskid[$task_selected_idx]/g;
+  $cmd =~ s/%TASKID/$report2taskuuid[$task_selected_idx]/g;
   $cmd =~ s/%TASKARGS/$current_command/g;
 
   &shell_exec($cmd,"$wait");

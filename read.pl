@@ -21,6 +21,7 @@ sub inner_read_report {
   my $report_header_idx = 0;
   my $args;
   my @prev_num_tasks = $num_tasks;
+  my @prev_report2taskuuid = @report2taskuuid;
   my @prev_report2taskid = @report2taskid;
   my @prev_report_tokens = @report_tokens;
   my @prev_report_lines = @report_lines;
@@ -33,6 +34,7 @@ sub inner_read_report {
 
   $prev_display_start_idx = $display_start_idx;
   $prev_task_selected_idx = $task_selected_idx;
+  @report2taskuuid = ();
   @report2taskid = ();
   @report_tokens = ();
   @report_lines = ();
@@ -123,14 +125,22 @@ sub inner_read_report {
     close(IN);
   }
 
-  $args = "rc.defaultwidth=$REPORT_COLS rc.defaultheight=0 rc._forcecolor=on $current_command";
+  $args = "rc.defaultwidth=$REPORT_COLS rc.defaultheight=0 rc._forcecolor=on rc.report.$default_command.columns=$report_columns rc.report.$default_command.labels=$report_labels $current_command";
   &audit("EXEC $task $args 2> /dev/null");
   open(IN,"$task $args 2> /dev/null |");
   my $i = 0;
   my $prev_id;
+  my $uuid;
   while(<IN>) {
     chop;
     $_ = &decode_utf8($_);
+    if ( $_ =~ /UUID/ ) {
+      $_ =~ s/UUID.*ID/ID/;
+    }
+    if ( $_ =~ /([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})/ ) {
+      $uuid = $1;
+      $_ =~ s/([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})[^ ]* //;
+    }
     if ( $_ =~ /^\s*$/ ) { next; }
     if ( $_ =~ /^(\d+) tasks?$/ ||
          $_ =~ /^\x1b.*?m(\d+) tasks?\x1b\[0m$/ ||
@@ -151,10 +161,12 @@ sub inner_read_report {
     }
 
     if ( $_ =~ /^\s{0,5}(\d+) / ) {
+      $report2taskuuid[$i] = $uuid;
       $report2taskid[$i] = $1;
       $taskid2report[$1] = $i;
-      &audit("inner_read_report: report2taskid[$i]=$1, taskid2report[$1]=$i")
+      &audit("inner_read_report: report2taskuuid[$i]=$uuid, report2taskid[$i]=$1, taskid2report[$1]=$i")
     } else {
+      $report2taskuuid[$i] = $uuid;
       $report2taskid[$i] = $prev_id;
       audit("inner_read_report: report2taskid[$i]=$prev_id")
     }
@@ -173,6 +185,7 @@ sub inner_read_report {
     splice(@report_colors_fg,$report_header_idx,1);
     splice(@report_colors_bg,$report_header_idx,1);
     splice(@report_attrs,$report_header_idx,1);
+    splice(@report2taskuuid,$report_header_idx,1);
     splice(@report2taskid,$report_header_idx,1);
     for (0..$#taskid2report) {
       $taskid2report[$_]-- if ($_>=$report_header_idx)
@@ -192,6 +205,7 @@ sub inner_read_report {
     @report_colors_fg = @prev_report_colors_fg;
     @report_colors_bg = @prev_report_colors_bg;
     @report_attrs = @prev_report_attrs;
+    @report2taskuuid = @prev_report2taskuuid;
     @report2taskid = @prev_report2taskid;
     $convergence = $prev_convergence;
     return;
