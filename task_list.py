@@ -108,8 +108,7 @@ class TaskTable(object):
         self.indent_subprojects = self.subproject_indentable()
         self.project_cache = {}
         self.build_rows()
-        # TODO: Make this optional based on Taskwarrior config setting.
-        self.clean_empty_columns()
+        self.clean_columns()
         self.reconcile_column_width_for_label()
         self.build_table()
         self.update_focus()
@@ -291,6 +290,12 @@ class TaskTable(object):
         # TODO: This is pretty ugly...
         alt_row = self.task_row_striping()
         self.rows.append(ProjectRow(project, [spaces, indicator, (self.columns['project']['formatter'].colorize(project), subproject)], alt_row))
+
+    def clean_columns(self):
+        self.clean_markers_column() if self.task_config.print_empty_columns else self.clean_empty_columns()
+
+    def clean_markers_column(self):
+        self.columns = {c:m for c,m in list(self.columns.items()) if not (c == MARKER_COLUMN_NAME and m['width'] == 0)}
 
     def clean_empty_columns(self):
         self.columns = {c:m for c,m in list(self.columns.items()) if m['width'] > 0}

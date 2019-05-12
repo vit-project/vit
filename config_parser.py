@@ -171,6 +171,10 @@ class TaskParser(object):
         self.command = Command(self.config)
         self.get_task_config()
         self.get_projects()
+        self.set_config_data()
+
+    def set_config_data(self):
+        self.print_empty_columns = self.subtree('print.empty.columns') == 'yes'
 
     def get_task_config(self):
         returncode, stdout, stderr = self.command.run('task _show', capture_output=True)
