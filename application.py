@@ -46,6 +46,7 @@ class Application():
         self.task_config = task_config
         self.reports = reports
         self.report = report
+        self.setup_config()
         self.extra_filters = []
         self.search_term_active = ''
         self.action_registry = ActionRegistry()
@@ -73,6 +74,10 @@ class Application():
         self.event.listen('task:denotate', self.denotate_task)
         self.event.listen('task-list:keypress', self.task_list_keypress)
         self.run(self.report)
+
+    def setup_config(self):
+        self.confirm = self.config.confirmation_enabled
+        self.wait = self.config.wait_enabled
 
     # TODO: Move this to the top-level frame? unhandled_input in the main loop
     #       eats Ctrl-l, and the topmost place is where that should live.
@@ -187,17 +192,9 @@ class Application():
             if op == 'quit' and choice:
                 self.quit()
             elif op == 'done' and choice is not None:
-                task = self.model.task_done(metadata['uuid'])
-                if task:
-                    self.table.flash_focus()
-                    self.update_report()
-                    self.activate_message_bar('Task %s marked done' % self.model.task_id(task['uuid']))
+                self.task_done(metadata['uuid'])
             elif op == 'delete' and choice is not None:
-                task = self.model.task_delete(metadata['uuid'])
-                if task:
-                    self.table.flash_focus()
-                    self.update_report()
-                    self.activate_message_bar('Task %s deleted' % self.model.task_id(task['uuid']))
+                self.task_delete(metadata['uuid'])
             elif op == 'start-stop' and choice is not None:
                 task = self.model.task_start_stop(metadata['uuid'])
                 if task:
@@ -487,7 +484,10 @@ class Application():
         self.execute_command(['task', 'undo'])
 
     def activate_command_bar_quit_with_confirm(self):
-        self.activate_command_bar('quit', 'Quit?', {'choices': {'y': True}})
+        if self.confirm:
+            self.activate_command_bar('quit', 'Quit?', {'choices': {'y': True}})
+        else:
+            self.quit()
 
     def activate_command_bar_ex(self):
         metadata = {}
@@ -514,6 +514,23 @@ class Application():
     def global_escape(self):
         self.denotation_pop_up.close_pop_up()
 
+
+    def task_done(self, uuid):
+        task = self.model.task_done(uuid)
+        if task:
+            self.table.flash_focus()
+            self.update_report()
+            self.activate_message_bar('Task %s marked done' % self.model.task_id(task['uuid']))
+        # TODO: Error handling.
+
+    def task_delete(self, uuid):
+        task = self.model.task_delete(uuid)
+        if task:
+            self.table.flash_focus()
+            self.update_report()
+            self.activate_message_bar('Task %s deleted' % self.model.task_id(task['uuid']))
+        # TODO: Error handling.
+
     def task_action_annotate(self):
         uuid, _ = self.get_focused_task()
         if uuid:
@@ -523,8 +540,11 @@ class Application():
     def task_action_delete(self):
         uuid, task = self.get_focused_task()
         if task:
-            task_id = task['id']
-            self.activate_command_bar('delete', 'Delete task %s? (y/n): ' % task_id, {'uuid': uuid, 'id': task_id, 'choices': {'y': True}})
+            if self.confirm:
+                task_id = task['id']
+                self.activate_command_bar('delete', 'Delete task %s? (y/n): ' % task_id, {'uuid': uuid, 'id': task_id, 'choices': {'y': True}})
+            else:
+                self.task_delete(uuid)
 
     def task_action_denotate(self):
         uuid, task = self.get_focused_task()
@@ -548,8 +568,11 @@ class Application():
     def task_action_done(self):
         uuid, task = self.get_focused_task()
         if task:
-            task_id = task['id']
-            self.activate_command_bar('done', 'Mark task %s done? (y/n): ' % task_id, {'uuid': uuid, 'id': task_id, 'choices': {'y': True}})
+            if self.confirm:
+                task_id = task['id']
+                self.activate_command_bar('done', 'Mark task %s done? (y/n): ' % task_id, {'uuid': uuid, 'id': task_id, 'choices': {'y': True}})
+            else:
+                self.task_done(uuid)
 
     def task_action_priority(self):
         uuid, _ = self.get_focused_task()
