@@ -384,11 +384,21 @@ class Application():
         time.sleep(0.8)
         self.search_display_message(reverse)
 
+    def reconstitute_markup_element_as_string(self, accum, markup):
+        if isinstance(markup, tuple):
+            _, markup = markup
+        return accum + markup
+
+    def reconstitute_markup_as_string(self, markup):
+        if isinstance(markup, list):
+            return reduce(self.reconstitute_markup_element_as_string, markup, '')
+        return self.reconstitute_markup_element_as_string('', markup)
+
     def search_row_has_search_term(self, row, search_regex):
         # TODO: Cleaner way to detect valid searchable row.
         if hasattr(row, 'data'):
             for column in row.data:
-                value = row.data[column]
+                value = self.reconstitute_markup_as_string(row.data[column])
                 if value and search_regex.search(value):
                     return True
             return False
