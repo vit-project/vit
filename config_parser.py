@@ -42,6 +42,8 @@ DEFAULTS = {
     'vit': {
         'default_keybindings': 'vi',
         'theme': 'default',
+        'confirmation': True,
+        'wait': True,
     },
     'report': {
         'default_report': 'next',
@@ -98,7 +100,13 @@ class ConfigParser(object):
             self.optional_create_config_file(self.user_config_filepath)
         self.config.read(self.user_config_filepath)
         self.defaults = DEFAULTS
+        self.set_config_data()
+
+    def set_config_data(self):
         self.subproject_indentable = self.is_subproject_indentable()
+        self.row_striping_enabled = self.is_row_striping_enabled()
+        self.confirmation_enabled = self.is_confirmation_enabled()
+        self.wait_enabled = self.is_wait_enabled()
 
     def config_file_exists(self, filepath):
         try:
@@ -159,8 +167,14 @@ class ConfigParser(object):
     def is_subproject_indentable(self):
         return self.get('report', 'indent_subprojects')
 
-    def row_striping_enabled(self):
+    def is_row_striping_enabled(self):
         return self.get('report', 'row_striping')
+
+    def is_confirmation_enabled(self):
+        return self.get('vit', 'confirmation')
+
+    def is_wait_enabled(self):
+        return self.get('vit', 'wait')
 
 class TaskParser(object):
     def __init__(self, config):

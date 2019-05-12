@@ -25,7 +25,7 @@ class TaskTable(object):
         self.request_reply = request_reply
         self.markers = markers
         self.register_task_list_actions()
-        self.row_striping = self.config.row_striping_enabled()
+        self.row_striping = self.config.row_striping_enabled
 
     def set_draw_screen_callback(self, callback):
         self.draw_screen = callback
