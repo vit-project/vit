@@ -90,10 +90,10 @@ class TaskColorConfig(object):
         parts = list(map(lambda p: p.strip(), color_config.split('on ')))
         foreground, background = (parts[0], parts[1]) if len(parts) > 1 else (None, parts[0]) if starts_with_on else (parts[0], None)
         foreground_parts, background_parts = self.check_invert_color_parts(foreground, background)
-        return self.convert(foreground_parts), self.convert(background_parts)
+        return self.convert_color_parts(foreground_parts), self.convert_color_parts(background_parts)
 
     # TODO: Better method name please...
-    def convert(self, color_parts):
+    def convert_color_parts(self, color_parts):
         sorted_parts = self.sort_color_parts(color_parts)
         remapped_colors = self.map_named_colors(sorted_parts)
         return ','.join(remapped_colors)
