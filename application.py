@@ -29,6 +29,32 @@ from command_bar import CommandBar
 from registry import ActionRegistry, RequestReply
 from denotation import DenotationPopupLauncher
 
+# NOTE: This entire class is a workaround for the fact that urwid catches the
+# 'ctrl l' keypress in its unhandled_input code, and prevents that from being
+# used for the refresh report functionality. Sadly, that is the default
+# keybinding, therefore the only way to make it work is to catch the refresh
+# action here in the top frame.
+class MainFrame(urwid.Frame):
+    def __init__(self, body, header=None, footer=None, focus_part='body', key_cache=None, refresh_report=None):
+        self.key_cache = key_cache
+        self.refresh_report = refresh_report
+        self.keybindings = self.key_cache.keybindings
+        super().__init__(body, header, footer, focus_part)
+
+    def handle_refresh_keypress(self, keys):
+        # TODO: Some of this can probably be abstracted to a keybinding/action
+        # manager.
+        return keys in self.keybindings and 'action_name' in self.keybindings[keys] and self.keybindings[keys]['action_name'] == 'ACTION_REFRESH_REPORT'
+
+    def keypress(self, size, key):
+        keys = self.key_cache.get(key)
+        if self.handle_refresh_keypress(keys):
+            if self.refresh_report:
+                self.refresh_report()
+            return None
+        else:
+            return super().keypress(size, key)
+
 class Application():
     def __init__(self, config, task_config, reports, report):
 
@@ -730,10 +756,12 @@ class Application():
             self.report = report
         self.init_task_list()
         self.build_frame()
-        self.widget = urwid.Frame(
+        self.widget = MainFrame(
             urwid.ListBox([]),
             header=self.header,
             footer=self.footer,
+            key_cache=self.key_cache,
+            refresh_report=self.update_report,
         )
         self.update_report(self.report)
 
