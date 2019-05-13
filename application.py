@@ -13,6 +13,7 @@ from functools import reduce
 import urwid
 
 import formatter
+from config_parser import ConfigParser, TaskParser
 from util import clear_screen, string_to_args, is_mouse_event
 from process import Command
 from task import TaskListModel, TaskAutoComplete
@@ -35,33 +36,38 @@ from denotation import DenotationPopupLauncher
 # keybinding, therefore the only way to make it work is to catch the refresh
 # action here in the top frame.
 class MainFrame(urwid.Frame):
-    def __init__(self, body, header=None, footer=None, focus_part='body', key_cache=None, refresh_report=None):
+    def __init__(self, body, header=None, footer=None, focus_part='body', key_cache=None, execute_keybinding=None):
         self.key_cache = key_cache
-        self.refresh_report = refresh_report
+        self.execute_keybinding = execute_keybinding
         self.keybindings = self.key_cache.keybindings
         super().__init__(body, header, footer, focus_part)
 
     def handle_refresh_keypress(self, keys):
         # TODO: Some of this can probably be abstracted to a keybinding/action
         # manager.
-        return keys in self.keybindings and 'action_name' in self.keybindings[keys] and self.keybindings[keys]['action_name'] == 'ACTION_REFRESH_REPORT'
+        return keys in self.keybindings and 'action_name' in self.keybindings[keys] and self.keybindings[keys]['action_name'] == 'ACTION_REFRESH'
 
     def keypress(self, size, key):
         keys = self.key_cache.get(key)
         if self.handle_refresh_keypress(keys):
-            if self.refresh_report:
-                self.refresh_report()
+            if self.execute_keybinding:
+                self.execute_keybinding(self.keybindings[keys])
             return None
         else:
             return super().keypress(size, key)
 
 class Application():
-    def __init__(self, config, task_config, reports, report):
+    def __init__(self, report):
+        self.config = ConfigParser()
+        self.report = report if report else self.config.get('report', 'default_report')
+        self.bootstrap(load_config=False)
+        self.run(self.report)
 
-        self.config = config
-        self.task_config = task_config
-        self.reports = reports
-        self.report = report
+    def bootstrap(self, load_config=True):
+        if load_config:
+            self.config = ConfigParser()
+        self.task_config = TaskParser(self.config)
+        self.reports = self.task_config.get_reports()
         self.setup_config()
         self.extra_filters = []
         self.search_term_active = ''
@@ -88,7 +94,6 @@ class Application():
         self.event.listen('command-bar:keypress', self.command_bar_keypress)
         self.event.listen('task:denotate', self.denotate_task)
         self.event.listen('task-list:keypress', self.task_list_keypress)
-        self.run(self.report)
 
     def setup_config(self):
         self.confirm = self.config.confirmation_enabled
@@ -100,7 +105,7 @@ class Application():
         self.global_action_registrar = self.action_registry.get_registrar()
         self.global_action_registrar.register('QUIT', 'Quit the application', self.quit)
         self.global_action_registrar.register('QUIT_WITH_CONFIRM', 'Quit the application, after confirmation', self.activate_command_bar_quit_with_confirm)
-        self.global_action_registrar.register('REFRESH_REPORT', 'Refresh the current report', self.update_report)
+        self.global_action_registrar.register('REFRESH', 'Refresh the current report', self.refresh)
         self.global_action_registrar.register('TASK_ADD', 'Add a task', self.activate_command_bar_add)
         self.global_action_registrar.register('REPORT_FILTER', 'Filter current report', self.activate_command_bar_filter)
         self.global_action_registrar.register('TASK_UNDO', 'Undo last task change', self.activate_command_bar_undo)
@@ -728,6 +733,15 @@ class Application():
         else:
             raise_(RuntimeError, "Error retrieving completed tasks: %s" % stderr)
 
+    def refresh(self):
+        self.bootstrap()
+        self.build_main_widget()
+        self.table.set_draw_screen_callback(self.loop.draw_screen)
+        self.loop.screen._palette = {}
+        self.loop.screen.register_palette(self.theme)
+        self.loop.screen.clear()
+        self.loop.widget = self.widget
+
     def update_report(self, report=None):
         start = time.time()
         if report:
@@ -759,7 +773,7 @@ class Application():
             header=self.header,
             footer=self.footer,
             key_cache=self.key_cache,
-            refresh_report=self.update_report,
+            execute_keybinding=self.execute_keybinding,
         )
         self.update_report(self.report)
 
