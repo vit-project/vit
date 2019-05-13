@@ -100,6 +100,7 @@ class Application():
         self.global_action_registrar = self.action_registry.get_registrar()
         self.global_action_registrar.register('QUIT', 'Quit the application', self.quit)
         self.global_action_registrar.register('QUIT_WITH_CONFIRM', 'Quit the application, after confirmation', self.activate_command_bar_quit_with_confirm)
+        self.global_action_registrar.register('REFRESH_REPORT', 'Refresh the current report', self.update_report)
         self.global_action_registrar.register('TASK_ADD', 'Add a task', self.activate_command_bar_add)
         self.global_action_registrar.register('REPORT_FILTER', 'Filter current report', self.activate_command_bar_filter)
         self.global_action_registrar.register('TASK_UNDO', 'Undo last task change', self.activate_command_bar_undo)
@@ -115,9 +116,6 @@ class Application():
 
     def register_task_actions(self):
         self.task_action_registrar = self.action_registry.get_registrar()
-        # TODO: Move this with the rest of the global actions if they get
-        #       moved to a top-level frame.
-        self.task_action_registrar.register('REFRESH_REPORT', 'Refresh the current report', self.update_report)
         self.task_action_registrar.register('TASK_ANNOTATE', 'Add an annotation to a task', self.task_action_annotate)
         self.task_action_registrar.register('TASK_DELETE', 'Delete task', self.task_action_delete)
         self.task_action_registrar.register('TASK_DENOTATE', 'Denotate a task', self.task_action_denotate)
