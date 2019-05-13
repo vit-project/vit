@@ -17,6 +17,7 @@ from util import clear_screen, string_to_args, is_mouse_event
 from process import Command
 from task import TaskListModel, TaskAutoComplete
 from keybinding_parser import KeybindingParser
+from key_cache import KeyCache
 from markers import Markers
 from color import TaskColorConfig, TaskColorizer
 import version
@@ -27,17 +28,6 @@ from multi_widget import MultiWidget
 from command_bar import CommandBar
 from registry import ActionRegistry, RequestReply
 from denotation import DenotationPopupLauncher
-
-class KeyCache(object):
-    def __init__(self, multi_key_cache):
-        self.cached_keys = ''
-        self.multi_key_cache = multi_key_cache
-
-    def get(self, key=None):
-        return '%s%s' % (self.cached_keys, key) if key else self.cached_keys
-
-    def set(self, keys=''):
-        self.cached_keys = keys
 
 class Application():
     def __init__(self, config, task_config, reports, report):
@@ -62,7 +52,6 @@ class Application():
         self.task_colorizer = TaskColorizer(self.task_color_config)
         self.formatter = formatter.Defaults(self.config, self.task_config, self.markers, self.task_colorizer)
         self.keybinding_parser = KeybindingParser(self.config, self.action_registry)
-        self.key_cache = KeyCache(self.keybinding_parser.multi_key_cache)
         self.event = event.Emitter()
         self.request_reply = RequestReply()
         # TODO: TaskTable is dependent on a bunch of setup above, this order
@@ -126,10 +115,9 @@ class Application():
         replacements = {
             'TASKID': task_id,
         }
-        self.keybinding_parser.add_keybindings(bindings=bindings, replacements=replacements)
-        self.keybinding_parser.build_multi_key_cache()
-        # TODO: Migrate multi-key cache to KeyCache() class.
-        self.key_cache.multi_key_cache = self.keybinding_parser.multi_key_cache
+        keybindings = self.keybinding_parser.add_keybindings(bindings=bindings, replacements=replacements)
+        self.key_cache = KeyCache(keybindings)
+        self.key_cache.build_multi_key_cache()
 
     def set_request_callbacks(self):
         self.request_reply.set_handler('application:keybindings', 'Get keybindings', lambda: self.keybinding_parser.keybindings)
