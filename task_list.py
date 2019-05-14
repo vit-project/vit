@@ -9,6 +9,7 @@ from functools import cmp_to_key
 import urwid
 import util
 from base_list_box import BaseListBox
+from formatter.project import Project as ProjectFormatter
 
 MAX_COLUMN_WIDTH = 60
 MARKER_COLUMN_NAME = 'markers'
@@ -44,17 +45,18 @@ class TaskTable(object):
     def update_data(self, report, tasks):
         self.report = report
         self.tasks = tasks
-        self.columns = OrderedDict()
+        self.columns = []
+        self.column_names = []
         self.rows = []
         self.sort()
-        if self.markers.enabled:
-            self.add_markers_column()
         self.set_column_metadata()
         if self.markers.enabled:
             self.set_marker_columns()
-            self.inject_marker_formatter()
+            self.add_markers_column()
         self.indent_subprojects = self.subproject_indentable()
         self.project_cache = {}
+        # TODO: This is for the project placeholders, feels sloppy.
+        self.project_formatter = ProjectFormatter('project', self.report, self.formatter)
         self.build_rows()
         self.clean_columns()
         self.reconcile_column_width_for_label()
@@ -144,54 +146,58 @@ class TaskTable(object):
             kwargs['custom_formatter'] = self.report['dateformat']
         return kwargs
 
+    def set_marker_columns(self):
+        self.report_marker_columns = [c for c in self.markers.columns if c not in self.column_names]
+
     def add_markers_column(self):
-        name, _ = self.formatter.get(MARKER_COLUMN_NAME)
-        self.columns[name] = {
+        name, formatter_class = self.formatter.get(MARKER_COLUMN_NAME)
+        self.columns.insert(0, {
+            'name': name,
             'label': self.markers.header_label,
+            'formatter': formatter_class(self.report, self.formatter, self.report_marker_columns, self.get_blocking_task_uuids()),
             'width': 0,
             'align': 'right',
-        }
+        })
+        self.column_names.insert(0, name)
 
-    def set_marker_columns(self):
-        self.report_marker_columns = [c for c in self.markers.columns if c not in self.columns]
-
-    def inject_marker_formatter(self):
-        name, formatter_class = self.formatter.get(MARKER_COLUMN_NAME)
-        self.columns[name]['formatter'] = formatter_class(self.report, self.formatter, self.report_marker_columns, self.get_blocking_task_uuids())
+    def add_column(self, name, label, formatter_class, align='left'):
+        self.columns.append({
+            'name': name,
+            'label': label,
+            'formatter': formatter_class,
+            'width': 0,
+            'align': align,
+        })
+        self.column_names.append(name)
 
     def set_column_metadata(self):
         kwargs = self.column_formatter_kwargs()
         for idx, column_formatter in enumerate(self.report['columns']):
             name, formatter_class = self.formatter.get(column_formatter)
-            self.columns[name] = {
-                'label': self.report['labels'][idx],
-                'formatter': formatter_class(name, self.report, self.formatter, **kwargs),
-                'width': 0,
-                'align': 'left',
-            }
+            self.add_column(name, self.report['labels'][idx], formatter_class(name, self.report, self.formatter, **kwargs))
 
     def is_marker_column(self, column):
         return column == MARKER_COLUMN_NAME
 
     def has_marker_column(self):
-        return MARKER_COLUMN_NAME in self.columns
+        return MARKER_COLUMN_NAME in self.column_names
 
     def build_rows(self):
         self.task_row_striping_reset()
         for task in self.tasks:
-            row_data = {}
+            row_data = []
             self.inject_project_placeholders(task)
             alt_row = self.task_row_striping()
-            for column, metadata in list(self.columns.items()):
-                formatted_value = metadata['formatter'].format(task[column], task)
+            for idx, column in enumerate(self.columns):
+                formatted_value = column['formatter'].format(task[column['name']], task)
                 width, text_markup = self.build_row_column(formatted_value)
-                self.update_column_width(column, metadata['width'], width)
-                row_data[column] = text_markup
+                self.update_column_width(idx, column['width'], width)
+                row_data.append(text_markup)
             self.rows.append(TaskRow(task, row_data, alt_row))
 
-    def update_column_width(self, column, current_width, new_width):
+    def update_column_width(self, idx, current_width, new_width):
         if new_width > current_width and current_width < MAX_COLUMN_WIDTH:
-            self.columns[column]['width'] = new_width if new_width < MAX_COLUMN_WIDTH else MAX_COLUMN_WIDTH
+            self.columns[idx]['width'] = new_width if new_width < MAX_COLUMN_WIDTH else MAX_COLUMN_WIDTH
 
     def build_row_column(self, formatted_value):
         if isinstance(formatted_value, tuple):
@@ -237,22 +243,24 @@ class TaskTable(object):
         (width, spaces, indicator, subproject) = self.formatter.format_subproject_indented(project_parts)
         # TODO: This is pretty ugly...
         alt_row = self.task_row_striping()
-        self.rows.append(ProjectRow(project, [spaces, indicator, (self.columns['project']['formatter'].colorize(project), subproject)], alt_row))
+        self.rows.append(ProjectRow(project, [spaces, indicator, (self.project_formatter.colorize(project), subproject)], alt_row))
 
     def clean_columns(self):
         self.clean_markers_column() if self.task_config.print_empty_columns else self.clean_empty_columns()
 
     def clean_markers_column(self):
-        self.columns = {c:m for c,m in list(self.columns.items()) if not (c == MARKER_COLUMN_NAME and m['width'] == 0)}
+        self.non_filtered_columns = [False if (c['name'] == MARKER_COLUMN_NAME and c['width'] == 0) else c for c in self.columns]
+        self.columns = [c for c in self.columns if not (c['name'] == MARKER_COLUMN_NAME and c['width'] == 0)]
 
     def clean_empty_columns(self):
-        self.columns = {c:m for c,m in list(self.columns.items()) if m['width'] > 0}
+        self.non_filtered_columns = [c if c['width'] > 0 else False for c in self.columns]
+        self.columns = [c for c in self.columns if c['width'] > 0]
 
     def reconcile_column_width_for_label(self):
-        for column, metadata in list(self.columns.items()):
-            label_len = len(metadata['label'])
-            if metadata['width'] < label_len:
-                self.columns[column]['width'] = label_len
+        for idx, column in enumerate(self.columns):
+            label_len = len(column['label'])
+            if column['width'] < label_len:
+                self.columns[idx]['width'] = label_len
 
     def get_alt_row_background_modifier(self):
         return '.striped-table-row'
@@ -268,25 +276,24 @@ class TaskTable(object):
         return self.task_alt_row
 
     def build_table(self):
-        self.contents = [SelectableRow(self.columns, obj, on_select=self.on_select) if isinstance(obj, TaskRow) else ProjectPlaceholderRow(self.columns, obj) for obj in self.rows]
+        self.contents = [SelectableRow(self.non_filtered_columns, obj, on_select=self.on_select) if isinstance(obj, TaskRow) else ProjectPlaceholderRow(self.columns, obj) for obj in self.rows]
         self.list_walker = urwid.SimpleFocusListWalker(self.contents)
         self.listbox = TaskListBox(self.list_walker, event=self.event, request_reply=self.request_reply, action_manager=self.action_manager)
         self.init_event_listeners()
         self.make_header()
 
     def make_header(self):
-        columns_list = list(self.columns.items())
-        last_column, _ = columns_list[-1]
-        columns = [self.make_header_column(column, metadata, column == last_column) for column, metadata in columns_list]
+        last_column = self.columns[-1]
+        columns = [self.make_header_column(column, column == last_column) for column in self.columns]
         columns.append(self.make_padding('list-header-column'))
         list_header = urwid.Columns(columns)
         self.header = urwid.AttrMap(list_header, 'list-header')
 
-    def make_header_column(self, column, metadata, is_last, separator_width=2):
-        total_width = metadata['width'] + separator_width
-        column_content = urwid.AttrMap(urwid.Padding(urwid.Text(metadata['label'], align='left')), 'list-header-column')
+    def make_header_column(self, column, is_last, separator_width=2):
+        total_width = column['width'] + separator_width
+        column_content = urwid.AttrMap(urwid.Padding(urwid.Text(column['label'], align='left')), 'list-header-column')
         padding_content = self.make_padding(is_last and 'list-header-column' or 'list-header-column-separator')
-        columns = urwid.Columns([(metadata['width'], column_content), (separator_width, padding_content)])
+        columns = urwid.Columns([(column['width'], column_content), (separator_width, padding_content)])
         return (total_width, columns)
 
     def make_padding(self, display_attr):
@@ -317,7 +324,7 @@ class SelectableRow(urwid.WidgetWrap):
         self.id = row.id
         self.alt_row = row.alt_row
 
-        self._columns = urwid.Columns([(metadata['width'], urwid.Text(row.data[column], align=metadata['align'])) for column, metadata in list(columns.items())],
+        self._columns = urwid.Columns([(column['width'], urwid.Text(row.data[idx], align=column['align'])) for idx, column in enumerate(columns) if column],
                                        dividechars=space_between)
         self.set_display_attr()
         self.row = urwid.AttrMap(self._columns, self.display_attr)
@@ -364,7 +371,7 @@ class ProjectPlaceholderRow(urwid.WidgetWrap):
         self.alt_row = row.alt_row
         self.project = row.project
         self.placeholder = row.placeholder
-        self._columns = urwid.Columns([(metadata['width'], urwid.Text(row.placeholder if column == 'project' else '', align=metadata['align'])) for column, metadata in list(columns.items())], dividechars=space_between)
+        self._columns = urwid.Columns([(column['width'], urwid.Text(row.placeholder if isinstance(column['formatter'], ProjectFormatter) else '', align=column['align'])) for column in columns], dividechars=space_between)
 
         self.set_display_attr()
         self.row = urwid.AttrMap(self._columns, self.display_attr)
