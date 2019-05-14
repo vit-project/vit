@@ -796,7 +796,7 @@ class Application():
         self.update_status_tasks_shown()
         self.update_status_tasks_completed()
         self.header.contents[1] = (self.table.header, self.header.options())
-        self.denotation_pop_up = DenotationPopupLauncher(self.table.listbox, self.formatter, event=self.event)
+        self.denotation_pop_up = DenotationPopupLauncher(self.table.listbox, self.formatter, event=self.event, request_reply=self.request_reply, action_manager=self.action_manager)
         self.task_list = self.table.listbox
         self.widget.body = self.denotation_pop_up
         self.autocomplete.refresh()

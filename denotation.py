@@ -1,6 +1,8 @@
 import urwid
 import util
 
+from base_list_box import BaseListBox
+
 class AnnotationFrame(urwid.Frame):
     def __init__(self, body, **kwargs):
         self.listbox = body.original_widget
@@ -14,19 +16,23 @@ class AnnotationFrame(urwid.Frame):
             return None
         return super().keypress(size, key)
 
-class AnnotationListBox(urwid.ListBox):
+class AnnotationListBox(BaseListBox):
     """Maps denotation list shortcuts to default ListBox class.
     """
 
     # TODO: It's stupid to receive annotations here, but I can't figure out
     # how to operate on a SimpleFocusListWalker list by focus position.
-    def __init__(self, body, annotations, event=None):
-        self.previous_focus_position = None
-        self.event = event
+    def __init__(self, body, annotations, event=None, request_reply=None, action_manager=None):
         self.list_walker = body
         self.annotations = annotations
         self.init_event_listeners()
-        return super().__init__(body)
+        return super().__init__(body, event=event, request_reply=request_reply, action_manager=action_manager)
+
+    def list_action_executed(self, size, key):
+        data = {
+            'size': size,
+        }
+        self.event.emit('denotation-list:keypress', data)
 
     def init_event_listeners(self):
         def signal_handler():
@@ -53,39 +59,6 @@ class AnnotationListBox(urwid.ListBox):
     def update_focus_blur(self, op):
         attr = 'reveal focus' if op == 'focus' else 'button cancel'
         self.update_focus_attr(attr)
-
-    # TODO: Can these be converted to keybinding/actions?
-    def keypress(self, size, key):
-        """Overrides ListBox.keypress method.
-        """
-        key_handled = False
-        if key in ('j', ' '):
-            self.keypress(size, 'down')
-            key_handled = True
-        elif key in ('ctrl f',):
-            self.keypress(size, 'page down')
-            key_handled = True
-        elif key in ('k',):
-            self.keypress(size, 'up')
-            key_handled = True
-        elif key in ('ctrl b',):
-            self.keypress(size, 'page up')
-            key_handled = True
-        # TODO: Can make 'g' 'gg'?
-        elif key in ('g', '0'):
-            self.set_focus(0)
-            key_handled = True
-        elif key in ('G',):
-            self.set_focus(len(self.body) - 1)
-            self.set_focus_valign('bottom')
-            key_handled = True
-        if key_handled:
-            data = {
-                'key': key,
-                'size': size,
-            }
-            self.event.emit('denotation-list:keypress', data)
-        return None if key_handled else super().keypress(size, key)
 
 class SelectableRow(urwid.WidgetWrap):
     """Wraps 'urwid.Columns' to make it selectable.
@@ -124,9 +97,11 @@ class DenotationPopUpDialog(urwid.WidgetWrap):
     """A dialog for denotating tasks."""
     # TODO: Is this necessary? Copied from examples.
     signals = ['close']
-    def __init__(self, task, formatter, event=None):
+    def __init__(self, task, formatter, event=None, request_reply=None, action_manager=None):
         self.task = task
         self.event = event
+        self.request_reply = request_reply
+        self.action_manager = action_manager
         self.uuid = self.task['uuid']
         denotate_button = urwid.AttrWrap(urwid.Button("Denotate"), '', 'button action')
         cancel_button = urwid.AttrWrap(urwid.Button("Cancel"), '', 'button cancel')
@@ -136,7 +111,7 @@ class DenotationPopUpDialog(urwid.WidgetWrap):
             'description': 32,
         }
         annotations = [SelectableRow(a, widths, formatter) for a in self.task['annotations']]
-        self.listbox = AnnotationListBox(urwid.SimpleFocusListWalker(annotations), annotations, event=self.event)
+        self.listbox = AnnotationListBox(urwid.SimpleFocusListWalker(annotations), annotations, event=self.event, request_reply=self.request_reply, action_manager=self.action_manager)
         self.listbox.focus_position = 0
         def denotate(button):
             self._emit("close")
@@ -158,9 +133,11 @@ class DenotationPopUpDialog(urwid.WidgetWrap):
         super().__init__(urwid.AttrWrap(box, 'pop_up'))
 
 class DenotationPopupLauncher(urwid.PopUpLauncher):
-    def __init__(self, original_widget, formatter, event=None):
+    def __init__(self, original_widget, formatter, event=None, request_reply=None, action_manager=None):
         self.formatter = formatter
         self.event = event
+        self.request_reply = request_reply
+        self.action_manager = action_manager
         super().__init__(original_widget)
 
     def set_task(self, task):
@@ -171,7 +148,7 @@ class DenotationPopupLauncher(urwid.PopUpLauncher):
         self.open_pop_up()
 
     def create_pop_up(self):
-        pop_up = DenotationPopUpDialog(self.task, self.formatter, event=self.event)
+        pop_up = DenotationPopUpDialog(self.task, self.formatter, event=self.event, request_reply=self.request_reply, action_manager=self.action_manager)
         urwid.connect_signal(pop_up, 'close',
             lambda button: self.close_pop_up())
         return pop_up
