@@ -62,13 +62,23 @@ class MainFrame(urwid.Frame):
 class Application():
     def __init__(self, report):
         self.config = ConfigParser()
-        self.report = report if report else self.config.get('report', 'default_report')
-        self.bootstrap(load_config=False)
-        self.run(self.report)
+        self.report = self.get_default_report(report)
+        self.setup_main_loop()
+        self.refresh(self.config)
+        self.loop.run()
 
-    def bootstrap(self, load_config=True):
-        if load_config:
-            self.config = ConfigParser()
+    def get_default_report(self, report):
+        return report if report else self.config.get('report', 'default_report')
+
+    def setup_main_loop(self):
+        self.loop = urwid.MainLoop(urwid.Text(''), unhandled_input=self.key_pressed, pop_ups=True)
+        try:
+            self.loop.screen.set_terminal_properties(colors=256)
+        except:
+            pass
+
+    def bootstrap(self, config=None):
+        self.config = config if config else ConfigParser()
         self.task_config = TaskParser(self.config)
         self.reports = self.task_config.get_reports()
         self.event = event.Emitter()
@@ -475,7 +485,7 @@ class Application():
         raise urwid.ExitMainLoop()
 
     def build_task_table(self):
-        self.table = TaskTable(self.config, self.task_config, self.formatter, on_select=self.on_select, event=self.event, action_manager=self.action_manager, request_reply=self.request_reply, markers=self.markers)
+        self.table = TaskTable(self.config, self.task_config, self.formatter, on_select=self.on_select, event=self.event, action_manager=self.action_manager, request_reply=self.request_reply, markers=self.markers, draw_screen_callback=self.loop.draw_screen)
 
     def update_task_table(self):
         self.table.update_data(self.reports[self.report], self.model.tasks)
@@ -773,10 +783,10 @@ class Application():
         else:
             raise_(RuntimeError, "Error retrieving completed tasks: %s" % stderr)
 
-    def refresh(self):
-        self.bootstrap()
+    def refresh(self, config=None):
+        self.bootstrap(config)
         self.build_main_widget()
-        self.table.set_draw_screen_callback(self.loop.draw_screen)
+        # NOTE: Don't see any other way to clear the old palette.
         self.loop.screen._palette = {}
         self.loop.screen.register_palette(self.theme)
         self.loop.screen.clear()
@@ -817,13 +827,3 @@ class Application():
             refresh=self.refresh,
         )
         self.update_report(self.report)
-
-    def run(self, report):
-        self.build_main_widget(report)
-        self.loop = urwid.MainLoop(self.widget, self.theme, unhandled_input=self.key_pressed, pop_ups=True)
-        self.table.set_draw_screen_callback(self.loop.draw_screen)
-        try:
-            self.loop.screen.set_terminal_properties(colors=256)
-        except:
-            pass
-        self.loop.run()

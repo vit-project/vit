@@ -16,7 +16,7 @@ MARKER_COLUMN_NAME = 'markers'
 
 class TaskTable(object):
 
-    def __init__(self, config, task_config, formatter, on_select=None, event=None, action_manager=None, request_reply=None, markers=None):
+    def __init__(self, config, task_config, formatter, on_select=None, event=None, action_manager=None, request_reply=None, markers=None, draw_screen_callback=None):
         self.config = config
         self.task_config = task_config
         self.formatter = formatter
@@ -26,10 +26,7 @@ class TaskTable(object):
         self.request_reply = request_reply
         self.markers = markers
         self.row_striping = self.config.row_striping_enabled
-
-    # TODO: Fix this when MainLoop is created earlier.
-    def set_draw_screen_callback(self, callback):
-        self.draw_screen = callback
+        self.draw_screen = draw_screen_callback
 
     def init_event_listeners(self):
         def signal_handler():
