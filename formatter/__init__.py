@@ -229,6 +229,9 @@ class DateTime(Formatter):
     def markup_element(self, dt, formatted_date, task):
         return (self.colorize(dt, task), formatted_date)
 
+    def colorize(self, dt, task):
+        return None
+
     def format_duration_vague(self, seconds):
         test = seconds
         sign = ''
