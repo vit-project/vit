@@ -456,7 +456,7 @@ class Application():
         # TODO: Cleaner way to detect valid searchable row.
         if hasattr(row, 'data'):
             for column in row.data:
-                value = self.reconstitute_markup_as_string(row.data[column])
+                value = self.reconstitute_markup_as_string(column)
                 if value and search_regex.search(value):
                     return True
             return False
