@@ -6,8 +6,8 @@ class ActionRegistrar(object):
         self.registry = registry
         self.uuid = uuid.uuid4()
 
-    def register(self, name, description, callback):
-        self.registry.register(self.uuid, name, description, callback)
+    def register(self, name, description):
+        self.registry.register(self.uuid, name, description)
 
     def deregister(self, name=None):
         if name:
@@ -29,17 +29,19 @@ class ActionRegistry(object):
     def get_registered(self, registration_id):
         return list(filter(lambda action: self.actions[action]['registration_id'] == registration_id, self.actions))
 
-    def register(self, registration_id, name, description, callback):
+    def register(self, registration_id, name, description):
         self.actions[self.make_action_name(name)] = {
             'name': name,
             'registration_id': registration_id,
             'description': description,
-            'callback': callback,
         }
 
     def deregister(self, name_or_action):
         name = name_or_action['name'] if isinstance(name_or_action, dict) else name_or_action
         self.actions.pop(self.make_action_name(name))
+
+    def get_actions(self):
+        return self.actions.keys()
 
     def make_action_name(self, name):
         return 'ACTION_%s' % name

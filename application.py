@@ -28,6 +28,7 @@ import event
 from multi_widget import MultiWidget
 from command_bar import CommandBar
 from registry import ActionRegistry, RequestReply
+from action_manager import ActionManagerRegistry
 from denotation import DenotationPopupLauncher
 
 # NOTE: This entire class is a workaround for the fact that urwid catches the
@@ -36,22 +37,24 @@ from denotation import DenotationPopupLauncher
 # keybinding, therefore the only way to make it work is to catch the refresh
 # action here in the top frame.
 class MainFrame(urwid.Frame):
-    def __init__(self, body, header=None, footer=None, focus_part='body', key_cache=None, execute_keybinding=None):
+    def __init__(self, body, header=None, footer=None, focus_part='body', key_cache=None, action_manager=None, refresh=None):
         self.key_cache = key_cache
-        self.execute_keybinding = execute_keybinding
-        self.keybindings = self.key_cache.keybindings
+        self.action_manager = action_manager
+        self.refresh = refresh
+        self.register_managed_actions()
         super().__init__(body, header, footer, focus_part)
 
-    def handle_refresh_keypress(self, keys):
-        # TODO: Some of this can probably be abstracted to a keybinding/action
-        # manager.
-        return keys in self.keybindings and 'action_name' in self.keybindings[keys] and self.keybindings[keys]['action_name'] == 'ACTION_REFRESH'
+    def register_managed_actions(self):
+        self.action_manager_registrar = self.action_manager.get_registrar()
+        self.action_manager_registrar.register('REFRESH', self.refresh)
 
     def keypress(self, size, key):
         keys = self.key_cache.get(key)
-        if self.handle_refresh_keypress(keys):
-            if self.execute_keybinding:
-                self.execute_keybinding(self.keybindings[keys])
+        if self.action_manager_registrar.handled_action(keys):
+            # NOTE: Calling refresh directly here to avoid the
+            # action-manager:action-executed event, which clobbers the load
+            # time currently.
+            self.refresh()
             return None
         else:
             return super().keypress(size, key)
@@ -68,13 +71,16 @@ class Application():
             self.config = ConfigParser()
         self.task_config = TaskParser(self.config)
         self.reports = self.task_config.get_reports()
+        self.event = event.Emitter()
         self.setup_config()
         self.extra_filters = []
         self.search_term_active = ''
         self.action_registry = ActionRegistry()
-        self.register_global_actions()
-        self.register_task_actions()
-        self.actions = self.action_registry.actions
+        self.register_actions()
+        self.keybinding_parser = KeybindingParser(self.config, self.action_registry)
+        self.setup_keybindings()
+        self.action_manager = ActionManagerRegistry(self.action_registry, self.key_cache.keybindings, event=self.event)
+        self.register_managed_actions()
         self.command = Command(self.config)
         self.markers = Markers(self.config, self.task_config)
         self.theme = self.init_theme()
@@ -83,57 +89,90 @@ class Application():
         self.init_task_colors()
         self.task_colorizer = TaskColorizer(self.task_color_config)
         self.formatter = formatter.Defaults(self.config, self.task_config, self.markers, self.task_colorizer)
-        self.keybinding_parser = KeybindingParser(self.config, self.action_registry)
-        self.event = event.Emitter()
         self.request_reply = RequestReply()
         # TODO: TaskTable is dependent on a bunch of setup above, this order
         # feels brittle.
         self.build_task_table()
-        self.setup_keybindings()
         self.set_request_callbacks()
         self.event.listen('command-bar:keypress', self.command_bar_keypress)
         self.event.listen('task:denotate', self.denotate_task)
-        self.event.listen('task-list:keypress', self.task_list_keypress)
+        self.event.listen('action-manager:action-executed', self.action_manager_action_executed)
 
     def setup_config(self):
         self.confirm = self.config.confirmation_enabled
         self.wait = self.config.wait_enabled
 
-    # TODO: Move this to the top-level frame? unhandled_input in the main loop
-    #       eats Ctrl-l, and the topmost place is where that should live.
-    def register_global_actions(self):
-        self.global_action_registrar = self.action_registry.get_registrar()
-        self.global_action_registrar.register('QUIT', 'Quit the application', self.quit)
-        self.global_action_registrar.register('QUIT_WITH_CONFIRM', 'Quit the application, after confirmation', self.activate_command_bar_quit_with_confirm)
-        self.global_action_registrar.register('REFRESH', 'Refresh the current report', self.refresh)
-        self.global_action_registrar.register('TASK_ADD', 'Add a task', self.activate_command_bar_add)
-        self.global_action_registrar.register('REPORT_FILTER', 'Filter current report', self.activate_command_bar_filter)
-        self.global_action_registrar.register('TASK_UNDO', 'Undo last task change', self.activate_command_bar_undo)
-        self.global_action_registrar.register('COMMAND_BAR_EX', "Open the command bar in 'ex' mode", self.activate_command_bar_ex)
-        self.global_action_registrar.register('COMMAND_BAR_EX_TASK_READ_WAIT', "Open the command bar in 'ex' mode with '!rw task ' appended", self.activate_command_bar_ex_read_wait_task)
-        self.global_action_registrar.register('COMMAND_BAR_SEARCH_FORWARD', 'Open the command bar in search forward mode', self.activate_command_bar_search_forward)
-        self.global_action_registrar.register('COMMAND_BAR_SEARCH_REVERSE', 'Open the command bar in search reverse mode', self.activate_command_bar_search_reverse)
-        self.global_action_registrar.register('COMMAND_BAR_SEARCH_NEXT', 'Search next', self.activate_command_bar_search_next)
-        self.global_action_registrar.register('COMMAND_BAR_SEARCH_PREVIOUS', 'Search previous', self.activate_command_bar_search_previous)
-        self.global_action_registrar.register('GLOBAL_ESCAPE', 'Top-level escape function', self.global_escape)
-        self.global_action_registrar.register(self.action_registry.noop_action_name, 'Used to disable a default keybinding action', self.action_registry.noop)
-        self.global_registered_actions = self.global_action_registrar.actions()
+    def register_actions(self):
+        self.action_registrar = self.action_registry.get_registrar()
+        # Global.
+        self.action_registrar.register('QUIT', 'Quit the application')
+        self.action_registrar.register('QUIT_WITH_CONFIRM', 'Quit the application, after confirmation')
+        self.action_registrar.register('REFRESH', 'Refresh the current report')
+        self.action_registrar.register('TASK_ADD', 'Add a task')
+        self.action_registrar.register('REPORT_FILTER', 'Filter current report')
+        self.action_registrar.register('TASK_UNDO', 'Undo last task change')
+        self.action_registrar.register('COMMAND_BAR_EX', "Open the command bar in 'ex' mode")
+        self.action_registrar.register('COMMAND_BAR_EX_TASK_READ_WAIT', "Open the command bar in 'ex' mode with '!rw task ' appended")
+        self.action_registrar.register('COMMAND_BAR_SEARCH_FORWARD', 'Open the command bar in search forward mode')
+        self.action_registrar.register('COMMAND_BAR_SEARCH_REVERSE', 'Open the command bar in search reverse mode')
+        self.action_registrar.register('COMMAND_BAR_SEARCH_NEXT', 'Search next')
+        self.action_registrar.register('COMMAND_BAR_SEARCH_PREVIOUS', 'Search previous')
+        self.action_registrar.register('GLOBAL_ESCAPE', 'Top-level escape function')
+        self.action_registrar.register(self.action_registry.noop_action_name, 'Used to disable a default keybinding action')
+        # List.
+        self.action_registrar.register('LIST_UP', 'Move list focus up one entry')
+        self.action_registrar.register('LIST_DOWN', 'Move list focus down one entry')
+        self.action_registrar.register('LIST_PAGE_UP', 'Move list focus up one page')
+        self.action_registrar.register('LIST_PAGE_DOWN', 'Move list focus down one page')
+        self.action_registrar.register('LIST_HOME', 'Move list focus to top of the list')
+        self.action_registrar.register('LIST_END', 'Move list focus to bottom of the list')
+        self.action_registrar.register('LIST_SCREEN_TOP', 'Move list focus to top of the screen')
+        self.action_registrar.register('LIST_SCREEN_MIDDLE', 'Move list focus to middle of the screen')
+        self.action_registrar.register('LIST_SCREEN_BOTTOM', 'Move list focus to bottom of the screen')
+        self.action_registrar.register('LIST_FOCUS_VALIGN_CENTER', 'Move focused item to center of the screen')
+        # Task.
+        self.action_registrar.register('TASK_ANNOTATE', 'Add an annotation to a task')
+        self.action_registrar.register('TASK_DELETE', 'Delete task')
+        self.action_registrar.register('TASK_DENOTATE', 'Denotate a task')
+        self.action_registrar.register('TASK_MODIFY', 'Modify task')
+        self.action_registrar.register('TASK_START_STOP', 'Start/stop task')
+        self.action_registrar.register('TASK_DONE', 'Mark task done')
+        self.action_registrar.register('TASK_PRIORITY', 'Modify task priority')
+        self.action_registrar.register('TASK_PROJECT', 'Modify task project')
+        self.action_registrar.register('TASK_TAGS', 'Modify task tags')
+        self.action_registrar.register('TASK_WAIT', 'Wait a task')
+        self.action_registrar.register('TASK_EDIT', 'Edit a task via the default editor')
+        self.action_registrar.register('TASK_SHOW', 'Show task details')
 
-    def register_task_actions(self):
-        self.task_action_registrar = self.action_registry.get_registrar()
-        self.task_action_registrar.register('TASK_ANNOTATE', 'Add an annotation to a task', self.task_action_annotate)
-        self.task_action_registrar.register('TASK_DELETE', 'Delete task', self.task_action_delete)
-        self.task_action_registrar.register('TASK_DENOTATE', 'Denotate a task', self.task_action_denotate)
-        self.task_action_registrar.register('TASK_MODIFY', 'Modify task', self.task_action_modify)
-        self.task_action_registrar.register('TASK_START_STOP', 'Start/stop task', self.task_action_start_stop)
-        self.task_action_registrar.register('TASK_DONE', 'Mark task done', self.task_action_done)
-        self.task_action_registrar.register('TASK_PRIORITY', 'Modify task priority', self.task_action_priority)
-        self.task_action_registrar.register('TASK_PROJECT', 'Modify task project', self.task_action_project)
-        self.task_action_registrar.register('TASK_TAGS', 'Modify task tags', self.task_action_tags)
-        self.task_action_registrar.register('TASK_WAIT', 'Wait a task', self.task_action_wait)
-        self.task_action_registrar.register('TASK_EDIT', 'Edit a task via the default editor', self.task_action_edit)
-        self.task_action_registrar.register('TASK_SHOW', 'Show task details', self.task_action_show)
-        self.task_registered_actions = self.task_action_registrar.actions()
+    def register_managed_actions(self):
+        # Global.
+        self.action_manager_registrar = self.action_manager.get_registrar()
+        self.action_manager_registrar.register('QUIT', self.quit)
+        self.action_manager_registrar.register('QUIT_WITH_CONFIRM', self.activate_command_bar_quit_with_confirm)
+        self.action_manager_registrar.register('TASK_ADD', self.activate_command_bar_add)
+        self.action_manager_registrar.register('REPORT_FILTER', self.activate_command_bar_filter)
+        self.action_manager_registrar.register('TASK_UNDO', self.activate_command_bar_undo)
+        self.action_manager_registrar.register('COMMAND_BAR_EX', self.activate_command_bar_ex)
+        self.action_manager_registrar.register('COMMAND_BAR_EX_TASK_READ_WAIT', self.activate_command_bar_ex_read_wait_task)
+        self.action_manager_registrar.register('COMMAND_BAR_SEARCH_FORWARD', self.activate_command_bar_search_forward)
+        self.action_manager_registrar.register('COMMAND_BAR_SEARCH_REVERSE', self.activate_command_bar_search_reverse)
+        self.action_manager_registrar.register('COMMAND_BAR_SEARCH_NEXT', self.activate_command_bar_search_next)
+        self.action_manager_registrar.register('COMMAND_BAR_SEARCH_PREVIOUS', self.activate_command_bar_search_previous)
+        self.action_manager_registrar.register('GLOBAL_ESCAPE', self.global_escape)
+        self.action_manager_registrar.register(self.action_registry.noop_action_name, self.action_registry.noop)
+        # Task.
+        self.action_manager_registrar.register('TASK_ANNOTATE', self.task_action_annotate)
+        self.action_manager_registrar.register('TASK_DELETE', self.task_action_delete)
+        self.action_manager_registrar.register('TASK_DENOTATE', self.task_action_denotate)
+        self.action_manager_registrar.register('TASK_MODIFY', self.task_action_modify)
+        self.action_manager_registrar.register('TASK_START_STOP', self.task_action_start_stop)
+        self.action_manager_registrar.register('TASK_DONE', self.task_action_done)
+        self.action_manager_registrar.register('TASK_PRIORITY', self.task_action_priority)
+        self.action_manager_registrar.register('TASK_PROJECT', self.task_action_project)
+        self.action_manager_registrar.register('TASK_TAGS', self.task_action_tags)
+        self.action_manager_registrar.register('TASK_WAIT', self.task_action_wait)
+        self.action_manager_registrar.register('TASK_EDIT', self.task_action_edit)
+        self.action_manager_registrar.register('TASK_SHOW', self.task_action_show)
 
     def setup_keybindings(self):
         self.keybinding_parser.load_default_keybindings()
@@ -174,13 +213,20 @@ class Application():
     def init_task_colors(self):
         self.theme += self.task_color_config.display_attrs
 
-    def execute_keybinding(self, *args):
-        keybinding, args = args[0], args[1:]
+    def clear_key_cache(self):
         self.key_cache.set()
         self.update_status_key_cache()
-        if 'action' in keybinding:
-            keybinding['action'](*args)
-        else:
+
+    def action_manager_action_executed(self, data):
+        self.clear_key_cache()
+
+    def check_macro(self, keys):
+        keybinding = self.keybinding_parser.keybindings[keys] if keys in self.keybinding_parser.keybindings else False
+        return keybinding if keybinding and 'keys' in keybinding else False
+
+    def execute_macro(self, keys):
+        keybinding = self.check_macro(keys)
+        if keybinding:
             keypresses = self.prepare_keybinding_keypresses(keybinding['keys'])
             self.loop.process_input(keypresses)
 
@@ -283,34 +329,28 @@ class Application():
         if 'uuid' in metadata:
             self.task_list.focus_by_task_uuid(metadata['uuid'])
 
-    def task_list_keypress(self, data):
-        self.execute_keybinding(data['keybinding'], data['size'])
-
     def key_pressed(self, key):
         if is_mouse_event(key):
             return None
         keys = self.key_cache.get(key)
-        if keys in self.keybinding_parser.keybindings:
+        if self.action_manager_registrar.handled_action(keys):
             self.activate_message_bar()
-            self.execute_keybinding(self.keybinding_parser.keybindings[keys])
+            self.action_manager_registrar.execute_handler(keys)
+        elif self.check_macro(keys):
+            self.clear_key_cache()
+            self.activate_message_bar()
+            self.execute_macro(keys)
         elif keys in self.key_cache.multi_key_cache:
             self.key_cache.set(keys)
             self.update_status_key_cache()
         else:
-            self.key_cache.set()
-            self.update_status_key_cache()
-
-    def handle_on_select_keypress(self, keys):
-        # TODO: Some of this can probably be abstracted to a keybinding/action
-        # manager.
-        keybindings = self.keybinding_parser.keybindings
-        return keys in keybindings and 'action_name' in keybindings[keys] and keybindings[keys]['action_name'] in self.task_registered_actions
+            self.clear_key_cache()
 
     def on_select(self, row, size, key):
         keys = self.key_cache.get(key)
-        if self.handle_on_select_keypress(keys):
+        if self.action_manager_registrar.handled_action(keys):
             self.activate_message_bar()
-            self.execute_keybinding(self.keybinding_parser.keybindings[keys])
+            self.action_manager_registrar.execute_handler(keys)
             return None
         else:
             return key
@@ -435,7 +475,7 @@ class Application():
         raise urwid.ExitMainLoop()
 
     def build_task_table(self):
-        self.table = TaskTable(self.config, self.task_config, self.formatter, on_select=self.on_select, event=self.event, action_registry=self.action_registry, request_reply=self.request_reply, markers=self.markers)
+        self.table = TaskTable(self.config, self.task_config, self.formatter, on_select=self.on_select, event=self.event, action_manager=self.action_manager, request_reply=self.request_reply, markers=self.markers)
 
     def update_task_table(self):
         self.table.update_data(self.reports[self.report], self.model.tasks)
@@ -773,7 +813,8 @@ class Application():
             header=self.header,
             footer=self.footer,
             key_cache=self.key_cache,
-            execute_keybinding=self.execute_keybinding,
+            action_manager=self.action_manager,
+            refresh=self.refresh,
         )
         self.update_report(self.report)
 

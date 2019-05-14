@@ -15,18 +15,18 @@ BRACKETS_REGEX = re.compile("[<>]")
 
 class TaskTable(object):
 
-    def __init__(self, config, task_config, formatter, on_select=None, event=None, action_registry=None, request_reply=None, markers=None):
+    def __init__(self, config, task_config, formatter, on_select=None, event=None, action_manager=None, request_reply=None, markers=None):
         self.config = config
         self.task_config = task_config
         self.formatter = formatter
         self.on_select = on_select
         self.event = event
-        self.action_registry = action_registry
+        self.action_manager = action_manager
         self.request_reply = request_reply
         self.markers = markers
-        self.register_task_list_actions()
         self.row_striping = self.config.row_striping_enabled
 
+    # TODO: Fix this when MainLoop is created earlier.
     def set_draw_screen_callback(self, callback):
         self.draw_screen = callback
 
@@ -40,58 +40,6 @@ class TaskTable(object):
 
     def get_blocking_task_uuids(self):
         return self.request_reply.request('application:blocking_task_uuids')
-
-    def register_task_list_actions(self):
-        self.action_registrar = self.action_registry.get_registrar()
-        self.action_registrar.register('TASK_LIST_UP', 'Move task list focus up one entry', self.keypress_up)
-        self.action_registrar.register('TASK_LIST_DOWN', 'Move task list focus down one entry', self.keypress_down)
-        self.action_registrar.register('TASK_LIST_PAGE_UP', 'Move task list focus up one page', self.keypress_page_up)
-        self.action_registrar.register('TASK_LIST_PAGE_DOWN', 'Move task list focus down one page', self.keypress_page_down)
-        self.action_registrar.register('TASK_LIST_HOME', 'Move task list focus to top of the list', self.keypress_home)
-        self.action_registrar.register('TASK_LIST_END', 'Move task list focus to bottom of the list', self.keypress_end)
-        self.action_registrar.register('TASK_LIST_SCREEN_TOP', 'Move task list focus to top of the screen', self.keypress_screen_top)
-        self.action_registrar.register('TASK_LIST_SCREEN_MIDDLE', 'Move task list focus to middle of the screen', self.keypress_screen_middle)
-        self.action_registrar.register('TASK_LIST_SCREEN_BOTTOM', 'Move task list focus to bottom of the screen', self.keypress_screen_bottom)
-        self.action_registrar.register('TASK_LIST_FOCUS_VALIGN_CENTER', 'Move focused task to center of the screen', self.keypress_focus_valign_center)
-        self.registered_actions = self.action_registrar.actions()
-
-    # NOTE: The non-standard key presses work around infinite recursion while
-    #       allowing the up, down, page up, and page down keys to be controlled
-    #       from the keybinding file.
-    def keypress_up(self, size):
-        self.listbox.keypress(size, '<Up>')
-
-    def keypress_down(self, size):
-        self.listbox.keypress(size, '<Down>')
-
-    def keypress_page_up(self, size):
-        self.listbox.keypress(size, '<Page Up>')
-
-    def keypress_page_down(self, size):
-        self.listbox.keypress(size, '<Page Down>')
-
-    def keypress_home(self, size):
-        self.listbox.set_focus(0)
-
-    def keypress_end(self, size):
-        self.listbox.set_focus(len(self.listbox.body) - 1)
-        self.listbox.set_focus_valign('bottom')
-
-    def keypress_screen_top(self, size):
-        top, _, _ = self.listbox.get_top_middle_bottom_rows(size)
-        self.listbox.focus_by_task_uuid(top.uuid)
-
-    def keypress_screen_middle(self, size):
-        _, middle, _ = self.listbox.get_top_middle_bottom_rows(size)
-        self.listbox.focus_by_task_uuid(middle.uuid)
-
-    def keypress_screen_bottom(self, size):
-        _, _, bottom = self.listbox.get_top_middle_bottom_rows(size)
-        self.listbox.focus_by_task_uuid(bottom.uuid)
-
-    def keypress_focus_valign_center(self, size):
-        self.listbox.set_focus(self.listbox.focus_position)
-        self.listbox.set_focus_valign('middle')
 
     def update_data(self, report, tasks):
         self.report = report
@@ -322,7 +270,7 @@ class TaskTable(object):
     def build_table(self):
         self.contents = [SelectableRow(self.columns, obj, on_select=self.on_select) if isinstance(obj, TaskRow) else ProjectPlaceholderRow(self.columns, obj) for obj in self.rows]
         self.list_walker = urwid.SimpleFocusListWalker(self.contents)
-        self.listbox = TaskListBox(self.list_walker, event=self.event, request_reply=self.request_reply, registered_actions=self.registered_actions)
+        self.listbox = TaskListBox(self.list_walker, event=self.event, request_reply=self.request_reply, action_manager=self.action_manager)
         self.init_event_listeners()
         self.make_header()
 
@@ -438,13 +386,13 @@ class TaskListBox(urwid.ListBox):
     """Maps task list shortcuts to default ListBox class.
     """
 
-    def __init__(self, body, event=None, request_reply=None, registered_actions=None):
+    def __init__(self, body, event=None, request_reply=None, action_manager=None):
         self.previous_focus_position = None
         self.event = event
         self.request_reply = request_reply
-        self.registered_actions = registered_actions
-        self.keybindings = self.request_reply.request('application:keybindings')
+        self.action_manager = action_manager
         self.key_cache = self.request_reply.request('application:key_cache')
+        self.register_managed_actions()
         return super().__init__(body)
 
     def get_top_middle_bottom_rows(self, size):
@@ -467,16 +415,61 @@ class TaskListBox(urwid.ListBox):
         #    # TODO: Log this?
         #    return None, None, None
 
-    def handle_keypress(self, keys):
-        # TODO: Some of this can probably be abstracted to a keybinding/action
-        # manager.
-        return keys in self.keybindings and 'action_name' in self.keybindings[keys] and self.keybindings[keys]['action_name'] in self.registered_actions
+    def register_managed_actions(self):
+        self.action_manager_registrar = self.action_manager.get_registrar()
+        self.action_manager_registrar.register('LIST_UP', self.keypress_up)
+        self.action_manager_registrar.register('LIST_DOWN', self.keypress_down)
+        self.action_manager_registrar.register('LIST_PAGE_UP', self.keypress_page_up)
+        self.action_manager_registrar.register('LIST_PAGE_DOWN', self.keypress_page_down)
+        self.action_manager_registrar.register('LIST_HOME', self.keypress_home)
+        self.action_manager_registrar.register('LIST_END', self.keypress_end)
+        self.action_manager_registrar.register('LIST_SCREEN_TOP', self.keypress_screen_top)
+        self.action_manager_registrar.register('LIST_SCREEN_MIDDLE', self.keypress_screen_middle)
+        self.action_manager_registrar.register('LIST_SCREEN_BOTTOM', self.keypress_screen_bottom)
+        self.action_manager_registrar.register('LIST_FOCUS_VALIGN_CENTER', self.keypress_focus_valign_center)
+
+    # NOTE: The non-standard key presses work around infinite recursion while
+    #       allowing the up, down, page up, and page down keys to be controlled
+    #       from the keybinding file.
+    def keypress_up(self, size):
+        self.keypress(size, '<Up>')
+
+    def keypress_down(self, size):
+        self.keypress(size, '<Down>')
+
+    def keypress_page_up(self, size):
+        self.keypress(size, '<Page Up>')
+
+    def keypress_page_down(self, size):
+        self.keypress(size, '<Page Down>')
+
+    def keypress_home(self, size):
+        self.set_focus(0)
+
+    def keypress_end(self, size):
+        self.set_focus(len(self.body) - 1)
+        self.set_focus_valign('bottom')
+
+    def keypress_screen_top(self, size):
+        top, _, _ = self.get_top_middle_bottom_rows(size)
+        self.focus_by_task_uuid(top.uuid)
+
+    def keypress_screen_middle(self, size):
+        _, middle, _ = self.get_top_middle_bottom_rows(size)
+        self.focus_by_task_uuid(middle.uuid)
+
+    def keypress_screen_bottom(self, size):
+        _, _, bottom = self.get_top_middle_bottom_rows(size)
+        self.focus_by_task_uuid(bottom.uuid)
+
+    def keypress_focus_valign_center(self, size):
+        self.set_focus(self.focus_position)
+        self.set_focus_valign('middle')
 
     def keypress(self, size, key):
         keys = self.key_cache.get(key)
-        if self.handle_keypress(keys):
+        if self.action_manager_registrar.execute_handler(keys, size):
             data = {
-                'keybinding': self.keybindings[keys],
                 'size': size,
             }
             self.event.emit('task-list:keypress', data)

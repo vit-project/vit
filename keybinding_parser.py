@@ -25,7 +25,7 @@ class KeybindingParser(object):
     def __init__(self, config, action_registry):
         self.config = config
         self.action_registry = action_registry
-        self.actions = self.action_registry.actions
+        self.actions = self.action_registry.get_actions()
         self.noop_action_name = self.action_registry.make_action_name(self.action_registry.noop_action_name)
         self.default_keybindings = configparser.SafeConfigParser()
         self.default_keybindings.optionxform=str
@@ -68,7 +68,6 @@ class KeybindingParser(object):
             elif char == '}':
                 accum['in_variable'] = False
                 if accum['variable_string'] in self.actions:
-                    accum['action'] = self.actions[accum['variable_string']]['callback']
                     accum['action_name'] = accum['variable_string']
                 elif accum['variable_string'] in replacements:
                     accum['keybinding'].append(replacements[accum['variable_string']])
@@ -84,39 +83,40 @@ class KeybindingParser(object):
             return accum
         accum = reduce(reducer, value, {
             'keybinding': [],
-            'action': None,
             'action_name': None,
             'in_brackets': False,
             'bracket_string': '',
             'in_variable': False,
             'variable_string': '',
         })
-        return accum['keybinding'], accum['action'], accum['action_name']
+        return accum['keybinding'], accum['action_name']
 
-    def validate_parsed_value(self, key_groups, bound_keys, action):
-        if bound_keys and action:
+    def validate_parsed_value(self, key_groups, bound_keys, action_name):
+        if bound_keys and action_name:
             raise_(KeybindingError, "keybindings '%s' unsupported configuration: ACTION_ variables must be used alone." % key_groups)
 
     def is_noop_action(self, keybinding):
-        return True if 'action' in keybinding and keybinding['action_name'] == self.noop_action_name else False
+        return True if 'action_name' in keybinding and keybinding['action_name'] == self.noop_action_name else False
 
     def filter_noop_actions(self, keybindings):
         return {keys:value for (keys, value) in keybindings.items() if not self.is_noop_action(keybindings[keys])}
 
+    def get_keybindings(self):
+        return self.keybindings
+
     def add_keybindings(self, bindings=[], replacements={}):
         for key_groups, value in bindings:
-            bound_keys, action, action_name = self.parse_keybinding_value(value, replacements)
-            self.validate_parsed_value(key_groups, bound_keys, action)
+            bound_keys, action_name = self.parse_keybinding_value(value, replacements)
+            self.validate_parsed_value(key_groups, bound_keys, action_name)
             for keys in key_groups.strip().split(','):
                 parsed_keys, has_modifier = self.parse_keybinding_keys(keys)
                 self.keybindings[parsed_keys] = {
                     'has_modifier': has_modifier,
                 }
-                if action:
-                    self.keybindings[parsed_keys]['action'] = action
+                if action_name:
                     self.keybindings[parsed_keys]['action_name'] = action_name
                 else:
                     self.keybindings[parsed_keys]['keys'] = bound_keys
         self.keybindings = self.filter_noop_actions(self.keybindings)
-        return self.keybindings
+        return self.get_keybindings()
 
