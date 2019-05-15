@@ -95,7 +95,8 @@ class ConfigParser(object):
     def __init__(self):
         self.config = configparser.SafeConfigParser()
         self.config.optionxform=str
-        self.user_config_filepath = '%s/%s' % (os.path.expanduser('VIT_CONFIG' in env.user and env.user['VIT_CONFIG'] or DEFAULT_VIT_CONFIG_DIR), VIT_CONFIG_FILE)
+        self.user_config_dir = os.path.expanduser('VIT_CONFIG' in env.user and env.user['VIT_CONFIG'] or DEFAULT_VIT_CONFIG_DIR)
+        self.user_config_filepath = '%s/%s' % (self.user_config_dir, VIT_CONFIG_FILE)
         if not self.config_file_exists(self.user_config_filepath):
             self.optional_create_config_file(self.user_config_filepath)
         self.config.read(self.user_config_filepath)
