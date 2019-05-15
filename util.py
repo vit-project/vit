@@ -47,3 +47,7 @@ def project_get_subproject_and_parents(project):
 
 def project_get_root(project):
     return project.split('.')[0] if project else None
+
+def file_to_class_name(file_name):
+    words = file_name.split('_')
+    return ''.join((w.capitalize() for w in words))
