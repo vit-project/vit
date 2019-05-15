@@ -92,10 +92,11 @@ DATE_FORMAT_MAPPING = {
 }
 
 class ConfigParser(object):
-    def __init__(self):
+    def __init__(self, loader):
+        self.loader = loader
         self.config = configparser.SafeConfigParser()
         self.config.optionxform=str
-        self.user_config_dir = os.path.expanduser('VIT_CONFIG' in env.user and env.user['VIT_CONFIG'] or DEFAULT_VIT_CONFIG_DIR)
+        self.user_config_dir = self.loader.user_config_dir
         self.user_config_filepath = '%s/%s' % (self.user_config_dir, VIT_CONFIG_FILE)
         if not self.config_file_exists(self.user_config_filepath):
             self.optional_create_config_file(self.user_config_filepath)
