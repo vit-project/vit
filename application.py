@@ -65,13 +65,19 @@ class Application():
     def __init__(self, report):
         self.loader = Loader()
         self.config = ConfigParser(self.loader)
+        self.task_config = TaskParser(self.config)
+        self.reports = self.task_config.get_reports()
         self.report = self.get_default_report(report)
         self.setup_main_loop()
-        self.refresh(self.loader, self.config)
+        self.refresh(self.config, self.task_config)
         self.loop.run()
 
     def get_default_report(self, report):
-        return report if report else self.config.get('report', 'default_report')
+        if not report:
+            report = self.config.get('report', 'default_report')
+        if report not in self.reports:
+            raise_(ValueError, "report '%s' not found" % report)
+        return report
 
     def setup_main_loop(self):
         self.loop = urwid.MainLoop(urwid.Text(''), unhandled_input=self.key_pressed, pop_ups=True)
@@ -80,11 +86,10 @@ class Application():
         except:
             pass
 
-    def bootstrap(self, loader=None, config=None):
-        self.loader = loader if loader else Loader()
+    def bootstrap(self, config=None, task_config=None):
+        self.loader = Loader()
         self.config = config if config else ConfigParser(self.loader)
-        self.task_config = TaskParser(self.config)
-        self.reports = self.task_config.get_reports()
+        self.task_config = task_config if task_config else TaskParser(self.config)
         self.event = event.Emitter()
         self.setup_config()
         self.extra_filters = []
@@ -749,8 +754,8 @@ class Application():
         else:
             raise_(RuntimeError, "Error retrieving completed tasks: %s" % stderr)
 
-    def refresh(self, loader=None, config=None):
-        self.bootstrap(loader, config)
+    def refresh(self, config=None, task_config=None):
+        self.bootstrap(config, task_config)
         self.build_main_widget()
         # NOTE: Don't see any other way to clear the old palette.
         self.loop.screen._palette = {}
