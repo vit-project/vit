@@ -51,3 +51,6 @@ def project_get_root(project):
 def file_to_class_name(file_name):
     words = file_name.split('_')
     return ''.join((w.capitalize() for w in words))
+
+def file_readable(filepath):
+    return os.path.isfile(filepath) and os.access(filepath, os.R_OK)
