@@ -207,6 +207,9 @@ class Application():
 
     def init_theme(self):
         theme = self.config.get('vit', 'theme')
+        user_theme = self.loader.load_user_class('theme', theme, 'theme')
+        if user_theme:
+            return user_theme
         try:
             return import_module('theme.%s' % theme).theme
         except ImportError:
