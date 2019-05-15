@@ -30,6 +30,9 @@ parser.add_option('--list-actions',
 
 def parse():
     options, remainder = parser.parse_args()
+    if len(remainder) > 1:
+        parser.print_help()
+        sys.exit(1)
     if options.list_actions:
         list_actions()
         sys.exit(0)
