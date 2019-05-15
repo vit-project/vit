@@ -5,11 +5,11 @@ try:
 except:
     import imp
 
-DEFAULT_VIT_CONFIG_DIR = '~/.vit'
+DEFAULT_VIT_DIR = '~/.vit'
 
 class Loader(object):
     def __init__(self):
-        self.user_config_dir = os.path.expanduser('VIT_CONFIG' in env.user and env.user['VIT_CONFIG'] or DEFAULT_VIT_CONFIG_DIR)
+        self.user_config_dir = os.path.expanduser('VIT_DIR' in env.user and env.user['VIT_DIR'] or DEFAULT_VIT_DIR)
 
     def load_user_class(self, module_type, module_name, class_name):
         module = '%s.%s' % (module_type, module_name)
