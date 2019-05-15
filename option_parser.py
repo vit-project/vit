@@ -18,6 +18,8 @@ A goal of VIT is to allow you to customize the way in which you use Taskwarrior'
 core commands as well as to provide a framework for easily dispatching external
 commands.
 
+TODO: Add link to online help.
+
 """
 )
 
