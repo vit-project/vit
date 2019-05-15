@@ -90,7 +90,7 @@ class Application():
         self.search_term_active = ''
         self.action_registry = ActionRegistry()
         self.register_actions()
-        self.keybinding_parser = KeybindingParser(self.config, self.action_registry)
+        self.keybinding_parser = KeybindingParser(self.loader, self.config, self.action_registry)
         self.setup_keybindings()
         self.action_manager = ActionManagerRegistry(self.action_registry, self.key_cache.keybindings, event=self.event)
         self.register_managed_actions()

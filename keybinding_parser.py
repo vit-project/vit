@@ -9,7 +9,9 @@ except ImportError:
 import os
 import re
 
-FILE_DIR = os.path.dirname(os.path.realpath(__file__))
+import util
+
+BASE_DIR = os.path.dirname(os.path.realpath(__file__))
 BRACKETS_REGEX = re.compile("[<>]")
 DEFAULT_KEYBINDINGS_SECTIONS = ('global', 'command', 'navigation', 'report')
 CONFIG_NAME_SPECIAL_KEY_SUBSTITUTIONS = {
@@ -22,11 +24,13 @@ class KeybindingError(Exception):
     pass
 
 class KeybindingParser(object):
-    def __init__(self, config, action_registry):
+    def __init__(self, loader, config, action_registry):
+        self.loader = loader
         self.config = config
         self.action_registry = action_registry
         self.actions = self.action_registry.get_actions()
         self.noop_action_name = self.action_registry.make_action_name(self.action_registry.noop_action_name)
+        self.default_keybinding_name = self.config.get('vit', 'default_keybindings')
         self.default_keybindings = configparser.SafeConfigParser()
         self.default_keybindings.optionxform=str
         self.keybindings = {}
@@ -39,7 +43,16 @@ class KeybindingParser(object):
             return []
 
     def load_default_keybindings(self):
-        self.default_keybindings.read('%s/keybinding/%s.ini' % (FILE_DIR, self.config.get('vit', 'default_keybindings')))
+        name = self.default_keybinding_name
+        template = '%s/keybinding/%s.ini'
+        user_keybinding_file = template % (self.loader.user_config_dir, name)
+        keybinding_file = template % (BASE_DIR, name)
+        if util.file_readable(user_keybinding_file):
+            self.default_keybindings.read(user_keybinding_file)
+        elif util.file_readable(keybinding_file):
+            self.default_keybindings.read(keybinding_file)
+        else:
+            raise_(KeybindingError, "default_keybindings setting '%s' invalid, file not found" % name)
         for section in DEFAULT_KEYBINDINGS_SECTIONS:
             bindings = self.items(section)
             self.add_keybindings(bindings)
