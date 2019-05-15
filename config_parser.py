@@ -18,7 +18,6 @@ from process import Command
 
 SORT_ORDER_CHARACTERS = ['+', '-']
 SORT_COLLATE_CHARACTERS = ['/']
-DEFAULT_VIT_CONFIG_DIR = '~/.vit'
 VIT_CONFIG_FILE = 'config.ini'
 FILTER_EXCLUSION_REGEX = re.compile('^limit:')
 FILTER_PARENS_REGEX = re.compile('([\(\)])')
