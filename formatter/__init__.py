@@ -55,7 +55,8 @@ UDA_DEFAULT_INDICATOR = 'U'
 DEFAULT_DESCRIPTION_TRUNCATE_LEN=20
 
 class Defaults(object):
-    def __init__(self, config, task_config, markers, task_colorizer):
+    def __init__(self, loader, config, task_config, markers, task_colorizer):
+        self.loader = loader
         self.config = config
         self.task_config = task_config
         self.markers = markers
@@ -78,38 +79,47 @@ class Defaults(object):
             label = self.task_config.subtree('uda.%s.indicator' % uda_name) or UDA_DEFAULT_INDICATOR
             self.indicator_uda[uda_name] = label
 
-    def get_formatter_class(self, parts):
+    def get_module_class_from_parts(self, parts):
         formatter_module_name = '_'.join(parts)
-        formatter_class_name = self.file_to_class_name(formatter_module_name)
+        formatter_class_name = util.file_to_class_name(formatter_module_name)
+        return formatter_module_name, formatter_class_name
+
+    def get_user_formatter_class(self, parts):
+        formatter_module_name, formatter_class_name = self.get_module_class_from_parts(parts)
+        return self.loader.load_user_class('formatter', formatter_module_name, formatter_class_name)
+
+    def get_formatter_class(self, parts):
+        formatter_module_name, formatter_class_name = self.get_module_class_from_parts(parts)
         try:
             formatter_module = import_module('formatter.%s' % formatter_module_name)
+            formatter_class = getattr(formatter_module, formatter_class_name)
+            return formatter_class
         except ImportError:
             return None
-        formatter_class = getattr(formatter_module, formatter_class_name)
-        return formatter_class
-
-    def file_to_class_name(self, file_name):
-        words = file_name.split('_')
-        return ''.join((w.capitalize() for w in words))
 
     def get(self, column_formatter):
         parts = column_formatter.split('.')
         name = parts[0]
+
+        formatter_class = self.get_user_formatter_class(parts)
+        if formatter_class:
+            return name, formatter_class
+
         formatter_class = self.get_formatter_class(parts)
         if formatter_class:
             return name, formatter_class
-        else:
-            uda_metadata = uda.get(name, self.task_config)
-            if uda_metadata:
-                is_indicator = parts[-1] == 'indicator'
-                if is_indicator:
-                    formatter_class = self.get_formatter_class(['uda', 'indicator'])
+
+        uda_metadata = uda.get(name, self.task_config)
+        if uda_metadata:
+            is_indicator = parts[-1] == 'indicator'
+            if is_indicator:
+                formatter_class = self.get_formatter_class(['uda', 'indicator'])
+                return name, formatter_class
+            else:
+                uda_type = uda_metadata['type'] if 'type' in uda_metadata else 'string'
+                formatter_class = self.get_formatter_class(['uda', uda_type])
+                if formatter_class:
                     return name, formatter_class
-                else:
-                    uda_type = uda_metadata['type'] if 'type' in uda_metadata else 'string'
-                    formatter_class = self.get_formatter_class(['uda', uda_type])
-                    if formatter_class:
-                        return name, formatter_class
         return name, Formatter
 
     def format_subproject_indented(self, project_parts):

@@ -13,6 +13,7 @@ from functools import reduce
 import urwid
 
 import formatter
+from loader import Loader
 from config_parser import ConfigParser, TaskParser
 from util import clear_screen, string_to_args, is_mouse_event
 from process import Command
@@ -61,10 +62,11 @@ class MainFrame(urwid.Frame):
 
 class Application():
     def __init__(self, report):
-        self.config = ConfigParser()
+        self.loader = Loader()
+        self.config = ConfigParser(self.loader)
         self.report = self.get_default_report(report)
         self.setup_main_loop()
-        self.refresh(self.config)
+        self.refresh(self.loader, self.config)
         self.loop.run()
 
     def get_default_report(self, report):
@@ -77,8 +79,9 @@ class Application():
         except:
             pass
 
-    def bootstrap(self, config=None):
-        self.config = config if config else ConfigParser()
+    def bootstrap(self, loader=None, config=None):
+        self.loader = loader if loader else Loader()
+        self.config = config if config else ConfigParser(self.loader)
         self.task_config = TaskParser(self.config)
         self.reports = self.task_config.get_reports()
         self.event = event.Emitter()
@@ -98,7 +101,7 @@ class Application():
         self.task_color_config = TaskColorConfig(self.config, self.task_config, self.theme, self.theme_alt_backgrounds)
         self.init_task_colors()
         self.task_colorizer = TaskColorizer(self.task_color_config)
-        self.formatter = formatter.Defaults(self.config, self.task_config, self.markers, self.task_colorizer)
+        self.formatter = formatter.Defaults(self.loader, self.config, self.task_config, self.markers, self.task_colorizer)
         self.request_reply = RequestReply()
         # TODO: TaskTable is dependent on a bunch of setup above, this order
         # feels brittle.
@@ -783,8 +786,8 @@ class Application():
         else:
             raise_(RuntimeError, "Error retrieving completed tasks: %s" % stderr)
 
-    def refresh(self, config=None):
-        self.bootstrap(config)
+    def refresh(self, loader=None, config=None):
+        self.bootstrap(loader, config)
         self.build_main_widget()
         # NOTE: Don't see any other way to clear the old palette.
         self.loop.screen._palette = {}
