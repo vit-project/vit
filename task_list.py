@@ -280,8 +280,10 @@ class TaskTable(object):
         self.make_header()
 
     def make_header(self):
-        last_column = self.columns[-1]
-        columns = [self.make_header_column(column, column == last_column) for column in self.columns]
+        columns = []
+        if len(self.columns) > 0:
+            last_column = self.columns[-1]
+            columns = [self.make_header_column(column, column == last_column) for column in self.columns]
         columns.append(self.make_padding('list-header-column'))
         list_header = urwid.Columns(columns)
         self.header = urwid.AttrMap(list_header, 'list-header')
