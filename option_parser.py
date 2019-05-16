@@ -7,7 +7,7 @@ class Parser(optparse.OptionParser):
         return self.epilog
 
 parser = Parser(
-  usage='%prog [options] [report]',
+  usage='%prog [options] [report] [filters]',
   version=version.VIT,
   epilog="""
 VIT (Visual  Interactive Taskwarrior) is a lightweight, curses-based front end for
@@ -31,14 +31,11 @@ parser.add_option('--list-actions',
 )
 
 def parse():
-    options, remainder = parser.parse_args()
-    if len(remainder) > 1:
-        parser.print_help()
-        sys.exit(1)
+    options, filters = parser.parse_args()
     if options.list_actions:
         list_actions()
         sys.exit(0)
-    return options, remainder
+    return options, filters
 
 def format_dictionary_list(item, description):
     print("%s:" % item)

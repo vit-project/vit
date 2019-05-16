@@ -46,6 +46,7 @@ DEFAULTS = {
     },
     'report': {
         'default_report': 'next',
+        'default_filter_only_report': 'next',
         'indent_subprojects': True,
         'row_striping': True,
     },

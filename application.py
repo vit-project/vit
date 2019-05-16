@@ -62,22 +62,24 @@ class MainFrame(urwid.Frame):
             return super().keypress(size, key)
 
 class Application():
-    def __init__(self, report):
+    def __init__(self, filters):
+        self.extra_filters = filters
         self.loader = Loader()
         self.config = ConfigParser(self.loader)
         self.task_config = TaskParser(self.config)
         self.reports = self.task_config.get_reports()
-        self.report = self.get_default_report(report)
+        self.set_report()
         self.setup_main_loop()
         self.refresh(self.config, self.task_config)
         self.loop.run()
 
-    def get_default_report(self, report):
-        if not report:
-            report = self.config.get('report', 'default_report')
-        if report not in self.reports:
-            raise_(ValueError, "report '%s' not found" % report)
-        return report
+    def set_report(self):
+        if len(self.extra_filters) == 0:
+            self.report = self.config.get('report', 'default_report')
+        elif self.extra_filters[0] in self.reports:
+            self.report = self.extra_filters.pop(0)
+        else:
+            self.report = self.config.get('report', 'default_filter_only_report')
 
     def setup_main_loop(self):
         self.loop = urwid.MainLoop(urwid.Text(''), unhandled_input=self.key_pressed, pop_ups=True)
@@ -92,7 +94,6 @@ class Application():
         self.task_config = task_config if task_config else TaskParser(self.config)
         self.event = event.Emitter()
         self.setup_config()
-        self.extra_filters = []
         self.search_term_active = ''
         self.action_registry = ActionRegistry()
         self.actions = Actions(self.action_registry)

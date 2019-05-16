@@ -4,10 +4,8 @@ import option_parser
 from application import Application
 
 def main():
-    options, remainder = option_parser.parse()
-    report = remainder[0] if len(remainder) > 0 else None
-
-    Application(report)
+    options, filters = option_parser.parse()
+    Application(filters)
 
 if __name__ == '__main__':
     main()
