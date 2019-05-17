@@ -13,7 +13,7 @@ from vit import util
 
 BASE_DIR = os.path.dirname(os.path.realpath(__file__))
 BRACKETS_REGEX = re.compile("[<>]")
-DEFAULT_KEYBINDINGS_SECTIONS = ('global', 'command', 'navigation', 'report')
+DEFAULT_KEYBINDINGS_SECTIONS = ('global', 'navigation', 'command', 'report')
 CONFIG_NAME_SPECIAL_KEY_SUBSTITUTIONS = {
     'colon': ':',
     'equals': '=',
@@ -33,6 +33,7 @@ class KeybindingParser(object):
         self.default_keybinding_name = self.config.get('vit', 'default_keybindings')
         self.default_keybindings = configparser.SafeConfigParser()
         self.default_keybindings.optionxform=str
+        self.sections = DEFAULT_KEYBINDINGS_SECTIONS
         self.keybindings = {}
         self.multi_key_cache = {}
 
@@ -53,7 +54,7 @@ class KeybindingParser(object):
             self.default_keybindings.read(keybinding_file)
         else:
             raise_(KeybindingError, "default_keybindings setting '%s' invalid, file not found" % name)
-        for section in DEFAULT_KEYBINDINGS_SECTIONS:
+        for section in self.sections:
             bindings = self.items(section)
             self.add_keybindings(bindings)
 
@@ -124,6 +125,7 @@ class KeybindingParser(object):
             for keys in key_groups.strip().split(','):
                 parsed_keys, has_modifier = self.parse_keybinding_keys(keys)
                 self.keybindings[parsed_keys] = {
+                    'label': keys,
                     'has_modifier': has_modifier,
                 }
                 if action_name:

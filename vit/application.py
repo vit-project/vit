@@ -21,6 +21,7 @@ from vit.util import clear_screen, string_to_args, is_mouse_event
 from vit.process import Command
 from vit.task import TaskListModel, TaskAutoComplete
 from vit.keybinding_parser import KeybindingParser
+from vit.help import Help
 from vit.key_cache import KeyCache
 from vit.actions import Actions
 from vit.markers import Markers
@@ -110,6 +111,7 @@ class Application():
         self.task_colorizer = TaskColorizer(self.task_color_config)
         self.formatter = formatter.Defaults(self.loader, self.config, self.task_config, self.markers, self.task_colorizer)
         self.request_reply = RequestReply()
+        self.help = Help(self.keybinding_parser, self.actions.get())
         # TODO: TaskTable is dependent on a bunch of setup above, this order
         # feels brittle.
         self.build_task_table()
@@ -340,7 +342,9 @@ class Application():
         args = string_to_args(text)
         if len(args):
             command = args.pop(0)
-            if command in ('q',):
+            if command in ('h', 'help'):
+                entries = self.help.filter_entries(args)
+            elif command in ('q',):
                 self.quit()
             elif command in ('!', '!r', '!w', '!rw', '!wr'):
                 kwargs = {}
