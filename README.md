@@ -25,9 +25,11 @@ Follow the directions in [INSTALL.md](INSTALL.md)
 
 #### Recommendations:
 
+ * VIT will suggest to install a default user config file if none exists -- it's fully commented with all configuration options, check it out.
  * Do ```vit --help``` *(know the vit command line arguments)*
  * Do ```:help``` in vit *(look over the "commands")*
  * Use an xterm terminal *(for full color support)*
+ * For suggestions on futher tweaks, see [CUSTOMIZE.md](CUSTOMIZE.md)
 
 #### Development:
 
