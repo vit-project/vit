@@ -5,4 +5,5 @@ include vit/VERSION
 include CUSTOMIZE.md
 include DEVELOPMENT.md
 include INSTALL.md
+include LICENSE
 include README.md
