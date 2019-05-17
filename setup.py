@@ -3,7 +3,7 @@ from os import path
 
 
 DIR = path.dirname(path.abspath(__file__))
-VIT_VERSION = open(path.join(DIR, 'VERSION')).read().strip()
+VIT_VERSION = open(path.join(DIR, 'vit', 'VERSION')).read().strip()
 INSTALL_PACKAGES = open(path.join(DIR, 'requirements.txt')).read().splitlines()
 
 with open(path.join(DIR, 'README.md')) as f:

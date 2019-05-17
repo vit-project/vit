@@ -1,7 +1,7 @@
 include vit/config/config.sample.ini
 include vit/keybinding/vi.ini
+include vit/VERSION
 
 include DEVELOPMENT.md
 include INSTALL.md
 include README.md
-include VERSION
