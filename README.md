@@ -1,6 +1,8 @@
 # VIT
 
-Visual Interactive Taskwarrior full-screen terminal interface. 
+Visual Interactive Taskwarrior full-screen terminal interface.
+
+**IMPORTANT:** VIT 2.x is currently in alpha release, and is looking for testers/contributors. The featureset of VIT 1.x has been mostly implemented, and the author is already using it for everyday interface with TaskWarrior. Still lots of work/refactoring left to polish it for release, though...
 
 ## Features
 
@@ -17,7 +19,7 @@ Visual Interactive Taskwarrior full-screen terminal interface.
 ## Requirements
 
  * [TaskWarrior](https://taskwarrior.org) version 2.1.2 or newer
- * [Python](https://www.python.org) 2.7+, 3.2+ 
+ * [Python](https://www.python.org) 2.7+, 3.2+
 
 ## Installation
 

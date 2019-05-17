@@ -8,4 +8,12 @@
         * ```alias vit='PYTHONPATH=[path_to_root_dir] python vit/command_line.py'```
 
 ### Architecture
-WIP
+
+VIT 2.x is currently in alpha release, and the architecture is subject to change at any time. There's still quite a bit of refactoring left.
+
+The long-term vision is:
+
+ * Solid test coverage
+ * Plenty of inline documentation
+ * An interface-driven, modular design that allows most components to be overridden/customized
+ * A plugin architecture where appropriate (a good example would be the elements of the top status bar -- each element could be a plugin, allowing third-party plugins to be written and used in that portion of the app)
