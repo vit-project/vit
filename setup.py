@@ -2,9 +2,8 @@ from setuptools import setup
 from os import path
 
 
-# TODO: Figure out how to merge this with version.py
-VIT_VERSION='2.0-alpha1'
 DIR = path.dirname(path.abspath(__file__))
+VIT_VERSION = open(path.join(DIR, 'VERSION')).read().strip()
 INSTALL_PACKAGES = open(path.join(DIR, 'requirements.txt')).read().splitlines()
 
 with open(path.join(DIR, 'README.md')) as f:

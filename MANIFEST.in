@@ -4,3 +4,4 @@ include vit/keybinding/vi.ini
 include DEVELOPMENT.md
 include INSTALL.md
 include README.md
+include VERSION
