@@ -1,11 +1,10 @@
 #!/usr/bin/env python
 
-import option_parser
-from application import Application
+from vit import parse_options, Application
 
 def main():
-    options, filters = option_parser.parse()
-    Application(filters)
+    options, filters = parse_options()
+    Application(options, filters)
 
 if __name__ == '__main__':
     main()

@@ -1,3 +1,5 @@
-urwid
-tasklib
+pytz
 six
+tasklib
+tzlocal
+urwid
