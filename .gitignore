@@ -1,1 +1,8 @@
 .python-version
+
+# Setuptools build/distribution folder.
+/build/
+/dist/
+
+# Python egg metadata, regenerated from source files by setuptools.
+/*.egg-info

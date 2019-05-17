@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-
 from vit import parse_options, Application
 
 def main():
