@@ -12,7 +12,7 @@ class AutoComplete(object):
     def __init__(self, config, default_filters=None, extra_filters=None):
         self.default_filters = default_filters or ('column', 'project', 'tag')
         self.extra_filters = extra_filters or {}
-        self.default_prefixes = {
+        self.default_filter_config = {
             'column': {
                 'suffixes': [':'],
             },
@@ -44,13 +44,13 @@ class AutoComplete(object):
         else:
             raise_(RuntimeError, "Error running command '%s': %s" % (command, stderr))
 
-    def make_entries(self, filters, prefixes):
+    def make_entries(self, filters, filter_config):
         entries = []
         for ac_type in filters:
             items = getattr(self, ac_type)
-            include_unprefixed = prefixes[ac_type]['include_unprefixed'] if ac_type in prefixes and 'include_unprefixed' in prefixes[ac_type] else False
-            type_prefixes = prefixes[ac_type]['prefixes'] if ac_type in prefixes and 'prefixes' in prefixes[ac_type] else []
-            type_suffixes = prefixes[ac_type]['suffixes'] if ac_type in prefixes and 'suffixes' in prefixes[ac_type] else []
+            include_unprefixed = filter_config[ac_type]['include_unprefixed'] if ac_type in filter_config and 'include_unprefixed' in filter_config[ac_type] else False
+            type_prefixes = filter_config[ac_type]['prefixes'] if ac_type in filter_config and 'prefixes' in filter_config[ac_type] else []
+            type_suffixes = filter_config[ac_type]['suffixes'] if ac_type in filter_config and 'suffixes' in filter_config[ac_type] else []
             if include_unprefixed:
                 for item in items:
                     entries.append((ac_type, item))
@@ -63,17 +63,17 @@ class AutoComplete(object):
         entries.sort()
         return entries
 
-    def setup(self, text_callback, filters=None, prefixes=None):
+    def setup(self, text_callback, filters=None, filter_config=None):
         if self.is_setup:
             self.reset()
         self.text_callback = text_callback
         if not filters:
             filters = self.default_filters
-        if not prefixes:
-            prefixes = self.default_prefixes
+        if not filter_config:
+            filter_config = self.default_filter_config
         self.refresh()
-        self.entries = self.make_entries(filters, prefixes)
-        self.root_only_filters = list(filter(lambda f: True if f in prefixes and 'root_only' in prefixes[f] else False, filters))
+        self.entries = self.make_entries(filters, filter_config)
+        self.root_only_filters = list(filter(lambda f: True if f in filter_config and 'root_only' in filter_config[f] else False, filters))
         self.is_setup = True
 
     def teardown(self):

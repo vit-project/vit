@@ -692,30 +692,30 @@ class Application():
             self.autocomplete.setup(callback)
         elif op in ('ex',):
             filters = ('report', 'column', 'project', 'tag')
-            prefixes = copy.deepcopy(self.autocomplete.default_prefixes)
-            prefixes['report'] = {
+            filter_config = copy.deepcopy(self.autocomplete.default_filter_config)
+            filter_config['report'] = {
                 'include_unprefixed': True,
                 'root_only': True,
             }
-            self.autocomplete.setup(callback, filters=filters, prefixes=prefixes)
+            self.autocomplete.setup(callback, filters=filters, filter_config=filter_config)
         elif op in ('project',):
             filters = ('project',)
-            prefixes = {
+            filter_config = {
                 'project': {
                     'prefixes': [],
                     'include_unprefixed': True,
                 },
             }
-            self.autocomplete.setup(callback, filters=filters, prefixes=prefixes)
+            self.autocomplete.setup(callback, filters=filters, filter_config=filter_config)
         elif op in ('tag',):
             filters = ('tag',)
-            prefixes = {
+            filter_config = {
                 'tag': {
                     'prefixes': ['+', '-'],
                     'include_unprefixed': True,
                 },
             }
-            self.autocomplete.setup(callback, filters=filters, prefixes=prefixes)
+            self.autocomplete.setup(callback, filters=filters, filter_config=filter_config)
 
     def activate_message_bar(self, message='', message_type='status'):
         self.footer.show_widget('message')
