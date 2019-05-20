@@ -5,7 +5,7 @@ class UdaIndicator(Formatter):
         if not value:
             return self.markup_none(self.colorize())
         else:
-            indicator = self.defaults.indicator_uda[self.column]
+            indicator = self.formatter.indicator_uda[self.column]
             return (len(indicator), (self.colorize(value), indicator))
 
     def colorize(self, value=None):

@@ -10,4 +10,4 @@ class DescriptionOneline(Description):
         return "".join(formatted_annotations)
 
     def format_annotation(self, annotation):
-        return ' %s %s' % (annotation['entry'].strftime(self.defaults.annotation), annotation['description'])
+        return ' %s %s' % (annotation['entry'].strftime(self.formatter.annotation), annotation['description'])

@@ -13,7 +13,7 @@ from functools import reduce
 import urwid
 
 from vit import version
-from vit import formatter
+from vit.formatter_base import FormatterBase
 from vit import event
 from vit.loader import Loader
 from vit.config_parser import ConfigParser, TaskParser
@@ -110,7 +110,7 @@ class Application():
         self.task_color_config = TaskColorConfig(self.config, self.task_config, self.theme, self.theme_alt_backgrounds)
         self.init_task_colors()
         self.task_colorizer = TaskColorizer(self.task_color_config)
-        self.formatter = formatter.Defaults(self.loader, self.config, self.task_config, self.markers, self.task_colorizer)
+        self.formatter = FormatterBase(self.loader, self.config, self.task_config, self.markers, self.task_colorizer)
         self.request_reply = RequestReply()
         self.help = Help(self.keybinding_parser, self.actions.get())
         # TODO: TaskTable is dependent on a bunch of setup above, this order

@@ -15,7 +15,7 @@ class Description(String):
         return (width, colorized_description)
 
     def format_description_truncated(self, description):
-        return '%s...' % description[:self.defaults.description_truncate_len] if len(description) > self.defaults.description_truncate_len else description
+        return '%s...' % description[:self.formatter.description_truncate_len] if len(description) > self.formatter.description_truncate_len else description
 
     def format_combined(self, colorized_description, task):
         annotation_width, formatted_annotations = self.format_annotations(task)
@@ -34,7 +34,7 @@ class Description(String):
         return width, "\n".join(formatted_annotations)
 
     def format_annotation(self, annotation):
-        return '  %s %s' % (annotation['entry'].strftime(self.defaults.annotation), annotation['description'])
+        return '  %s %s' % (annotation['entry'].strftime(self.formatter.annotation), annotation['description'])
 
     def colorize(self, part):
         return self.colorizer.keyword(part)

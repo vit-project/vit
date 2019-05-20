@@ -67,7 +67,7 @@ class Markers(Marker):
             return self.add_label(color, label, width, text_markup)
 
     def format_due(self, width, text_markup, due, task):
-        due_state = self.defaults.get_due_state(due, task)
+        due_state = self.formatter.get_due_state(due, task)
         if due_state:
             color = self.colorizer.due(due_state)
             label = self.labels['%s.label' % due_state]
@@ -103,7 +103,7 @@ class Markers(Marker):
         return self.add_label(color, label, width, text_markup)
 
     def format_active(self, width, text_markup, start, task):
-        active = self.defaults.get_active_state(start, task)
+        active = self.formatter.get_active_state(start, task)
         if active:
             color = self.colorizer.active(active)
             label = self.labels['active.label']
@@ -116,7 +116,7 @@ class Markers(Marker):
         return self.add_label(color, label, width, text_markup)
 
     def format_scheduled(self, width, text_markup, scheduled, task):
-        scheduled = self.defaults.get_scheduled_state(scheduled, task)
+        scheduled = self.formatter.get_scheduled_state(scheduled, task)
         if scheduled:
             color = self.colorizer.scheduled(scheduled)
             label = self.labels['scheduled.label']
@@ -125,7 +125,7 @@ class Markers(Marker):
 
 
     def format_until(self, width, text_markup, until, task):
-        until = self.defaults.get_until_state(until, task)
+        until = self.formatter.get_until_state(until, task)
         if until:
             color = self.colorizer.until(until)
             label = self.labels['until.label']
