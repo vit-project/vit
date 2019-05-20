@@ -151,14 +151,14 @@ class AutoComplete(object):
     def regexify(self, string):
         return REGEX_SPECIAL_CHARS_REGEX.sub(r"\\\1", string)
 
+    # TODO: This is way hacky, not sure of a cleaner way to handle
+    # multi-spaced search terms, of which help is the only one now.
     def is_help_request(self):
         return self.prefix_parts[0] in ['help']
 
     def parse_text(self, text, edit_pos):
         full_prefix = text[:edit_pos]
         self.prefix_parts = util.string_to_args(full_prefix)
-        # TODO: This is way hacky, not sure of a cleaner way to handle
-        # multi-spaced search terms, of which help is the only one now.
         if self.is_help_request():
             self.search_fragment = full_prefix
             self.prefix = self.suffix = ''
