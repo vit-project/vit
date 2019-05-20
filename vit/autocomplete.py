@@ -1,4 +1,5 @@
 from future.utils import raise_
+from functools import reduce
 
 import re
 
@@ -40,9 +41,24 @@ class AutoComplete(object):
         command = 'task _%ss' % ac_type
         returncode, stdout, stderr = self.command.run(command, capture_output=True)
         if returncode == 0:
-            return list(filter(lambda x: True if x else False, stdout.split("\n")))
+            items = list(filter(lambda x: True if x else False, stdout.split("\n")))
+            if ac_type == 'project':
+                items = self.create_project_entries(items)
+            return items
         else:
             raise_(RuntimeError, "Error running command '%s': %s" % (command, stderr))
+
+    def create_project_entries(self, projects):
+        def projects_reducer(projects_accum, project):
+            def project_reducer(project_accum, part):
+                project_accum.append(part)
+                project_string = '.'.join(project_accum)
+                if not project_string in projects_accum:
+                    projects_accum.append(project_string)
+                return project_accum
+            reduce(project_reducer, project.split('.'), [])
+            return projects_accum
+        return reduce(projects_reducer, projects, [])
 
     def make_entries(self, filters, filter_config):
         entries = []
