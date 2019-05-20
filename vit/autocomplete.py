@@ -146,17 +146,26 @@ class AutoComplete(object):
         return len(self.root_only_filters) > 0
 
     def search_fragment_is_root(self):
-        return len(self.prefix_parts) == 0
+        return len(self.prefix_parts) == 0 or self.is_help_request()
 
     def regexify(self, string):
         return REGEX_SPECIAL_CHARS_REGEX.sub(r"\\\1", string)
 
+    def is_help_request(self):
+        return self.prefix_parts[0] in ['help']
+
     def parse_text(self, text, edit_pos):
         full_prefix = text[:edit_pos]
         self.prefix_parts = util.string_to_args(full_prefix)
-        self.search_fragment = self.prefix_parts.pop()
-        self.prefix = ' '.join(self.prefix_parts)
-        self.suffix = text[(edit_pos + 1):]
+        # TODO: This is way hacky, not sure of a cleaner way to handle
+        # multi-spaced search terms, of which help is the only one now.
+        if self.is_help_request():
+            self.search_fragment = full_prefix
+            self.prefix = self.suffix = ''
+        else:
+            self.search_fragment = self.prefix_parts.pop()
+            self.prefix = ' '.join(self.prefix_parts)
+            self.suffix = text[(edit_pos + 1):]
 
     def can_tab(self, text, edit_pos):
         if edit_pos == 0:

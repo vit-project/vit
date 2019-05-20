@@ -17,6 +17,17 @@ class Help(object):
         sections = self.add_custom_help(sections)
         self.compose_entries(sections)
 
+    def autocomplete_entries(self):
+        return [
+            'help',
+            'help command',
+            'help global',
+            'help help',
+            'help navigation',
+            'help report',
+        ]
+
+
     def filter_entries(self, filter_args):
         if len(filter_args) > 0:
             args_regex = re.compile('(%s)' % '|'.join(filter_args))
@@ -61,12 +72,13 @@ class Help(object):
             (':REPORT FILTER', 'Display REPORT with FILTER (supports tab completion)'),
         ]
         sections['help'] = [
-            (':h', 'View the whole help file'),
-            (':h command', 'View help about commands'),
-            (':h help', 'View help about help'),
-            (':h navigation', 'View help about navigation'),
-            (':h report', 'View help about reports'),
-            (':h PATTERN', 'View help file lines matching PATTERN'),
+            (':help', 'View the whole help file'),
+            (':help command', 'View help about commands'),
+            (':help global', 'View help global actions'),
+            (':help help', 'View help about help'),
+            (':help navigation', 'View help about navigation'),
+            (':help report', 'View help about reports'),
+            (':help PATTERN', 'View help file lines matching PATTERN'),
         ]
         return sections
 

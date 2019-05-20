@@ -497,7 +497,7 @@ class Application():
             urwid.Text('Loading...'),
         ])
         self.footer = MultiWidget()
-        self.autocomplete = AutoComplete(self.config, extra_filters={'report': self.reports.keys()})
+        self.autocomplete = AutoComplete(self.config, extra_filters={'report': self.reports.keys(), 'help': self.help.autocomplete_entries()})
         self.command_bar = CommandBar(autocomplete=self.autocomplete, event=self.event)
         self.message_bar = urwid.Text('', align='center')
         self.footer.add_widget('command', self.command_bar)
@@ -691,9 +691,13 @@ class Application():
         if op in ('filter', 'add', 'modify'):
             self.autocomplete.setup(callback)
         elif op in ('ex',):
-            filters = ('report', 'column', 'project', 'tag')
+            filters = ('report', 'column', 'project', 'tag', 'help')
             filter_config = copy.deepcopy(self.autocomplete.default_filter_config)
             filter_config['report'] = {
+                'include_unprefixed': True,
+                'root_only': True,
+            }
+            filter_config['help'] = {
                 'include_unprefixed': True,
                 'root_only': True,
             }
