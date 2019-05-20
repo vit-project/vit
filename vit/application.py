@@ -19,7 +19,8 @@ from vit.loader import Loader
 from vit.config_parser import ConfigParser, TaskParser
 from vit.util import clear_screen, string_to_args, is_mouse_event
 from vit.process import Command
-from vit.task import TaskListModel, TaskAutoComplete
+from vit.task import TaskListModel
+from vit.autocomplete import AutoComplete
 from vit.keybinding_parser import KeybindingParser
 from vit.help import Help
 from vit.key_cache import KeyCache
@@ -496,7 +497,7 @@ class Application():
             urwid.Text('Loading...'),
         ])
         self.footer = MultiWidget()
-        self.autocomplete = TaskAutoComplete(self.config, extra_filters={'report': self.reports.keys()})
+        self.autocomplete = AutoComplete(self.config, extra_filters={'report': self.reports.keys()})
         self.command_bar = CommandBar(autocomplete=self.autocomplete, event=self.event)
         self.message_bar = urwid.Text('', align='center')
         self.footer.add_widget('command', self.command_bar)
