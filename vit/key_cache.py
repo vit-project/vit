@@ -13,6 +13,9 @@ class KeyCache(object):
     def set(self, keys=''):
         self.cached_keys = keys
 
+    def is_keybinding(self, keys):
+        return keys in self.keybindings
+
     def sort_keybindings_by_len(self, keybindings, min_len=1):
         max_key_length = len(max(keybindings, key=len))
         def reducer(accum, key_length):

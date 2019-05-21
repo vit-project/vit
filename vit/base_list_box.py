@@ -99,13 +99,17 @@ class BaseListBox(urwid.ListBox):
     def list_action_executed(self, size, key):
         pass
 
+    def eat_other_keybindings(self):
+        return False
+
     def keypress(self, size, key):
         keys = self.key_cache.get(key)
         if self.action_manager_registrar.execute_handler(keys, size):
             self.list_action_executed(size, key)
             return None
-        else:
-            key = self.transform_special_keys(key)
-            return super().keypress(size, key)
+        if self.eat_other_keybindings() and self.key_cache.is_keybinding(keys):
+            return None
+        key = self.transform_special_keys(key)
+        return super().keypress(size, key)
 
 

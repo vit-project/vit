@@ -77,16 +77,8 @@ class HelpListBox(BaseListBox):
     def exit_help(self, data):
         self.event.emit("help:exit")
 
-    def keypress(self, size, key):
-        keys = self.key_cache.get(key)
-        if self.action_manager_registrar.execute_handler(keys, size):
-            self.list_action_executed(size, key)
-            return None
-        elif keys in self.keybindings:
-            return None
-        else:
-            key = self.transform_special_keys(key)
-            return super(BaseListBox, self).keypress(size, key)
+    def eat_other_keybindings(self):
+        return True
 
 class Help(object):
     """Generates help list/display.

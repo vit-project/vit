@@ -37,6 +37,9 @@ class KeybindingParser(object):
         self.keybindings = {}
         self.multi_key_cache = {}
 
+    def is_keybinding(self, keys):
+        return keys in self.keybindings
+
     def items(self, section):
         try:
             return self.default_keybindings.items(section)
