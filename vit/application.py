@@ -112,14 +112,15 @@ class Application():
         self.task_colorizer = TaskColorizer(self.task_color_config)
         self.formatter = FormatterBase(self.loader, self.config, self.task_config, self.markers, self.task_colorizer)
         self.request_reply = RequestReply()
-        self.help = Help(self.keybinding_parser, self.actions.get())
         # TODO: TaskTable is dependent on a bunch of setup above, this order
         # feels brittle.
         self.build_task_table()
         self.set_request_callbacks()
+        self.help = Help(self.keybinding_parser, self.actions.get(), event=self.event, request_reply=self.request_reply, action_manager=self.action_manager)
         self.event.listen('command-bar:keypress', self.command_bar_keypress)
         self.event.listen('task:denotate', self.denotate_task)
         self.event.listen('action-manager:action-executed', self.action_manager_action_executed)
+        self.event.listen('help:exit', self.deactivate_help)
 
     def setup_config(self):
         self.confirm = self.config.confirmation_enabled
@@ -339,12 +340,27 @@ class Application():
         else:
             return key
 
+    def activate_help(self, args):
+        [self.original_header_top_contents, self.original_header_bottom_contents] = self.header.contents
+        self.original_widget_body = self.widget.body
+        self.original_footer = self.footer
+        help_widget = self.help.update(args)
+        self.header.contents[:] = []
+        self.widget.body = help_widget
+        self.footer = urwid.Pile([])
+
+    def deactivate_help(self, data):
+        self.header.contents[:] = [self.original_header_top_contents, self.original_header_bottom_contents]
+        self.widget.body = self.original_widget_body
+        self.footer = self.original_footer
+
     def ex(self, text, metadata):
         args = string_to_args(text)
         if len(args):
             command = args.pop(0)
             if command in ('h', 'help'):
-                entries = self.help.filter_entries(args)
+                metadata = {}
+                self.activate_help(args)
             elif command in ('q',):
                 self.quit()
             elif command in ('!', '!r', '!w', '!rw', '!wr'):
