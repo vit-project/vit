@@ -10,9 +10,9 @@ class ActionManagerRegistrar(object):
 
     def deregister(self, name=None):
         if name:
-            self.registry.deregister(uuid, name)
+            self.registry.deregister(self.uuid, name)
         else:
-            any(self.registry.deregister(uuid, action) for _, action in self.actions().items())
+            any(self.registry.deregister(self.uuid, action) for _, action in self.actions().items())
 
     def actions(self):
         return self.registry.get_registered(self.uuid)
