@@ -3,6 +3,9 @@ import urwid
 from vit import util
 from vit.base_list_box import BaseListBox
 
+OVERLAY_WIDTH = 50
+OVERLAY_HEIGHT = 15
+
 class AnnotationFrame(urwid.Frame):
     def __init__(self, body, **kwargs):
         self.listbox = body.original_widget
@@ -42,8 +45,7 @@ class AnnotationListBox(BaseListBox):
         if self.previous_focus_position != self.focus_position:
             if self.previous_focus_position is not None:
                 self.update_focus_attr({}, position=self.previous_focus_position)
-            if self.focus_position is not None:
-                self.update_focus_attr('reveal focus')
+        self.update_focus_attr('reveal focus')
         self.previous_focus_position = self.focus_position
 
     def update_focus_attr(self, attr, position=None):
@@ -129,8 +131,9 @@ class DenotationPopUpDialog(urwid.WidgetWrap):
         super().__init__(urwid.AttrWrap(box, 'pop_up'))
 
 class DenotationPopupLauncher(urwid.PopUpLauncher):
-    def __init__(self, original_widget, formatter, event=None, request_reply=None, action_manager=None):
+    def __init__(self, original_widget, formatter, screen, event=None, request_reply=None, action_manager=None):
         self.formatter = formatter
+        self.screen = screen
         self.event = event
         self.request_reply = request_reply
         self.action_manager = action_manager
@@ -151,5 +154,6 @@ class DenotationPopupLauncher(urwid.PopUpLauncher):
         return pop_up
 
     def get_pop_up_parameters(self):
-        # TODO: Calculate some of these dynamically?
-        return {'left':20, 'top':1, 'overlay_width':50, 'overlay_height':15}
+        screen_width, _ = self.screen.get_cols_rows()
+        left = round((screen_width - OVERLAY_WIDTH) / 2)
+        return {'left':left, 'top':1, 'overlay_width':OVERLAY_WIDTH, 'overlay_height':OVERLAY_HEIGHT}
