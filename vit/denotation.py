@@ -20,10 +20,7 @@ class AnnotationListBox(BaseListBox):
     """Maps denotation list shortcuts to default ListBox class.
     """
 
-    # TODO: It's stupid to receive annotations here, but I can't figure out
-    # how to operate on a SimpleFocusListWalker list by focus position.
-    def __init__(self, body, annotations, event=None, request_reply=None, action_manager=None):
-        self.annotations = annotations
+    def __init__(self, body, event=None, request_reply=None, action_manager=None):
         super().__init__(body, event=event, request_reply=request_reply, action_manager=action_manager)
         self.init_event_listeners()
 
@@ -39,7 +36,7 @@ class AnnotationListBox(BaseListBox):
         self.modified_signal = urwid.connect_signal(self.list_walker, 'modified', signal_handler)
 
     def get_selected_annotation(self):
-        return self.annotations[self.focus_position].annotation
+        return self.list_walker[self.focus_position].annotation
 
     def update_focus(self):
         if self.previous_focus_position != self.focus_position:
@@ -53,7 +50,7 @@ class AnnotationListBox(BaseListBox):
         attr = attr if isinstance(attr, dict) else {None: attr}
         if position is None:
             position = self.focus_position
-        self.annotations[position].row.set_attr_map(attr)
+        self.list_walker[position].row.set_attr_map(attr)
 
     def update_focus_blur(self, op):
         attr = 'reveal focus' if op == 'focus' else 'button cancel'
@@ -110,7 +107,7 @@ class DenotationPopUpDialog(urwid.WidgetWrap):
             'description': 32,
         }
         annotations = [SelectableRow(a, widths, formatter) for a in self.task['annotations']]
-        self.listbox = AnnotationListBox(urwid.SimpleFocusListWalker(annotations), annotations, event=self.event, request_reply=self.request_reply, action_manager=self.action_manager)
+        self.listbox = AnnotationListBox(urwid.SimpleFocusListWalker(annotations), event=self.event, request_reply=self.request_reply, action_manager=self.action_manager)
         self.listbox.focus_position = 0
         def denotate(button):
             self._emit("close")
