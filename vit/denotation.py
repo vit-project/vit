@@ -93,11 +93,11 @@ class DenotationPopUpDialog(urwid.WidgetWrap):
     """A dialog for denotating tasks."""
     # TODO: Is this necessary? Copied from examples.
     signals = ['close']
-    def __init__(self, task, formatter, event=None, request_reply=None, action_manager=None):
+    def __init__(self, task, listbox, formatter, event=None):
         self.task = task
+        self.listbox = listbox
+        self.formatter = formatter
         self.event = event
-        self.request_reply = request_reply
-        self.action_manager = action_manager
         self.uuid = self.task['uuid']
         denotate_button = urwid.AttrWrap(urwid.Button("Denotate"), '', 'button action')
         cancel_button = urwid.AttrWrap(urwid.Button("Cancel"), '', 'button cancel')
@@ -106,8 +106,8 @@ class DenotationPopUpDialog(urwid.WidgetWrap):
             'entry': 10,
             'description': 32,
         }
-        annotations = [SelectableRow(a, widths, formatter) for a in self.task['annotations']]
-        self.listbox = AnnotationListBox(urwid.SimpleFocusListWalker(annotations), event=self.event, request_reply=self.request_reply, action_manager=self.action_manager)
+        annotations = [SelectableRow(a, widths, self.formatter) for a in self.task['annotations']]
+        self.listbox.list_walker[:] = annotations
         self.listbox.focus_position = 0
         def denotate(button):
             self._emit("close")
@@ -134,6 +134,7 @@ class DenotationPopupLauncher(urwid.PopUpLauncher):
         self.event = event
         self.request_reply = request_reply
         self.action_manager = action_manager
+        self.listbox = AnnotationListBox(urwid.SimpleFocusListWalker([]), event=self.event, request_reply=self.request_reply, action_manager=self.action_manager)
         super().__init__(original_widget)
 
     def set_task(self, task):
@@ -144,7 +145,7 @@ class DenotationPopupLauncher(urwid.PopUpLauncher):
         self.open_pop_up()
 
     def create_pop_up(self):
-        pop_up = DenotationPopUpDialog(self.task, self.formatter, event=self.event, request_reply=self.request_reply, action_manager=self.action_manager)
+        pop_up = DenotationPopUpDialog(self.task, self.listbox, self.formatter, event=self.event)
         urwid.connect_signal(pop_up, 'close',
             lambda button: self.close_pop_up())
         return pop_up
