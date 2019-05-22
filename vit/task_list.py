@@ -28,11 +28,13 @@ class TaskTable(object):
         self.markers = markers
         self.row_striping = self.config.row_striping_enabled
         self.draw_screen = draw_screen_callback
+        self.listbox = TaskListBox(urwid.SimpleFocusListWalker([]), event=self.event, request_reply=self.request_reply, action_manager=self.action_manager)
+        self.init_event_listeners()
 
     def init_event_listeners(self):
         def signal_handler():
             self.update_focus()
-        self.modified_signal = urwid.connect_signal(self.list_walker, 'modified', signal_handler)
+        urwid.connect_signal(self.listbox.list_walker, 'modified', signal_handler)
         def task_list_keypress(data):
             self.update_header(data['size'])
         self.event.listen('task-list:keypress', task_list_keypress)
@@ -59,6 +61,7 @@ class TaskTable(object):
         self.clean_columns()
         self.reconcile_column_width_for_label()
         self.build_table()
+        self.set_focus_position()
         self.update_focus()
 
     def update_header(self, size):
@@ -89,14 +92,22 @@ class TaskTable(object):
     def project_label_for_parents(self, parents):
         return '.'.join(parents) if parents else self.task_config.get_column_label(self.report['name'], 'project')
 
+    def set_focus_position(self):
+        for idx, widget in enumerate(self.listbox.list_walker):
+            if widget.selectable():
+                self.listbox.set_focus(idx)
+                return
+
     def update_focus(self):
-        if len(self.contents) > 0:
+        if self.listbox.focus:
             if self.listbox.previous_focus_position != self.listbox.focus_position:
                 if self.listbox.previous_focus_position is not None and self.listbox.previous_focus_position < len(self.contents):
                     self.contents[self.listbox.previous_focus_position].reset_attr_map()
                 if self.listbox.focus_position is not None:
                     self.update_focus_attr('reveal focus')
-            self.listbox.previous_focus_position = self.listbox.focus_position
+                self.listbox.previous_focus_position = self.listbox.focus_position
+            else:
+                self.update_focus_attr('reveal focus')
         else:
             self.listbox.previous_focus_position = None
 
@@ -275,9 +286,7 @@ class TaskTable(object):
 
     def build_table(self):
         self.contents = [SelectableRow(self.non_filtered_columns, obj, on_select=self.on_select) if isinstance(obj, TaskRow) else ProjectPlaceholderRow(self.columns, obj) for obj in self.rows]
-        self.list_walker = urwid.SimpleFocusListWalker(self.contents)
-        self.listbox = TaskListBox(self.list_walker, event=self.event, request_reply=self.request_reply, action_manager=self.action_manager)
-        self.init_event_listeners()
+        self.listbox.list_walker[:] = self.contents
         self.make_header()
 
     def make_header(self):

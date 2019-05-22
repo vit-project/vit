@@ -23,10 +23,9 @@ class AnnotationListBox(BaseListBox):
     # TODO: It's stupid to receive annotations here, but I can't figure out
     # how to operate on a SimpleFocusListWalker list by focus position.
     def __init__(self, body, annotations, event=None, request_reply=None, action_manager=None):
-        self.list_walker = body
         self.annotations = annotations
+        super().__init__(body, event=event, request_reply=request_reply, action_manager=action_manager)
         self.init_event_listeners()
-        return super().__init__(body, event=event, request_reply=request_reply, action_manager=action_manager)
 
     def list_action_executed(self, size, key):
         data = {

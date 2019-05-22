@@ -41,7 +41,6 @@ class HelpListBox(BaseListBox):
     """
 
     def __init__(self, body, keybindings, event=None, request_reply=None, action_manager=None):
-        self.list_walker = body
         self.keybindings = keybindings
         return super().__init__(body, event=event, request_reply=request_reply, action_manager=action_manager)
 

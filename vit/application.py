@@ -112,10 +112,10 @@ class Application():
         self.task_colorizer = TaskColorizer(self.task_color_config)
         self.formatter = FormatterBase(self.loader, self.config, self.task_config, self.markers, self.task_colorizer)
         self.request_reply = RequestReply()
+        self.set_request_callbacks()
         # TODO: TaskTable is dependent on a bunch of setup above, this order
         # feels brittle.
         self.build_task_table()
-        self.set_request_callbacks()
         self.help = Help(self.keybinding_parser, self.actions.get(), event=self.event, request_reply=self.request_reply, action_manager=self.action_manager)
         self.event.listen('command-bar:keypress', self.command_bar_keypress)
         self.event.listen('task:denotate', self.denotate_task)

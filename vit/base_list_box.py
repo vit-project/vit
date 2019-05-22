@@ -10,6 +10,7 @@ class BaseListBox(urwid.ListBox):
 
     def __init__(self, body, event=None, request_reply=None, action_manager=None):
         self.previous_focus_position = None
+        self.list_walker = body
         self.event = event
         self.request_reply = request_reply
         self.action_manager = action_manager
