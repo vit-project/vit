@@ -404,6 +404,7 @@ class Application():
     def search(self, reverse=False):
         if not self.search_term_active:
             return
+        self.table.batcher.add(0)
         self.search_display_message(reverse)
         current_index = 0 if self.task_list.focus is None else self.task_list.focus_position
         new_focus = self.search_rows(self.search_term_active, current_index, reverse)

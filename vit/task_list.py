@@ -4,12 +4,14 @@ from itertools import repeat
 from functools import partial
 from time import sleep
 import re
+import math
 from functools import cmp_to_key
 
 import urwid
 
 from vit import util
 from vit.base_list_box import BaseListBox
+from vit.list_batcher import ListBatcher
 from vit.formatter.project import Project as ProjectFormatter
 
 MAX_COLUMN_WIDTH = 60
@@ -27,19 +29,46 @@ class TaskTable(object):
         self.action_manager = action_manager
         self.request_reply = request_reply
         self.markers = markers
-        self.row_striping = self.config.row_striping_enabled
         self.draw_screen = draw_screen_callback
-        self.listbox = TaskListBox(urwid.SimpleFocusListWalker([]), self.screen, event=self.event, request_reply=self.request_reply, action_manager=self.action_manager)
+        self.list_walker = urwid.SimpleFocusListWalker([])
+        self.row_striping = self.config.row_striping_enabled
+        self.listbox = TaskListBox(self.list_walker, self.screen, event=self.event, request_reply=self.request_reply, action_manager=self.action_manager)
         self.init_event_listeners()
+        self.set_request_callbacks()
 
     def init_event_listeners(self):
         def signal_handler():
             self.update_focus()
-        urwid.connect_signal(self.listbox.list_walker, 'modified', signal_handler)
+        urwid.connect_signal(self.list_walker, 'modified', signal_handler)
         def task_list_keypress(data):
             self.update_header(data['size'])
         self.event.listen('task-list:keypress', task_list_keypress)
         self.event.listen('task-list:size:change', self.size_changed)
+        self.event.listen('task-list:keypress:down', self.task_list_keypress_down)
+        self.event.listen('task-list:keypress:page_down', self.task_list_keypress_page_down)
+        self.event.listen('task-list:keypress:end', self.task_list_keypress_end)
+        self.event.listen('task-list:keypress:focus_valign_center', self.task_list_keypress_focus_valign_center)
+
+    def set_request_callbacks(self):
+        self.request_reply.set_handler('task-table:batch:next', 'Render next batch of tasks', lambda: self.get_next_task_batch())
+
+    def get_next_task_batch(self):
+        return self.batcher.add()
+
+    def task_list_keypress_down(self, size):
+        self.batcher.add(1)
+
+    def task_list_keypress_page_down(self, size):
+        _, rows = size
+        self.batcher.add(rows)
+
+    def task_list_keypress_end(self, size):
+        self.batcher.add(0)
+
+    def task_list_keypress_focus_valign_center(self, size):
+        _, rows = size
+        half_rows = math.ceil(rows / 2)
+        self.batcher.add(half_rows)
 
     def get_blocking_task_uuids(self):
         return self.request_reply.request('application:blocking_task_uuids')
@@ -47,6 +76,7 @@ class TaskTable(object):
     def update_data(self, report, tasks):
         self.report = report
         self.tasks = tasks
+        self.list_walker.clear()
         self.columns = []
         self.column_names = []
         self.rows = []
@@ -95,7 +125,7 @@ class TaskTable(object):
         return '.'.join(parents) if parents else self.task_config.get_column_label(self.report['name'], 'project')
 
     def set_focus_position(self):
-        for idx, widget in enumerate(self.listbox.list_walker):
+        for idx, widget in enumerate(self.list_walker):
             if widget.selectable():
                 self.listbox.set_focus(idx)
                 return
@@ -103,8 +133,8 @@ class TaskTable(object):
     def update_focus(self):
         if self.listbox.focus:
             if self.listbox.previous_focus_position != self.listbox.focus_position:
-                if self.listbox.previous_focus_position is not None and self.listbox.previous_focus_position < len(self.contents):
-                    self.contents[self.listbox.previous_focus_position].reset_attr_map()
+                if self.listbox.previous_focus_position is not None and self.listbox.previous_focus_position < len(self.list_walker):
+                    self.list_walker[self.listbox.previous_focus_position].reset_attr_map()
                 if self.listbox.focus_position is not None:
                     self.update_focus_attr('reveal focus')
                 self.listbox.previous_focus_position = self.listbox.focus_position
@@ -116,7 +146,7 @@ class TaskTable(object):
     def update_focus_attr(self, attr, position=None):
         if position is None:
             position = self.listbox.focus_position
-        self.contents[position].row.set_attr_map({None: attr})
+        self.list_walker[position].row.set_attr_map({None: attr})
 
     def flash_focus(self, repeat_times=2, pause_seconds=0.1):
         if self.listbox.focus:
@@ -286,10 +316,14 @@ class TaskTable(object):
             self.formatter.task_colorizer.set_background_modifier(modifier)
         return self.task_alt_row
 
+    def format_task_batch(self, partial):
+        return [SelectableRow(self.non_filtered_columns, obj, on_select=self.on_select) if isinstance(obj, TaskRow) else ProjectPlaceholderRow(self.columns, obj) for obj in partial]
+
     def build_table(self):
-        self.contents = [SelectableRow(self.non_filtered_columns, obj, on_select=self.on_select) if isinstance(obj, TaskRow) else ProjectPlaceholderRow(self.columns, obj) for obj in self.rows]
-        self.listbox.list_walker[:] = self.contents
         self.make_header()
+        self.batcher = ListBatcher(self.rows, self.list_walker, batch_to_formatter=self.format_task_batch)
+        _, rows = self.listbox.size
+        self.batcher.add(rows)
 
     def make_header(self):
         columns = []
@@ -313,12 +347,14 @@ class TaskTable(object):
     def rows_size_grew(self, data):
         _, old_rows = data['old_size']
         _, new_rows = data['new_size']
-        return new_rows > old_rows
+        if new_rows > old_rows:
+            return new_rows - old_rows
+        return 0
 
     def size_changed(self, data):
-        if self.rows_size_grew(data):
-            # TODO: Trigger ListBatcher.add()
-            pass
+        grew = self.rows_size_grew(data)
+        if grew > 0:
+            self.batcher.add(grew)
 
 class TaskRow():
     def __init__(self, task, data, alt_row):
@@ -374,10 +410,6 @@ class SelectableRow(urwid.WidgetWrap):
             key = self.on_select(self, size, key)
         return key
 
-    def set_contents(self, contents):
-        # Update the list record inplace...
-        self.contents[:] = contents
-
         # ... and update the displayed items.
         for t, (w, _) in zip(contents, self._columns.contents):
             w.set_text(t)
@@ -431,11 +463,46 @@ class TaskListBox(BaseListBox):
             self.event.emit('task-list:size:change', data)
         return super().render(size, focus)
 
-    def focus_by_task_id(self, task_id):
-        for idx, row in enumerate(self.body):
-            if row.id == task_id:
-                self.focus_position = idx
+    def keypress_down(self, size):
+        self.event.emit('task-list:keypress:down', size)
+        super().keypress_down(size)
+
+    def keypress_page_down(self, size):
+        self.event.emit('task-list:keypress:page_down', size)
+        super().keypress_page_down(size)
+
+    def keypress_end(self, size):
+        self.event.emit('task-list:keypress:end', size)
+        super().keypress_end(size)
+
+    def keypress_focus_valign_center(self, size):
+        self.event.emit('task-list:keypress:focus_valign_center', size)
+        super().keypress_focus_valign_center(size)
+
+    def focus_by_batch(self, match_callback, start_idx):
+        end_idx = start_idx
+        for idx, row in enumerate(self.body[start_idx:]):
+            end_idx = idx + start_idx
+            if match_callback(row):
+                self.focus_position = end_idx
+                return True, end_idx
+        return False, end_idx
+
+    def focus_by_batch_loop(self, match_callback):
+        start_idx = 0
+        while True:
+            found, start_idx = self.focus_by_batch(match_callback, start_idx)
+            complete = self.request_reply.request('task-table:batch:next')
+            if found:
                 return
+            elif complete:
+                self.focus_by_batch(match_callback, start_idx)
+                return
+
+    def focus_by_task_id(self, task_id):
+        def match_callback(row):
+            return row.id == task_id
+        self.focus_by_batch_loop(match_callback)
 
     def focus_by_task_uuid(self, uuid):
         for idx, row in enumerate(self.body):
