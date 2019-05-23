@@ -17,6 +17,17 @@
 
 VIT 2.x is currently in alpha release, and the architecture is subject to change at any time. There's still quite a bit of refactoring left.
 
+Whereas VIT 1.x simply layered an
+[ncurses](https://en.wikipedia.org/wiki/Ncurses)
+interface over CLI calls to the ```task``` binary, VIT 2.x handles
+data/reporting differently:
+ * Data is read from TaskWarrior via the [export](https://taskwarrior.org/docs/commands/export.html) functionality using [tasklib](https://github.com/robgolding/tasklib)
+ * Reports are generated via custom code in VIT, which allows extra features not found in TaskWarrior. Most report-related settings are read directly from the TaskWarrior configuration, which *mostly* allows a single point of configuration
+ * Data is written to TaskWarrior using a combination of ```import``` commands driven by [tasklib](https://github.com/robgolding/tasklib), and CLI calls for more complex scenarios
+
+
+### Roadmap
+
 The long-term vision is:
 
  * Solid test coverage
