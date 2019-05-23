@@ -1,0 +1,10 @@
+include vit/config/config.sample.ini
+include vit/keybinding/vi.ini
+include vit/VERSION
+
+include COLOR.md
+include CUSTOMIZE.md
+include DEVELOPMENT.md
+include INSTALL.md
+include LICENSE
+include README.md

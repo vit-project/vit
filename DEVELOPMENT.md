@@ -1,0 +1,36 @@
+# Development
+
+1. Clone the repository
+2. Change to the root directory
+3. ```pip install -r requirements.txt```
+4. ```vit/command_line.py``` is the entry point for the application. To run it without a full installation:
+    * Set the ```PYTHONPATH``` environment variable to the root directory of the repository
+    * Run it with ```python vit/command_line.py```
+    * A snazzier option is to create a command line alias. For bash:
+        * ```alias vit='PYTHONPATH=[path_to_root_dir] python vit/command_line.py'```
+
+### Tests
+ * Located in the ```tests``` directory
+ * Run with ```./run-tests.sh```
+
+### Architecture
+
+VIT 2.x is currently in alpha release, and the architecture is subject to change at any time. There's still quite a bit of refactoring left.
+
+Whereas VIT 1.x simply layered an
+[ncurses](https://en.wikipedia.org/wiki/Ncurses)
+interface over CLI calls to the ```task``` binary, VIT 2.x handles
+data/reporting differently:
+ * Data is read from TaskWarrior via the [export](https://taskwarrior.org/docs/commands/export.html) functionality using [tasklib](https://github.com/robgolding/tasklib)
+ * Reports are generated via custom code in VIT, which allows extra features not found in TaskWarrior. Most report-related settings are read directly from the TaskWarrior configuration, which *mostly* allows a single point of configuration
+ * Data is written to TaskWarrior using a combination of ```import``` commands driven by [tasklib](https://github.com/robgolding/tasklib), and CLI calls for more complex scenarios
+
+
+### Roadmap
+
+The long-term vision is:
+
+ * Solid test coverage
+ * Plenty of inline documentation
+ * An interface-driven, modular design that allows most components to be overridden/customized
+ * A plugin architecture where appropriate (a good example would be the elements of the top status bar -- each element could be a plugin, allowing third-party plugins to be written and used in that portion of the app)
