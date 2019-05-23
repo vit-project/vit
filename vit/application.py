@@ -477,7 +477,7 @@ class Application():
         raise urwid.ExitMainLoop()
 
     def build_task_table(self):
-        self.table = TaskTable(self.config, self.task_config, self.formatter, on_select=self.on_select, event=self.event, action_manager=self.action_manager, request_reply=self.request_reply, markers=self.markers, draw_screen_callback=self.loop.draw_screen)
+        self.table = TaskTable(self.config, self.task_config, self.formatter, self.loop.screen, on_select=self.on_select, event=self.event, action_manager=self.action_manager, request_reply=self.request_reply, markers=self.markers, draw_screen_callback=self.loop.draw_screen)
 
     def update_task_table(self):
         self.table.update_data(self.reports[self.report], self.model.tasks)

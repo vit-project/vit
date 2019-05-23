@@ -17,10 +17,11 @@ MARKER_COLUMN_NAME = 'markers'
 
 class TaskTable(object):
 
-    def __init__(self, config, task_config, formatter, on_select=None, event=None, action_manager=None, request_reply=None, markers=None, draw_screen_callback=None):
+    def __init__(self, config, task_config, formatter, screen, on_select=None, event=None, action_manager=None, request_reply=None, markers=None, draw_screen_callback=None):
         self.config = config
         self.task_config = task_config
         self.formatter = formatter
+        self.screen = screen
         self.on_select = on_select
         self.event = event
         self.action_manager = action_manager
@@ -28,7 +29,7 @@ class TaskTable(object):
         self.markers = markers
         self.row_striping = self.config.row_striping_enabled
         self.draw_screen = draw_screen_callback
-        self.listbox = TaskListBox(urwid.SimpleFocusListWalker([]), event=self.event, request_reply=self.request_reply, action_manager=self.action_manager)
+        self.listbox = TaskListBox(urwid.SimpleFocusListWalker([]), self.screen, event=self.event, request_reply=self.request_reply, action_manager=self.action_manager)
         self.init_event_listeners()
 
     def init_event_listeners(self):
@@ -38,6 +39,7 @@ class TaskTable(object):
         def task_list_keypress(data):
             self.update_header(data['size'])
         self.event.listen('task-list:keypress', task_list_keypress)
+        self.event.listen('task-list:size:change', self.size_changed)
 
     def get_blocking_task_uuids(self):
         return self.request_reply.request('application:blocking_task_uuids')
@@ -117,7 +119,7 @@ class TaskTable(object):
         self.contents[position].row.set_attr_map({None: attr})
 
     def flash_focus(self, repeat_times=2, pause_seconds=0.1):
-        if len(self.contents) > 0:
+        if self.listbox.focus:
             position = self.listbox.focus_position if self.listbox.focus_position is not None else self.listbox.previous_focus_position if self.listbox.previous_focus_position is not None else None
             if position is not None:
                 self.update_focus_attr('flash on', position)
@@ -308,6 +310,16 @@ class TaskTable(object):
     def make_padding(self, display_attr):
         return urwid.AttrMap(urwid.Padding(urwid.Text('')), display_attr)
 
+    def rows_size_grew(self, data):
+        _, old_rows = data['old_size']
+        _, new_rows = data['new_size']
+        return new_rows > old_rows
+
+    def size_changed(self, data):
+        if self.rows_size_grew(data):
+            # TODO: Trigger ListBatcher.add()
+            pass
+
 class TaskRow():
     def __init__(self, task, data, alt_row):
         self.task = task
@@ -401,6 +413,24 @@ class ProjectPlaceholderRow(urwid.WidgetWrap):
 class TaskListBox(BaseListBox):
     """Maps task list shortcuts to default ListBox class.
     """
+
+    def __init__(self, body, screen, event=None, request_reply=None, action_manager=None):
+        # TODO: Any way to get the actual listbox size here? It doesn't seem
+        # to be accessible before the first render() call.
+        self.screen = screen
+        self.size = self.screen.get_cols_rows()
+        return super().__init__(body, event, request_reply, action_manager)
+
+    def render(self, size, focus=False):
+        if size != self.size:
+            data = {
+                'old_size': self.size,
+                'new_size': size,
+            }
+            self.size = size
+            self.event.emit('task-list:size:change', data)
+        return super().render(size, focus)
+
     def focus_by_task_id(self, task_id):
         for idx, row in enumerate(self.body):
             if row.id == task_id:
