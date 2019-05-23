@@ -9,6 +9,10 @@
     * A snazzier option is to create a command line alias. For bash:
         * ```alias vit='PYTHONPATH=[path_to_root_dir] python vit/command_line.py'```
 
+### Tests
+ * Located in the ```tests``` directory
+ * Run with ```./run-tests.sh```
+
 ### Architecture
 
 VIT 2.x is currently in alpha release, and the architecture is subject to change at any time. There's still quite a bit of refactoring left.
