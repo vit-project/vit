@@ -1,3 +1,4 @@
+# TODO: Use urwid signals instead of custom event emitter?
 class Emitter(object):
     """Simple event listener/emitter.
     """

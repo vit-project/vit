@@ -4,6 +4,8 @@ from importlib import import_module
 from future.utils import raise_
 
 import subprocess
+# TODO: Use regex module for better PCRE support?
+#       https://bitbucket.org/mrabarnett/mrab-regex
 import re
 import time
 import copy
