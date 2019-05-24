@@ -1,3 +1,5 @@
+include scripts/bash/vit.bash_completion
+
 include vit/config/config.sample.ini
 include vit/keybinding/vi.ini
 include vit/VERSION

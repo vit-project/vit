@@ -1,0 +1,5 @@
+# This throws 'bash: COMP_WORDS: bad array subscript' without the redirect.
+_xfunc task _task &> /dev/null
+complete -o nospace -F _task vit
+
+# vi: ft=sh
