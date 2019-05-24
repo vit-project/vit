@@ -136,13 +136,12 @@ class TaskColorConfig(object):
         return sorted(color_parts, key=cmp_to_key(comparator))
 
 class TaskColorizer(object):
-
-    def decorator_color_enabled(func):
-        @wraps(func)
-        def verify_color_enabled(self, *args, **kwargs):
-            return func(self, *args, **kwargs) if self.color_enabled else None
-        return verify_color_enabled
-
+    class Decorator(object):
+        def color_enabled(func):
+            @wraps(func)
+            def verify_color_enabled(self, *args, **kwargs):
+                return func(self, *args, **kwargs) if self.color_enabled else None
+            return verify_color_enabled
     def __init__(self, color_config):
         self.color_config = color_config
         self.color_enabled = self.color_config.color_enabled
@@ -180,19 +179,19 @@ class TaskColorizer(object):
     def get_display_attr(self, display_attr):
         return self.make_display_attr(display_attr) if self.color_config.has_display_attr(display_attr) else None
 
-    @decorator_color_enabled
+    @Decorator.color_enabled
     def project_none(self):
         return self.get_display_attr('color.project.none')
 
-    @decorator_color_enabled
+    @Decorator.color_enabled
     def project(self, project):
         return self.get_display_attr('color.project.%s' % project)
 
-    @decorator_color_enabled
+    @Decorator.color_enabled
     def tag_none(self):
         return self.get_display_attr('color.tag.none')
 
-    @decorator_color_enabled
+    @Decorator.color_enabled
     def tag(self, tag):
         custom_value = 'color.tag.%s' % tag
         if self.color_config.has_display_attr(custom_value):
@@ -201,11 +200,11 @@ class TaskColorizer(object):
             return self.make_display_attr('color.tagged')
         return None
 
-    @decorator_color_enabled
+    @Decorator.color_enabled
     def uda_none(self, name):
         return self.get_display_attr('color.uda.%s.none' % name)
 
-    @decorator_color_enabled
+    @Decorator.color_enabled
     def uda_common(self, name, value):
         custom_value = 'color.uda.%s' % name
         if self.color_config.has_display_attr(custom_value):
@@ -214,7 +213,7 @@ class TaskColorizer(object):
             return self.make_display_attr('color.uda')
         return None
 
-    @decorator_color_enabled
+    @Decorator.color_enabled
     def uda_string(self, name, value):
         if not value:
             return self.uda_none(name)
@@ -224,36 +223,36 @@ class TaskColorizer(object):
                 return self.make_display_attr(custom_value)
             return self.uda_common(name, value)
 
-    @decorator_color_enabled
+    @Decorator.color_enabled
     def uda_numeric(self, name, value):
         return self.uda_string(name, value)
 
-    @decorator_color_enabled
+    @Decorator.color_enabled
     def uda_duration(self, name, value):
         return self.uda_string(name, value)
 
-    @decorator_color_enabled
+    @Decorator.color_enabled
     def uda_date(self, name, value):
         # TODO: Maybe some special string indicators here?
         return self.uda_common(name, value) if value else self.uda_none(name)
 
-    @decorator_color_enabled
+    @Decorator.color_enabled
     def uda_indicator(self, name, value):
         return self.uda_string(name, value)
 
-    @decorator_color_enabled
+    @Decorator.color_enabled
     def keyword(self, text):
         return self.get_display_attr('color.keyword.%s' % text)
 
-    @decorator_color_enabled
+    @Decorator.color_enabled
     def blocking(self):
         return self.get_display_attr('color.blocking')
 
-    @decorator_color_enabled
+    @Decorator.color_enabled
     def due(self, state):
         return self.get_display_attr('color.%s' % state) if state else None
 
-    @decorator_color_enabled
+    @Decorator.color_enabled
     def status(self, status):
         if status == 'completed' or status == 'deleted':
             value = 'color.%s' % status
@@ -261,22 +260,22 @@ class TaskColorizer(object):
                 return self.make_display_attr(value)
         return None
 
-    @decorator_color_enabled
+    @Decorator.color_enabled
     def blocked(self, depends):
         return self.get_display_attr('color.blocked')
 
-    @decorator_color_enabled
+    @Decorator.color_enabled
     def active(self, active):
         return self.get_display_attr('color.active') if active else None
 
-    @decorator_color_enabled
+    @Decorator.color_enabled
     def recurring(self, recur):
         return self.get_display_attr('color.recurring')
 
-    @decorator_color_enabled
+    @Decorator.color_enabled
     def scheduled(self, scheduled):
         return self.get_display_attr('color.scheduled') if scheduled else None
 
-    @decorator_color_enabled
+    @Decorator.color_enabled
     def until(self, until):
         return self.get_display_attr('color.until') if until else None
