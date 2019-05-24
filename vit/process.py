@@ -1,11 +1,12 @@
 from __future__ import print_function
+from future.utils import string_types
 
 import os
 import re
 import subprocess
 
 from vit import env
-from vit.util import clear_screen, is_string, string_to_args
+from vit.util import clear_screen, string_to_args
 
 DEFAULT_CONFIRM = 'Press Enter to continue...'
 
@@ -18,7 +19,7 @@ class Command(object):
         self.env['TASKRC'] = self.taskrc_path
 
     def run(self, command, capture_output=False):
-        if is_string(command):
+        if isinstance(command, string_types):
             command = string_to_args(command)
         kwargs = {
             'env': self.env,

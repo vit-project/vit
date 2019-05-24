@@ -1,9 +1,9 @@
 from setuptools import setup
 from os import path
 
+from vit import version
 
 DIR = path.dirname(path.abspath(__file__))
-VIT_VERSION = open(path.join(DIR, 'vit', 'VERSION')).read().strip()
 INSTALL_PACKAGES = open(path.join(DIR, 'requirements.txt')).read().splitlines()
 
 with open(path.join(DIR, 'README.md')) as f:
@@ -16,7 +16,7 @@ setup(
     long_description=README,
     long_description_content_type='text/markdown',
     install_requires=INSTALL_PACKAGES,
-    version=VIT_VERSION,
+    version=version.VIT,
     url='https://github.com/scottkosty/vit',
     author='Chad Phillips',
     author_email='chad@apartmentlines.com',
@@ -42,6 +42,6 @@ setup(
         ],
     },
     include_package_data=True,
-    python_requires='>=2.7',
+    python_requires='>=3.3',
     zip_safe=False
 )
