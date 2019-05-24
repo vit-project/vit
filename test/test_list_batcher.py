@@ -65,7 +65,7 @@ class TestListBatcher(unittest.TestCase):
       self.assertEqual(batch_to, DEFAULT_BATCH_FROM)
 
     def test_batch_5_with_formatter(self):
-      def formatter(partial):
+      def formatter(partial, start_idx):
           return ['before'] + [row * 2 for row in partial] + ['after']
       batch_to = []
       batcher = ListBatcher(DEFAULT_BATCH_FROM, batch_to, batch_to_formatter=formatter)

@@ -20,6 +20,8 @@ class BaseListBox(urwid.ListBox):
 
     def get_top_middle_bottom_rows(self, size):
         #try:
+            if len(self.list_walker) == 0:
+                return None, None, None
             ((_, focused, _, _, _), (_, top_list), (_, bottom_list)) = self.calculate_visible(size)
             top = top_list[len(top_list) - 1][0] if len(top_list) > 0 else None
             bottom = bottom_list[len(bottom_list) - 1][0] if len(bottom_list) > 0 else None
@@ -32,8 +34,8 @@ class BaseListBox(urwid.ListBox):
                 else:
                     break
             assembled_list = top_list_reversed + [(focused, )] + (bottom_list if bottom else [])
-            middle_list_position = len(assembled_list) // 2
-            middle_list = assembled_list[:middle_list_position] if middle_list_position > 0 else assembled_list
+            middle_list_position = (len(assembled_list) // 2) + 1
+            middle_list = assembled_list[:middle_list_position] if len(assembled_list) > 1 else assembled_list
             middle = middle_list.pop()[0]
             return (top or focused), middle, (bottom or focused)
         #except:
@@ -77,15 +79,18 @@ class BaseListBox(urwid.ListBox):
 
     def keypress_screen_top(self, size):
         top, _, _ = self.get_top_middle_bottom_rows(size)
-        self.focus_by_task_uuid(top.uuid)
+        if top:
+            self.set_focus(top.position)
 
     def keypress_screen_middle(self, size):
         _, middle, _ = self.get_top_middle_bottom_rows(size)
-        self.focus_by_task_uuid(middle.uuid)
+        if middle:
+            self.set_focus(middle.position)
 
     def keypress_screen_bottom(self, size):
         _, _, bottom = self.get_top_middle_bottom_rows(size)
-        self.focus_by_task_uuid(bottom.uuid)
+        if bottom:
+            self.set_focus(bottom.position)
 
     def keypress_focus_valign_center(self, size):
         self.set_focus(self.focus_position)

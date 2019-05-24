@@ -15,8 +15,9 @@ class SelectableHelpRow(urwid.WidgetWrap):
     This class has been slightly modified, but essentially corresponds to this class posted on stackoverflow.com:
     https://stackoverflow.com/questions/52106244/how-do-you-combine-multiple-tui-forms-to-write-more-complex-applications#answer-52174629"""
 
-    def __init__(self, column_widths, data, *, space_between=2):
+    def __init__(self, column_widths, data, position, *, space_between=2):
         self.data = data
+        self.position = position
         self._columns = urwid.Columns([
             (column_widths['type'], urwid.Text(self.data[0], align='left')),
             (column_widths['keys'], urwid.Text(self.data[1], align='left')),
@@ -46,9 +47,6 @@ class HelpListBox(BaseListBox):
 
     def register_managed_actions(self):
         super().register_managed_actions()
-        self.action_manager_registrar.deregister('LIST_SCREEN_TOP')
-        self.action_manager_registrar.deregister('LIST_SCREEN_MIDDLE')
-        self.action_manager_registrar.deregister('LIST_SCREEN_BOTTOM')
         self.action_manager_registrar.register('GLOBAL_ESCAPE', self.exit_help)
         self.action_manager_registrar.register('QUIT_WITH_CONFIRM', self.exit_help)
         self.action_manager_registrar.register('QUIT', self.exit_help)
@@ -69,7 +67,7 @@ class HelpListBox(BaseListBox):
 
     def reload_entries(self, entries):
         column_widths = self.calculate_column_widths(entries)
-        rows = [SelectableHelpRow(column_widths, row) for row in entries]
+        rows = [SelectableHelpRow(column_widths, row, idx) for idx, row in enumerate(entries)]
         self.list_walker[:] = rows
         self.set_focus(0)
 

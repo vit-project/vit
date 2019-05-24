@@ -62,8 +62,9 @@ class SelectableRow(urwid.WidgetWrap):
     """Wraps 'urwid.Columns' to make it selectable.
     """
 
-    def __init__(self, annotation, widths, formatter, align="left", on_select=None, space_between=2):
+    def __init__(self, annotation, position, widths, formatter, align="left", on_select=None, space_between=2):
         self.annotation = annotation
+        self.position = position
 
         self._columns = urwid.Columns([
             (widths['entry'], urwid.Text(annotation['entry'].strftime(formatter.annotation), align=align)),
@@ -108,7 +109,7 @@ class DenotationPopUpDialog(urwid.WidgetWrap):
             'entry': 10,
             'description': 32,
         }
-        annotations = [SelectableRow(a, widths, self.formatter) for a in self.task['annotations']]
+        annotations = [SelectableRow(a, idx, widths, self.formatter) for idx, a in enumerate(self.task['annotations'])]
         self.listbox.list_walker[:] = annotations
         self.listbox.focus_position = 0
         def denotate(button):

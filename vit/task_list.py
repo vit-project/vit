@@ -105,12 +105,13 @@ class TaskTable(object):
     def update_project_column_header(self, size):
         if self.indent_subprojects:
             top, _, _ = self.listbox.get_top_middle_bottom_rows(size)
-            project = self.get_project_from_row(top)
-            if project:
-                _, parents = util.project_get_subproject_and_parents(project)
-                self.set_project_column_header(parents)
-            else:
-                self.set_project_column_header()
+            if top:
+                project = self.get_project_from_row(top)
+                if project:
+                    _, parents = util.project_get_subproject_and_parents(project)
+                    self.set_project_column_header(parents)
+                else:
+                    self.set_project_column_header()
 
     def set_project_column_header(self, parents=None):
         column_index = self.task_config.get_column_index(self.report['name'], 'project')
@@ -316,8 +317,8 @@ class TaskTable(object):
             self.formatter.task_colorizer.set_background_modifier(modifier)
         return self.task_alt_row
 
-    def format_task_batch(self, partial):
-        return [SelectableRow(self.non_filtered_columns, obj, on_select=self.on_select) if isinstance(obj, TaskRow) else ProjectPlaceholderRow(self.columns, obj) for obj in partial]
+    def format_task_batch(self, partial, start_idx):
+        return [SelectableRow(self.non_filtered_columns, obj, start_idx + idx, on_select=self.on_select) if isinstance(obj, TaskRow) else ProjectPlaceholderRow(self.columns, obj, start_idx + idx) for idx, obj in enumerate(partial)]
 
     def build_table(self):
         self.make_header()
@@ -375,11 +376,12 @@ class SelectableRow(urwid.WidgetWrap):
     This class has been slightly modified, but essentially corresponds to this class posted on stackoverflow.com:
     https://stackoverflow.com/questions/52106244/how-do-you-combine-multiple-tui-forms-to-write-more-complex-applications#answer-52174629"""
 
-    def __init__(self, columns, row, *, on_select=None, space_between=2):
+    def __init__(self, columns, row, position, *, on_select=None, space_between=2):
         self.task = row.task
         self.uuid = row.uuid
         self.id = row.id
         self.alt_row = row.alt_row
+        self.position = position
 
         self._columns = urwid.Columns([(column['width'], urwid.Text(row.data[idx], align=column['align'])) for idx, column in enumerate(columns) if column],
                                        dividechars=space_between)
@@ -418,12 +420,13 @@ class ProjectPlaceholderRow(urwid.WidgetWrap):
     """Wraps 'urwid.Columns' for a project placeholder row.
     """
 
-    def __init__(self, columns, row, space_between=2):
+    def __init__(self, columns, row, position, space_between=2):
         self.uuid = None
         self.id = None
         self.alt_row = row.alt_row
         self.project = row.project
         self.placeholder = row.placeholder
+        self.position = position
         self._columns = urwid.Columns([(column['width'], urwid.Text(row.placeholder if isinstance(column['formatter'], ProjectFormatter) else '', align=column['align'])) for column in columns], dividechars=space_between)
 
         self.set_display_attr()

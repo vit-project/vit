@@ -28,7 +28,7 @@ class ListBatcher(object):
         new_position = self.last_position + batch_size
         partial = self.batch_from[self.last_position:new_position]
         if self.batch_to_formatter:
-            partial = self.batch_to_formatter(partial)
+            partial = self.batch_to_formatter(partial, self.last_position)
         self.batch_to += partial
         self.last_position = new_position
 
