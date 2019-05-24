@@ -1,4 +1,3 @@
-from future.utils import raise_
 from functools import reduce
 
 class KeyCache(object):
@@ -29,7 +28,7 @@ class KeyCache(object):
 
     def add_keybinding_to_key_cache(self, to_cache, keybinding, existing_keybindings, key_cache):
         if to_cache in existing_keybindings:
-            raise_(KeybindingError, "Invalid key binding '%s', '%s' already used in another key binding" % (keybinding, to_cache))
+            raise(KeybindingError, "Invalid key binding '%s', '%s' already used in another key binding" % (keybinding, to_cache))
         else:
             key_cache[to_cache] = True
 

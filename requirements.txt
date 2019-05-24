@@ -1,4 +1,3 @@
-future
 pytz
 tasklib
 tzlocal

@@ -1,6 +1,3 @@
-from __future__ import print_function
-from future.utils import string_types
-
 import os
 import re
 import subprocess
@@ -19,7 +16,7 @@ class Command(object):
         self.env['TASKRC'] = self.taskrc_path
 
     def run(self, command, capture_output=False):
-        if isinstance(command, string_types):
+        if isinstance(command, str):
             command = string_to_args(command)
         kwargs = {
             'env': self.env,

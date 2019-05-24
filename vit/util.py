@@ -2,7 +2,6 @@ import os
 import sys
 import curses
 import shlex
-from future.utils import string_types
 from functools import reduce
 
 curses.setupterm()
@@ -16,7 +15,7 @@ def string_to_args(string):
     return shlex.split(string)
 
 def is_mouse_event(key):
-    return not isinstance(key, string_types)
+    return not isinstance(key, str)
 
 def uuid_short(uuid):
     return uuid[0:8]

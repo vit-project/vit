@@ -18,8 +18,8 @@ Visual Interactive Taskwarrior full-screen terminal interface.
 
 ## Requirements
 
- * [TaskWarrior](https://taskwarrior.org) version 2.1.2 or newer
- * [Python](https://www.python.org) 3.3+ (2.7 support planned)
+ * [TaskWarrior](https://taskwarrior.org)
+ * [Python](https://www.python.org) 3.5+
  * [pip](https://pypi.org/project/pip)
 
 ## Installation

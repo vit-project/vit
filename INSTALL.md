@@ -5,10 +5,16 @@
  3. Once you've decided what environment to install to, simply run:
      ```pip install vit```
 
-##### Tab completion
+### Tab completion
 
 Since VIT takes report/filter arguments when invoked (just like TaskWarrior), it can be helpful to leverage TaskWarrior's existing tab completion functionality when starting VIT.
 
 [scripts/bash/vit.bash_completion](scripts/bash/vit.bash_completion) provides a wrapper to TaskWarrior's [bash completion](https://github.com/scop/bash-completion) support.
 
 Place that file somewhere that the bash completion software can load it, and restart your shell to use.
+
+### Older System Pythons
+
+VIT is written in Python, and tracks the Python code lifecycle. As such, unsupported versions of Python may not run on VIT, and will not be supported by the maintainers. You can view a list of currently supported Python versions [here](https://devguide.python.org/#status-of-python-branches).
+
+However, even if your machine's system Python is no longer supported, you can still run VIT easily by installing a supported version of Python alongside the system Python. There are several projects such as [Virtualenv](https://virtualenv.pypa.io) and [pyenv](https://github.com/pyenv/pyenv) that make this quite easy.

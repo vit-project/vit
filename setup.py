@@ -42,6 +42,6 @@ setup(
         ],
     },
     include_package_data=True,
-    python_requires='>=3.3',
+    python_requires='>=3.5',
     zip_safe=False
 )

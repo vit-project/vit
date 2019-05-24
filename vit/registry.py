@@ -1,4 +1,3 @@
-from future.utils import raise_
 import uuid
 
 class ActionRegistrar(object):
@@ -66,4 +65,4 @@ class RequestReply(object):
         try:
             return self.handlers[name]['callback'](*args)
         except KeyError:
-            raise_(KeyError, "No handler '%s' has been set" % name)
+            raise(KeyError, "No handler '%s' has been set" % name)

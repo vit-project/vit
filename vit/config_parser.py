@@ -1,4 +1,3 @@
-from future.utils import raise_
 from shutil import copyfile
 
 import os
@@ -200,7 +199,7 @@ class TaskParser(object):
                 hierarchy, values = line.split('=')
                 self.task_config.append((hierarchy, values))
         else:
-            raise_(RuntimeError, 'Error parsing task config: %s' % stderr)
+            raise(RuntimeError, 'Error parsing task config: %s' % stderr)
 
     def get_projects(self):
         returncode, stdout, stderr = self.command.run('task _projects', capture_output=True)
@@ -209,7 +208,7 @@ class TaskParser(object):
             # Ditch the trailing newline.
             self.projects.pop()
         else:
-            raise_(RuntimeError, 'Error parsing task projects: %s' % stderr)
+            raise(RuntimeError, 'Error parsing task projects: %s' % stderr)
 
     def transform_string_leaves(self, hierarchy):
         if hierarchy in CONFIG_STRING_LEAVES:

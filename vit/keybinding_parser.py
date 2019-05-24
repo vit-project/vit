@@ -1,4 +1,3 @@
-from future.utils import raise_
 from functools import reduce
 
 try:
@@ -56,7 +55,7 @@ class KeybindingParser(object):
         elif util.file_readable(keybinding_file):
             self.default_keybindings.read(keybinding_file)
         else:
-            raise_(KeybindingError, "default_keybindings setting '%s' invalid, file not found" % name)
+            raise(KeybindingError, "default_keybindings setting '%s' invalid, file not found" % name)
         for section in self.sections:
             bindings = self.items(section)
             self.add_keybindings(bindings)
@@ -89,7 +88,7 @@ class KeybindingParser(object):
                 elif accum['variable_string'] in replacements:
                     accum['keybinding'].append(replacements[accum['variable_string']])
                 else:
-                    raise_(ValueError, "unknown config variable '%s'" % accum['variable_string'])
+                    raise(ValueError, "unknown config variable '%s'" % accum['variable_string'])
             else:
                 if accum['in_brackets']:
                     accum['bracket_string'] += char
@@ -110,7 +109,7 @@ class KeybindingParser(object):
 
     def validate_parsed_value(self, key_groups, bound_keys, action_name):
         if bound_keys and action_name:
-            raise_(KeybindingError, "keybindings '%s' unsupported configuration: ACTION_ variables must be used alone." % key_groups)
+            raise(KeybindingError, "keybindings '%s' unsupported configuration: ACTION_ variables must be used alone." % key_groups)
 
     def is_noop_action(self, keybinding):
         return True if 'action_name' in keybinding and keybinding['action_name'] == self.noop_action_name else False
