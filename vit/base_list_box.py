@@ -32,7 +32,9 @@ class BaseListBox(urwid.ListBox):
                 else:
                     break
             assembled_list = top_list_reversed + [(focused, )] + (bottom_list if bottom else [])
-            middle = (assembled_list[:len(assembled_list)//2]).pop()[0]
+            middle_list_position = len(assembled_list) // 2
+            middle_list = assembled_list[:middle_list_position] if middle_list_position > 0 else assembled_list
+            middle = middle_list.pop()[0]
             return (top or focused), middle, (bottom or focused)
         #except:
         #    # TODO: Log this?
