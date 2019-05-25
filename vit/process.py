@@ -27,9 +27,15 @@ class Command(object):
                 'stderr': subprocess.PIPE,
                 'universal_newlines': True,
             })
-        proc = subprocess.Popen(command, **kwargs)
-        stdout, stderr = proc.communicate()
-        return proc.returncode, stdout, self.filter_errors(stderr)
+        try:
+            proc = subprocess.Popen(command, **kwargs)
+            stdout, stderr = proc.communicate()
+            returncode = proc.returncode
+        except Exception as e:
+            stdout = ''
+            stderr = e.message if hasattr(e, 'message') else str(e)
+            returncode = 1
+        return returncode, stdout, self.filter_errors(returncode, stderr)
 
     def result(self, command, confirm=DEFAULT_CONFIRM, capture_output=False, print_output=False, clear=True):
         if clear:
@@ -47,9 +53,9 @@ class Command(object):
             clear_screen()
         return returncode, output
 
-    def filter_errors(self, error_string):
+    def filter_errors(self, returncode, error_string):
         if not error_string:
-            return ''
+            return '' if returncode == 0 else 'unknown'
         regex = '(TASKRC override)|(^$)'
         filtered_lines = list(filter(lambda s: False if len(re.findall(regex, s)) else True, error_string.split("\n")))
         return "\n".join(filtered_lines)
