@@ -126,6 +126,8 @@ class Help(object):
     def add_entry(self, section, keys, description):
         self.entries.append((section, keys, description, ' '.join([section, keys, description])))
 
+    # TODO: This does not pull data from keybinding overrides in config.ini
+    # yet.
     def build_default_keybinding_data(self):
         sections = {}
         for section in self.keybinding_parser.sections:
@@ -173,6 +175,8 @@ class Help(object):
             self.listbox,
             header=urwid.Pile([
                 urwid.Text("Press '<Esc>' or 'q' to exit", align='center'),
+                # TODO: Remove this when keybinding overrides are shown.
+                urwid.Text("NOTE: Keybinding overrides in config.ini not shown", align='center'),
                 urwid.Text(''),
             ]),
         )
