@@ -174,9 +174,9 @@ class TaskTable(object):
                 elif first[column] is None and second[column] is None:
                     return 0
                 elif first[column] is not None and second[column] is None:
-                    return 1
-                elif first[column] is None and second[column] is not None:
                     return -1
+                elif first[column] is None and second[column] is not None:
+                    return 1
             if order and order == 'descending':
                 self.tasks = sorted(self.tasks, key=cmp_to_key(comparator), reverse=True)
             else:
