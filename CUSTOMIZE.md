@@ -8,6 +8,10 @@ By default, the directory is located at ```~/.vit```
 
 To customize the location of the user directory, you can set the ```VIT_DIR``` environment variable.
 
+By default, VIT uses the default location of the TaskWarrior configuration file to read configuration from TaskWarrior.
+
+Use the ```taskrc``` setting in the ```taskwarrior``` section of ```config.ini``` to override this, or set the ```TASKRC``` environment variable to override both the VIT config file and the default TaskWarrior configuration file location.
+
 ### Themes
 
 To provide your own theme:

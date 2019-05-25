@@ -104,6 +104,7 @@ class ConfigParser(object):
         self.set_config_data()
 
     def set_config_data(self):
+        self.taskrc_path = self.get_taskrc_path()
         self.subproject_indentable = self.is_subproject_indentable()
         self.row_striping_enabled = self.is_row_striping_enabled()
         self.confirmation_enabled = self.is_confirmation_enabled()
@@ -164,6 +165,9 @@ class ConfigParser(object):
 
     def transform_bool(self, value):
         return True if CONFIG_BOOLEAN_TRUE_REGEX.match(value) else False
+
+    def get_taskrc_path(self):
+        return os.path.expanduser('TASKRC' in env.user and env.user['TASKRC'] or self.get('taskwarrior', 'taskrc'))
 
     def is_subproject_indentable(self):
         return self.get('report', 'indent_subprojects')

@@ -11,9 +11,8 @@ class Command(object):
 
     def __init__(self, config):
         self.config = config
-        self.taskrc_path = os.path.expanduser(self.config.get('taskwarrior', 'taskrc'))
-        self.env = env.user
-        self.env['TASKRC'] = self.taskrc_path
+        self.env = env.user.copy()
+        self.env['TASKRC'] = self.config.taskrc_path
 
     def run(self, command, capture_output=False):
         if isinstance(command, str):
