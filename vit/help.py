@@ -69,7 +69,8 @@ class HelpListBox(BaseListBox):
         column_widths = self.calculate_column_widths(entries)
         rows = [SelectableHelpRow(column_widths, row, idx) for idx, row in enumerate(entries)]
         self.list_walker[:] = rows
-        self.set_focus(0)
+        if len(self.list_walker) > 0:
+            self.set_focus(0)
 
     def exit_help(self, data):
         self.event.emit("help:exit")
@@ -109,7 +110,7 @@ class Help(object):
 
     def filter_entries(self, filter_args):
         if len(filter_args) > 0:
-            args_regex = re.compile('(%s)' % '|'.join(filter_args))
+            args_regex = re.compile('.*(%s).*' % '|'.join(filter_args))
             return [(section, keys, description) for section, keys, description, search_phrase in self.entries if args_regex.match(search_phrase)]
         else:
             return [(section, keys, description) for section, keys, description, _ in self.entries]
