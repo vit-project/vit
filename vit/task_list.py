@@ -353,6 +353,7 @@ class TaskTable(object):
         return 0
 
     def size_changed(self, data):
+        self.update_header(data['new_size'])
         grew = self.rows_size_grew(data)
         if grew > 0:
             self.batcher.add(grew)
