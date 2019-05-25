@@ -1,3 +1,22 @@
+##### Sat May 25 2019 - released v2.0.0a1
+
+**IMPORTANT NOTE:** This is an alpha release, no guarantees are made for stability or data integrity. While the author has used the alpha code for over a month with no data corruption issues, it is strongly recommended to back up your data prior to usage.
+
+Complete ground up rewrite in Python, feature-complete with VIT 1.x. New features include:
+
+ * Advanced tab completion
+ * Per-column colorization with markers *(see [COLOR.md](COLOR.md))*
+ * Intelligent sub-project indenting
+ * Multiple/customizable themes
+ * Override/customize column formatters
+ * Fully-customizable key bindings
+ * Table-row striping
+ * Show version/context/report execution time in status area
+ * Customizable config dir
+ * Comand line bash completion wrapper
+
+ This release also changes the software license from GPL to MIT.
+
 ##### Mon Aug  6 2018 - released v1.3.beta1
 ```
  Sat Jun 14 2018 - fix "Negative repeat count does nothing" errors (GH#153)
