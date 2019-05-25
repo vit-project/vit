@@ -67,13 +67,16 @@ class Application():
     def __init__(self, option, filters):
         self.extra_filters = filters
         self.loader = Loader()
+        self.load_early_config()
+        self.set_report()
+        self.setup_main_loop()
+        self.refresh(False)
+        self.loop.run()
+
+    def load_early_config(self):
         self.config = ConfigParser(self.loader)
         self.task_config = TaskParser(self.config)
         self.reports = self.task_config.get_reports()
-        self.set_report()
-        self.setup_main_loop()
-        self.refresh(self.config, self.task_config)
-        self.loop.run()
 
     def set_report(self):
         if len(self.extra_filters) == 0:
@@ -90,10 +93,10 @@ class Application():
         except:
             pass
 
-    def bootstrap(self, config=None, task_config=None):
+    def bootstrap(self, load_early_config=True):
         self.loader = Loader()
-        self.config = config if config else ConfigParser(self.loader)
-        self.task_config = task_config if task_config else TaskParser(self.config)
+        if load_early_config:
+            self.load_early_config()
         self.event = event.Emitter()
         self.setup_config()
         self.search_term_active = ''
@@ -781,8 +784,8 @@ class Application():
         else:
             raise(RuntimeError, "Error retrieving completed tasks: %s" % stderr)
 
-    def refresh(self, config=None, task_config=None):
-        self.bootstrap(config, task_config)
+    def refresh(self, load_early_config=True):
+        self.bootstrap(load_early_config)
         self.build_main_widget()
         # NOTE: Don't see any other way to clear the old palette.
         self.loop.screen._palette = {}
