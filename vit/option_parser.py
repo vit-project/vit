@@ -19,7 +19,9 @@ A goal of VIT is to allow you to customize the way in which you use Taskwarrior'
 core commands as well as to provide a framework for easily dispatching external
 commands.
 
-TODO: Add link to online help.
+While VIT is running, type :help followed by enter to review basic command/navigation actions.
+
+See https://github.com/scottkosty/vit for more information.
 
 """
 )
@@ -28,7 +30,7 @@ parser.add_option('--list-actions',
   dest="list_actions",
   default=False,
   action="store_true",
-  help="List all available actions.",
+  help="list all available actions",
 )
 
 def parse_options():
