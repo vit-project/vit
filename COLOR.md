@@ -1,6 +1,6 @@
 # VIT Task Coloring
 
-VIT handles task coloring differently than TaskWarrior. Whereas TaskWarrior uses a row-based coloring scheme with color blending, VIT uses a column-based coloring scheme.
+VIT handles task coloring differently than Taskwarrior. Whereas Taskwarrior uses a row-based coloring scheme with color blending, VIT uses a column-based coloring scheme.
 
 This alternate coloring scheme offers several major advantages:
 
@@ -18,7 +18,7 @@ VIT addresses the second tradeoff by introducing the concept of markers.
 
 Markers are short text indicators that appear in the leftmost column of a report when a column *not* in a report contains data that 'triggers' the marker.
 
-By default, markers are tied to the color configuration for the column/state in question, which means that a marker will only appear if the relevant TaskWarrior color setting is also enabled.
+By default, markers are tied to the color configuration for the column/state in question, which means that a marker will only appear if the relevant Taskwarrior color setting is also enabled.
 
 Markers are highly configurable, including displaying them without color, and customizing the indicator text for all markers.
 

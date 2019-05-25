@@ -21,9 +21,9 @@ Whereas VIT 1.x simply layered an
 [ncurses](https://en.wikipedia.org/wiki/Ncurses)
 interface over CLI calls to the ```task``` binary, VIT 2.x handles
 data/reporting differently:
- * Data is read from TaskWarrior via the [export](https://taskwarrior.org/docs/commands/export.html) functionality using [tasklib](https://github.com/robgolding/tasklib)
- * Reports are generated via custom code in VIT, which allows extra features not found in TaskWarrior. Most report-related settings are read directly from the TaskWarrior configuration, which *mostly* allows a single point of configuration
- * Data is written to TaskWarrior using a combination of ```import``` commands driven by [tasklib](https://github.com/robgolding/tasklib), and CLI calls for more complex scenarios
+ * Data is read from Taskwarrior via the [export](https://taskwarrior.org/docs/commands/export.html) functionality using [tasklib](https://github.com/robgolding/tasklib)
+ * Reports are generated via custom code in VIT, which allows extra features not found in Taskwarrior. Most report-related settings are read directly from the Taskwarrior configuration, which *mostly* allows a single point of configuration
+ * Data is written to Taskwarrior using a combination of ```import``` commands driven by [tasklib](https://github.com/robgolding/tasklib), and CLI calls for more complex scenarios
 
 
 ### Roadmap

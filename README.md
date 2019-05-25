@@ -2,7 +2,7 @@
 
 Visual Interactive Taskwarrior full-screen terminal interface.
 
-**IMPORTANT:** VIT 2.x is currently in alpha release, and is looking for testers/contributors. The featureset of VIT 1.x has been fully implemented, and the author is already using it for everyday interface with TaskWarrior. Still lots of work/refactoring left to polish it for release, though...
+**IMPORTANT:** VIT 2.x is currently in alpha release, and is looking for testers/contributors. The featureset of VIT 1.x has been fully implemented, and the author is already using it for everyday interface with Taskwarrior. Still lots of work/refactoring left to polish it for release, though...
 
 ## Features
 
@@ -18,7 +18,7 @@ Visual Interactive Taskwarrior full-screen terminal interface.
 
 ## Requirements
 
- * [TaskWarrior](https://taskwarrior.org)
+ * [Taskwarrior](https://taskwarrior.org)
  * [Python](https://www.python.org) 3.5+
  * [pip](https://pypi.org/project/pip)
 
@@ -33,7 +33,7 @@ Follow the directions in [INSTALL.md](INSTALL.md)
  * Do ```:help``` in vit *(look over the "commands")*
  * Use an xterm terminal *(for full color support)*
  * For suggestions on futher tweaks, see [CUSTOMIZE.md](CUSTOMIZE.md)
- * VIT handles task coloring differently than TaskWarrior, see [COLOR.md](COLOR.md) for more details
+ * VIT handles task coloring differently than Taskwarrior, see [COLOR.md](COLOR.md) for more details
 
 #### Development:
 

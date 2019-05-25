@@ -19,9 +19,9 @@ class TaskColorConfig(object):
         self.theme_alt_backgrounds = theme_alt_backgrounds
         self.include_subprojects = self.config.get('color', 'include_subprojects')
         self.task_256_to_urwid_256 = task_256_to_urwid_256()
-        # NOTE: Because TaskWarrior disables color on piped commands, and I don't
+        # NOTE: Because Taskwarrior disables color on piped commands, and I don't
         # see any portable way to get output from a system command in Python
-        # without pipes, the 'color' config setting in TaskWarrior is not used, and
+        # without pipes, the 'color' config setting in Taskwarrior is not used, and
         # instead a custom setting is used.
         self.color_enabled = self.config.get('color', 'enabled')
         self.display_attrs_available, self.display_attrs = self.convert_color_config(self.task_config.filter_to_dict('^color\.'))

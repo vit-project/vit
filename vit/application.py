@@ -278,7 +278,7 @@ class Application():
                 # TODO: Validation if more than one arg passed.
                 wait = args[0] if len(args) > 0 else ''
                 # NOTE: Modify is used here to support the special date
-                # handling TaskWarrior makes available. It's possible the
+                # handling Taskwarrior makes available. It's possible the
                 # modified task could be a recurring task, and to make the
                 # individual edit actions consistent, recurrence.confirmation
                 # is set to 'no', so that only the edited recurring task is

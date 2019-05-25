@@ -21,7 +21,7 @@ VIT_CONFIG_FILE = 'config.ini'
 FILTER_EXCLUSION_REGEX = re.compile('^limit:')
 FILTER_PARENS_REGEX = re.compile('([\(\)])')
 CONFIG_BOOLEAN_TRUE_REGEX = re.compile('1|yes|true', re.IGNORECASE)
-# TaskParser expects clean hierachies in the TaskWarrior dotted config names.
+# TaskParser expects clean hierachies in the Taskwarrior dotted config names.
 # However, this is occassionally violated, with a leaf ending in both a string
 # value and another branch. The below list contains the config values that
 # violate this convention, and transform them into a single additional branch
@@ -233,7 +233,7 @@ class TaskParser(object):
       full_tree = {}
       lines = self.filter(matcher_regex)
       for (hierarchy, value) in lines:
-        # NOTE: This is necessary in order to convert TaskWarrior's dotted
+        # NOTE: This is necessary in order to convert Taskwarrior's dotted
         # config syntax into a full tree, as some leaves are both branches
         # and leaves.
         hierarchy = self.transform_string_leaves(hierarchy)

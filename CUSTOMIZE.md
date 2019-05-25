@@ -8,9 +8,9 @@ By default, the directory is located at ```~/.vit```
 
 To customize the location of the user directory, you can set the ```VIT_DIR``` environment variable.
 
-By default, VIT uses the default location of the TaskWarrior configuration file to read configuration from TaskWarrior.
+By default, VIT uses the default location of the Taskwarrior configuration file to read configuration from Taskwarrior.
 
-Use the ```taskrc``` setting in the ```taskwarrior``` section of ```config.ini``` to override this, or set the ```TASKRC``` environment variable to override both the VIT config file and the default TaskWarrior configuration file location.
+Use the ```taskrc``` setting in the ```taskwarrior``` section of ```config.ini``` to override this, or set the ```TASKRC``` environment variable to override both the VIT config file and the default Taskwarrior configuration file location.
 
 ### Themes
 
@@ -24,7 +24,7 @@ VIT uses the [urwid](http://urwid.org) console user interface library, and the t
 
 ### Formatters
 
-VIT provides all the standard formatters used in TaskWarrior. If you choose, you can override any default formatter with your own:
+VIT provides all the standard formatters used in Taskwarrior. If you choose, you can override any default formatter with your own:
 
 1. Create a ```formatter``` directory in the user directory
 2. Find the formatter you want to override, e.g. ```description.truncated```

@@ -7,9 +7,9 @@
 
 ### Tab completion
 
-Since VIT takes report/filter arguments when invoked (just like TaskWarrior), it can be helpful to leverage TaskWarrior's existing tab completion functionality when starting VIT.
+Since VIT takes report/filter arguments when invoked (just like Taskwarrior), it can be helpful to leverage Taskwarrior's existing tab completion functionality when starting VIT.
 
-[scripts/bash/vit.bash_completion](scripts/bash/vit.bash_completion) provides a wrapper to TaskWarrior's [bash completion](https://github.com/scop/bash-completion) support.
+[scripts/bash/vit.bash_completion](scripts/bash/vit.bash_completion) provides a wrapper to Taskwarrior's [bash completion](https://github.com/scop/bash-completion) support.
 
 Place that file somewhere that the bash completion software can load it, and restart your shell to use.
 
