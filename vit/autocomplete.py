@@ -5,8 +5,6 @@ import re
 from vit import util
 from vit.process import Command
 
-REGEX_SPECIAL_CHARS_REGEX = re.compile('([!@#\$%\^\&*\)\(+=._-])')
-
 class AutoComplete(object):
 
     def __init__(self, config, default_filters=None, extra_filters=None):
@@ -132,7 +130,7 @@ class AutoComplete(object):
                 self.tab_options = list(map(lambda e: e[1], self.entries))
         else:
             self.parse_text(text, edit_pos)
-            exp = re.compile(self.regexify(self.search_fragment))
+            exp = self.regexify(self.search_fragment)
             if self.has_root_only_filters():
                 if self.search_fragment_is_root():
                     self.tab_options = list(map(lambda e: e[1], filter(lambda e: True if e[0] in self.root_only_filters and exp.match(e[1]) else False, self.entries)))
@@ -148,7 +146,7 @@ class AutoComplete(object):
         return len(self.prefix_parts) == 0 or self.is_help_request()
 
     def regexify(self, string):
-        return REGEX_SPECIAL_CHARS_REGEX.sub(r"\\\1", string)
+        return re.compile(re.escape(string))
 
     # TODO: This is way hacky, not sure of a cleaner way to handle
     # multi-spaced search terms, of which help is the only one now.
@@ -196,7 +194,7 @@ class AutoComplete(object):
         self.partial = self.search_fragment
         while pos < ref_item_length:
             pos += 1
-            exp = re.compile(ref_item[:pos])
+            exp = self.regexify(ref_item[:pos])
             ref_result = list(filter(lambda o: True if exp.match(o) else False, self.tab_options))
             if len(ref_result) == tab_options_length:
                 self.partial = ref_item[:pos]
