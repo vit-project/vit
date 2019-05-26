@@ -588,10 +588,10 @@ class Application():
         self.activate_command_bar('ex', ':', {}, edit_text='!rw task ')
 
     def activate_command_bar_search_forward(self):
-        self.activate_command_bar('search-forward', '/')
+        self.activate_command_bar('search-forward', '/', {'history': 'search'})
 
     def activate_command_bar_search_reverse(self):
-        self.activate_command_bar('search-reverse', '?')
+        self.activate_command_bar('search-reverse', '?', {'history': 'search'})
 
     def activate_command_bar_search_next(self):
         self.search()

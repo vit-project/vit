@@ -36,12 +36,12 @@ class CommandBar(urwid.Edit):
             self.set_edit_pos(len(self.get_edit_text()))
             return None
         elif key in ('up', 'ctrl p'):
-            text = self.history.previous(self.metadata['op'])
+            text = self.history.previous(self.metadata['history'])
             if text != False:
                 self.set_edit_text(text)
             return None
         elif key in ('down', 'ctrl n'):
-            text = self.history.next(self.metadata['op'])
+            text = self.history.next(self.metadata['history'])
             if text != False:
                 self.set_edit_text(text)
             return None
@@ -55,7 +55,7 @@ class CommandBar(urwid.Edit):
             }
             self.cleanup(metadata['op'])
             if text and key in ('enter'):
-                self.history.add(metadata['op'], text)
+                self.history.add(metadata['history'], text)
             self.event.emit('command-bar:keypress', data)
             return None
         elif key in ('tab', 'shift tab'):
@@ -92,8 +92,14 @@ class CommandBar(urwid.Edit):
     def get_metadata(self):
         return self.metadata.copy() if self.metadata else None
 
+    def prepare_metadata(self, metadata):
+        if metadata:
+            if 'history' not in metadata:
+                metadata['history'] = metadata['op']
+        return metadata
+
     def set_metadata(self, metadata):
-        self.metadata = metadata
+        self.metadata = self.prepare_metadata(metadata)
 
     def set_edit_text_callback(self):
         return self.set_edit_text
