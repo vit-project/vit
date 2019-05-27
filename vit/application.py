@@ -433,9 +433,9 @@ class Application():
                 current_index = 0
             if self.search_row_has_search_term(rows[current_index], search_regex):
                 return current_index
-            current_index = self.search_increment_index(current_index, reverse)
             if current_index == start_index:
                 return start_index if start_matches else None
+            current_index = self.search_increment_index(current_index, reverse)
 
     def search_increment_index(self, current_index, reverse=False):
         return current_index + (-1 if reverse else 1)
