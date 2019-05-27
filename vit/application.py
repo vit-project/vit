@@ -629,8 +629,7 @@ class Application():
         uuid, task = self.get_focused_task()
         if task:
             if self.confirm:
-                task_id = task['id']
-                self.activate_command_bar('delete', 'Delete task %s? (y/n): ' % task_id, {'uuid': uuid, 'id': task_id, 'choices': {'y': True}})
+                self.activate_command_bar('delete', 'Delete task %s? (y/n): ' % self.model.task_id(uuid), {'uuid': uuid, 'choices': {'y': True}})
             else:
                 self.task_delete(uuid)
 
@@ -650,8 +649,7 @@ class Application():
         if uuid:
             task = self.model.get_task(uuid)
             if task:
-                task_id = task['id']
-                self.activate_command_bar('start-stop', '%s task %s? (y/n): ' % (task.active and 'Stop' or 'Start', task_id), {'uuid': uuid, 'choices': {'y': True}})
+                self.activate_command_bar('start-stop', '%s task %s? (y/n): ' % (task.active and 'Stop' or 'Start', self.model.task_id(uuid)), {'uuid': uuid, 'choices': {'y': True}})
 
     def task_action_done(self):
         uuid, task = self.get_focused_task()
