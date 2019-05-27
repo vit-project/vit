@@ -655,8 +655,7 @@ class Application():
         uuid, task = self.get_focused_task()
         if task:
             if self.confirm:
-                task_id = task['id']
-                self.activate_command_bar('done', 'Mark task %s done? (y/n): ' % task_id, {'uuid': uuid, 'id': task_id, 'choices': {'y': True}})
+                self.activate_command_bar('done', 'Mark task %s done? (y/n): ' % self.model.task_id(uuid), {'uuid': uuid, 'choices': {'y': True}})
             else:
                 self.task_done(uuid)
 
