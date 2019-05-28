@@ -65,4 +65,4 @@ class RequestReply(object):
         try:
             return self.handlers[name]['callback'](*args)
         except KeyError:
-            raise(KeyError, "No handler '%s' has been set" % name)
+            raise KeyError("No handler '%s' has been set" % name)

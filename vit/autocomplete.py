@@ -43,7 +43,7 @@ class AutoComplete(object):
                 items = self.create_project_entries(items)
             return items
         else:
-            raise(RuntimeError, "Error running command '%s': %s" % (command, stderr))
+            raise RuntimeError("Error running command '%s': %s" % (command, stderr))
 
     def create_project_entries(self, projects):
         def projects_reducer(projects_accum, project):

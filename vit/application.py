@@ -186,7 +186,7 @@ class Application():
         try:
             return import_module('vit.theme.%s' % theme).theme
         except ImportError:
-            raise(ImportError, "theme '%s' not found" % theme)
+            raise ImportError("theme '%s' not found" % theme)
 
     def get_theme_setting(self, setting):
         for s in self.theme:
@@ -702,7 +702,7 @@ class Application():
         if returncode == 0:
             self.blocking_task_uuids = stdout.split()
         else:
-            raise(RuntimeError, "Error retrieving blocking task UUIDs: %s" % stderr)
+            raise RuntimeError("Error retrieving blocking task UUIDs: %s" % stderr)
 
     def setup_autocomplete(self, op):
         callback = self.command_bar.set_edit_text_callback()
@@ -765,7 +765,7 @@ class Application():
             text = ' '.join(stdout.split()[:2])
             self.status_context.original_widget.set_text(text)
         else:
-            raise(RuntimeError, "Error retrieving current context: %s" % stderr)
+            raise RuntimeError("Error retrieving current context: %s" % stderr)
 
     def update_status_tasks_shown(self):
         num_tasks = len(self.model.tasks)
@@ -779,7 +779,7 @@ class Application():
             text = '%s %s completed' % (num_tasks, num_tasks == 1 and 'task' or 'tasks')
             self.status_tasks_completed.original_widget.set_text(text)
         else:
-            raise(RuntimeError, "Error retrieving completed tasks: %s" % stderr)
+            raise RuntimeError("Error retrieving completed tasks: %s" % stderr)
 
     def refresh(self, load_early_config=True):
         self.bootstrap(load_early_config)
