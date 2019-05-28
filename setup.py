@@ -1,13 +1,17 @@
+import re
 from setuptools import setup
 from os import path
 
-from vit import version
+FILE_DIR = path.dirname(path.abspath(path.realpath(__file__)))
 
-DIR = path.dirname(path.abspath(__file__))
-INSTALL_PACKAGES = open(path.join(DIR, 'requirements.txt')).read().splitlines()
-
-with open(path.join(DIR, 'README.md')) as f:
+with open(path.join(FILE_DIR, 'README.md')) as f:
     README = f.read()
+
+with open(path.join(FILE_DIR, 'requirements.txt')) as f:
+    INSTALL_PACKAGES = f.read().splitlines()
+
+with open(path.join(FILE_DIR, 'vit', 'version.py')) as f:
+    VERSION = re.match(r"^VIT = '([\w\.]+)'$", f.read().strip())[1]
 
 setup(
     name='vit',
@@ -16,7 +20,7 @@ setup(
     long_description=README,
     long_description_content_type='text/markdown',
     install_requires=INSTALL_PACKAGES,
-    version=version.VIT,
+    version=VERSION,
     url='https://github.com/scottkosty/vit',
     author='Chad Phillips',
     author_email='chad@apartmentlines.com',
