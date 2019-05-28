@@ -1,6 +1,9 @@
 
  VIT - a minimalistic Taskwarrior full-screen terminal interface with Vim key bindings 
 
+ ANNOUNCEMENT: New VIT development is happening on the 2.x branch -- to play
+ with the latest release, see https://github.com/scottkosty/vit/tree/2.x
+
  Features:
    Vim key bindings
    uncluttered display
