@@ -34,12 +34,14 @@ def task_256_to_urwid_256():
 
 def task_bright_to_color(color_string):
     color_map = {
+        'bright black': 'color8',
         'bright red': 'color9',
         'bright green': 'color10',
         'bright yellow': 'color11',
         'bright blue': 'color12',
         'bright magenta': 'color13',
         'bright cyan': 'color14',
+        'bright white': 'color15',
     }
     if BRIGHT_REGEX.match(color_string):
         for bright_color in color_map:
