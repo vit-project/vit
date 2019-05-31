@@ -1,7 +1,7 @@
 from operator import itemgetter
 from collections import OrderedDict
 from itertools import repeat
-from functools import partial
+from functools import partial, reduce
 from time import sleep
 import re
 import math
@@ -15,6 +15,8 @@ from vit.list_batcher import ListBatcher
 from vit.formatter.project import Project as ProjectFormatter
 
 MAX_COLUMN_WIDTH = 60
+REDUCE_COLUMN_WIDTH_LIMIT = 20
+COLUMN_PADDING = 2
 MARKER_COLUMN_NAME = 'markers'
 
 class TaskTable(object):
@@ -91,6 +93,7 @@ class TaskTable(object):
         self.project_formatter = ProjectFormatter('project', self.report, self.formatter)
         self.build_rows()
         self.clean_columns()
+        self.resize_columns()
         self.reconcile_column_width_for_label()
         self.build_table()
         self.set_focus_position()
@@ -298,6 +301,27 @@ class TaskTable(object):
         self.non_filtered_columns = [c if c['width'] > 0 else False for c in self.columns]
         self.columns = [c for c in self.columns if c['width'] > 0]
 
+    def resize_columns(self):
+        cols, _ = self.listbox.size
+        padding = (len(self.columns) - 1) * COLUMN_PADDING
+        total_width = padding
+        to_adjust= []
+        for idx, column in enumerate(self.columns):
+            width = column['width']
+            total_width += width
+            if width > REDUCE_COLUMN_WIDTH_LIMIT:
+                to_adjust.append({'idx': idx, 'width': width})
+        if total_width > cols:
+            self.adjust_oversized_columns(total_width - cols, to_adjust)
+
+    def adjust_oversized_columns(self, reduce_by, to_adjust):
+        to_adjust = list(map(lambda c: c.update({'ratio': (c['width'] - REDUCE_COLUMN_WIDTH_LIMIT) / c['width']}) or c, to_adjust))
+        ratio_total = reduce(lambda acc, c: acc + c['ratio'], to_adjust, 0)
+        to_adjust = list(map(lambda c: c.update({'percentage': c['ratio'] / ratio_total}) or c, to_adjust))
+        for c in to_adjust:
+            adjusted_width = c['width'] - math.ceil(reduce_by * c['percentage'])
+            self.columns[c['idx']]['width'] = adjusted_width if adjusted_width > REDUCE_COLUMN_WIDTH_LIMIT else REDUCE_COLUMN_WIDTH_LIMIT
+
     def reconcile_column_width_for_label(self):
         for idx, column in enumerate(self.columns):
             label_len = len(column['label'])
@@ -335,11 +359,11 @@ class TaskTable(object):
         list_header = urwid.Columns(columns)
         self.header = urwid.AttrMap(list_header, 'list-header')
 
-    def make_header_column(self, column, is_last, separator_width=2):
-        total_width = column['width'] + separator_width
+    def make_header_column(self, column, is_last, space_between=COLUMN_PADDING):
+        total_width = column['width'] + space_between
         column_content = urwid.AttrMap(urwid.Padding(urwid.Text(column['label'], align='left')), 'list-header-column')
         padding_content = self.make_padding(is_last and 'list-header-column' or 'list-header-column-separator')
-        columns = urwid.Columns([(column['width'], column_content), (separator_width, padding_content)])
+        columns = urwid.Columns([(column['width'], column_content), (space_between, padding_content)])
         return (total_width, columns)
 
     def make_padding(self, display_attr):
@@ -377,7 +401,7 @@ class SelectableRow(urwid.WidgetWrap):
     This class has been slightly modified, but essentially corresponds to this class posted on stackoverflow.com:
     https://stackoverflow.com/questions/52106244/how-do-you-combine-multiple-tui-forms-to-write-more-complex-applications#answer-52174629"""
 
-    def __init__(self, columns, row, position, *, on_select=None, space_between=2):
+    def __init__(self, columns, row, position, *, on_select=None, space_between=COLUMN_PADDING):
         self.task = row.task
         self.uuid = row.uuid
         self.id = row.id
@@ -421,7 +445,7 @@ class ProjectPlaceholderRow(urwid.WidgetWrap):
     """Wraps 'urwid.Columns' for a project placeholder row.
     """
 
-    def __init__(self, columns, row, position, space_between=2):
+    def __init__(self, columns, row, position, space_between=COLUMN_PADDING):
         self.uuid = None
         self.id = None
         self.alt_row = row.alt_row
