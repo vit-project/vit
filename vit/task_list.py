@@ -533,10 +533,9 @@ class TaskListBox(BaseListBox):
         self.focus_by_batch_loop(match_callback)
 
     def focus_by_task_uuid(self, uuid):
-        for idx, row in enumerate(self.body):
-            if row.uuid == uuid:
-                self.focus_position = idx
-                return
+        def match_callback(row):
+            return row.uuid == uuid
+        self.focus_by_batch_loop(match_callback)
 
     def list_action_executed(self, size, key):
         data = {
