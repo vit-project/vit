@@ -248,11 +248,14 @@ class Application():
             elif op == 'delete' and choice is not None:
                 self.task_delete(metadata['uuid'])
             elif op == 'start-stop' and choice is not None:
-                task = self.model.task_start_stop(metadata['uuid'])
+                success, task = self.model.task_start_stop(metadata['uuid'])
                 if task:
-                    self.table.flash_focus()
-                    self.update_report()
-                    self.activate_message_bar('Task %s %s' % (self.model.task_id(task['uuid']), 'started' if task['start'] else 'stopped'))
+                    if success:
+                        self.table.flash_focus()
+                        self.update_report()
+                        self.activate_message_bar('Task %s %s' % (self.model.task_id(task['uuid']), 'started' if task['start'] else 'stopped'))
+                    else:
+                        self.activate_message_bar('Error: %s' % task, 'error')
             elif op == 'priority' and choice is not None:
                 task = self.model.task_priority(metadata['uuid'], choice)
                 if task:
@@ -604,20 +607,24 @@ class Application():
 
 
     def task_done(self, uuid):
-        task = self.model.task_done(uuid)
+        success, task = self.model.task_done(uuid)
         if task:
-            self.table.flash_focus()
-            self.update_report()
-            self.activate_message_bar('Task %s marked done' % self.model.task_id(task['uuid']))
-        # TODO: Error handling.
+            if success:
+                self.table.flash_focus()
+                self.update_report()
+                self.activate_message_bar('Task %s marked done' % self.model.task_id(task['uuid']))
+            else:
+                self.activate_message_bar('Error: %s' % task, 'error')
 
     def task_delete(self, uuid):
-        task = self.model.task_delete(uuid)
+        success, task = self.model.task_delete(uuid)
         if task:
-            self.table.flash_focus()
-            self.update_report()
-            self.activate_message_bar('Task %s deleted' % self.model.task_id(task['uuid']))
-        # TODO: Error handling.
+            if success:
+                self.table.flash_focus()
+                self.update_report()
+                self.activate_message_bar('Task %s deleted' % self.model.task_id(task['uuid']))
+            else:
+                self.activate_message_bar('Error: %s' % task, 'error')
 
     def task_action_annotate(self):
         uuid, _ = self.get_focused_task()

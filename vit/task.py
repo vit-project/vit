@@ -1,5 +1,6 @@
 import os
 import tasklib
+from tasklib.task import Task
 
 from vit import util
 
@@ -32,14 +33,14 @@ class TaskListModel(object):
     def get_task(self, uuid):
         try:
             return self.tw.tasks.get(uuid=uuid)
-        except tasklib.task.DoesNotExist:
+        except Task.DoesNotExist:
             return False
 
     def task_id(self, uuid):
         try:
             task = self.tw.tasks.get(uuid=uuid)
             return util.task_id_or_uuid_short(task)
-        except tasklib.task.DoesNotExist:
+        except Task.DoesNotExist:
             return False
 
     def task_description(self, uuid, description):
@@ -83,23 +84,32 @@ class TaskListModel(object):
     def task_done(self, uuid):
         task = self.get_task(uuid)
         if task:
-            task.done()
-            return task
-        return False
+            try:
+                task.done()
+                return True, task
+            except (Task.CompletedTask, Task.DeletedTask) as e:
+                return False, e
+        return False, None
 
     def task_delete(self, uuid):
         task = self.get_task(uuid)
         if task:
-            task.delete()
-            return task
-        return False
+            try:
+                task.delete()
+                return True, task
+            except Task.DeletedTask as e:
+                return False, e
+        return False, None
 
     def task_start_stop(self, uuid):
         task = self.get_task(uuid)
         if task:
-            task.stop() if task.active else task.start()
-            return task
-        return False
+            try:
+                task.stop() if task.active else task.start()
+                return True, task
+            except (Task.CompletedTask, Task.DeletedTask, Task.ActiveTask, Task.InactiveTask) as e:
+                return False, e
+        return False, None
 
     def task_tags(self, uuid, tags):
         task = self.get_task(uuid)
