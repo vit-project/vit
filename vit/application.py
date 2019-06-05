@@ -248,14 +248,7 @@ class Application():
             elif op == 'delete' and choice is not None:
                 self.task_delete(metadata['uuid'])
             elif op == 'start-stop' and choice is not None:
-                success, task = self.model.task_start_stop(metadata['uuid'])
-                if task:
-                    if success:
-                        self.table.flash_focus()
-                        self.update_report()
-                        self.activate_message_bar('Task %s %s' % (self.model.task_id(task['uuid']), 'started' if task['start'] else 'stopped'))
-                    else:
-                        self.activate_message_bar('Error: %s' % task, 'error')
+                self.task_start_stop(metadata['uuid'])
             elif op == 'priority' and choice is not None:
                 task = self.model.task_priority(metadata['uuid'], choice)
                 if task:
@@ -626,6 +619,16 @@ class Application():
             else:
                 self.activate_message_bar('Error: %s' % task, 'error')
 
+    def task_start_stop(self, uuid):
+        success, task = self.model.task_start_stop(uuid)
+        if task:
+            if success:
+                self.table.flash_focus()
+                self.update_report()
+                self.activate_message_bar('Task %s %s' % (self.model.task_id(task['uuid']), 'started' if task.active else 'stopped'))
+            else:
+                self.activate_message_bar('Error: %s' % task, 'error')
+
     def task_action_annotate(self):
         uuid, _ = self.get_focused_task()
         if uuid:
@@ -652,11 +655,12 @@ class Application():
             self.task_list.focus_by_task_uuid(uuid)
 
     def task_action_start_stop(self):
-        uuid, _ = self.get_focused_task()
-        if uuid:
-            task = self.model.get_task(uuid)
-            if task:
+        uuid, task = self.get_focused_task()
+        if task:
+            if self.confirm:
                 self.activate_command_bar('start-stop', '%s task %s? (y/n): ' % (task.active and 'Stop' or 'Start', self.model.task_id(uuid)), {'uuid': uuid, 'choices': {'y': True}})
+            else:
+                self.task_start_stop(uuid)
 
     def task_action_done(self):
         uuid, task = self.get_focused_task()
