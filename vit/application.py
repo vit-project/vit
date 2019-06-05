@@ -642,6 +642,7 @@ class Application():
                 self.activate_command_bar('delete', 'Delete task %s? (y/n): ' % self.model.task_id(uuid), {'uuid': uuid, 'choices': {'y': True}})
             else:
                 self.task_delete(uuid)
+                self.task_list.focus_by_task_uuid(uuid)
 
     def task_action_denotate(self):
         uuid, task = self.get_focused_task()
@@ -661,6 +662,7 @@ class Application():
                 self.activate_command_bar('start-stop', '%s task %s? (y/n): ' % (task.active and 'Stop' or 'Start', self.model.task_id(uuid)), {'uuid': uuid, 'choices': {'y': True}})
             else:
                 self.task_start_stop(uuid)
+                self.task_list.focus_by_task_uuid(uuid)
 
     def task_action_done(self):
         uuid, task = self.get_focused_task()
@@ -669,6 +671,7 @@ class Application():
                 self.activate_command_bar('done', 'Mark task %s done? (y/n): ' % self.model.task_id(uuid), {'uuid': uuid, 'choices': {'y': True}})
             else:
                 self.task_done(uuid)
+                self.task_list.focus_by_task_uuid(uuid)
 
     def task_action_priority(self):
         uuid, _ = self.get_focused_task()
