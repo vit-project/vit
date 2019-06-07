@@ -88,7 +88,7 @@ class TaskColorConfig(object):
         starts_with_on = color_config[0:3] == 'on '
         parts = list(map(lambda p: p.strip(), color_config.split('on ')))
         foreground, background = (parts[0], parts[1]) if len(parts) > 1 else (None, parts[0]) if starts_with_on else (parts[0], None)
-        foreground_parts, background_parts = self.check_invert_color_parts(foreground, background)
+        foreground_parts, background_parts = self.make_color_parts(foreground, background)
         return self.convert_color_parts(foreground_parts), self.convert_color_parts(background_parts)
 
     def convert_color_parts(self, color_parts):
@@ -101,26 +101,9 @@ class TaskColorConfig(object):
             color_parts[0] = self.task_256_to_urwid_256[color_parts[0]]
         return color_parts
 
-    def check_invert_color_parts(self, foreground, background):
+    def make_color_parts(self, foreground, background):
         foreground_parts = self.split_color_parts(foreground)
         background_parts = self.split_color_parts(background)
-        inverse = False
-        if 'inverse' in foreground_parts:
-            foreground_parts.remove('inverse')
-            inverse = True
-        if 'inverse' in background_parts:
-            background_parts.remove('inverse')
-            inverse = True
-        # TODO: This doesn't work, and according to
-        # http://urwid.org/manual/displayattributes.html#default-foreground-and-background
-        # "There is no way to tell what the default colors are", so I'm not
-        # sure if we can ever make this work unless specific
-        # foreground/background colors are declared, and there are downsides to
-        # that as well.
-        #if inverse:
-        #    return background_parts, foreground_parts
-        #else:
-        #    return foreground_parts, background_parts
         return foreground_parts, background_parts
 
     def split_color_parts(self, color_parts):

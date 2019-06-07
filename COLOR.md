@@ -23,3 +23,7 @@ By default, markers are tied to the color configuration for the column/state in 
 Markers are highly configurable, including displaying them without color, and customizing the indicator text for all markers.
 
 For more information on marker and color settings, see the ```marker``` and ```color``` sections in the [default vit configuration file](vit/config/config.sample.ini).
+
+### Caveats
+
+ 1. [urwid](http://urwid.org), the library VIT uses for console rendering, does not appear to support discovering the default console colors. Therefore, it becomes impractical to support TaskWarrior's ```inverse``` color attribute. As a workaround, simply replace any color configuration that uses ```inverse``` with the exact foreground/background colors desired. When parsing TaskWarrior's color config, VIT removes the ```inverse``` attribute, which will lead to unexpected color output for the user -- therefore it is recommended to remove/override it anywhere it exists in the TaskWarrior color configuration.
