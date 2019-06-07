@@ -26,7 +26,6 @@ class TaskColorConfig(object):
         self.color_enabled = self.config.get('color', 'enabled')
         self.display_attrs_available, self.display_attrs = self.convert_color_config(self.task_config.filter_to_dict('^color\.'))
         self.project_display_attrs = self.get_project_display_attrs()
-        self.color_precedence = self.task_config.subtree('rule.')['precedence']['color'].split(',')
         if self.include_subprojects:
             self.add_project_children()
         self.inject_alt_background_display_attrs()
@@ -92,7 +91,6 @@ class TaskColorConfig(object):
         foreground_parts, background_parts = self.check_invert_color_parts(foreground, background)
         return self.convert_color_parts(foreground_parts), self.convert_color_parts(background_parts)
 
-    # TODO: Better method name please...
     def convert_color_parts(self, color_parts):
         sorted_parts = self.sort_color_parts(color_parts)
         remapped_colors = self.map_named_colors(sorted_parts)
