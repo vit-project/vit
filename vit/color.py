@@ -113,10 +113,17 @@ class TaskColorConfig(object):
         if 'inverse' in background_parts:
             background_parts.remove('inverse')
             inverse = True
-        if inverse:
-            return background_parts, foreground_parts
-        else:
-            return foreground_parts, background_parts
+        # TODO: This doesn't work, and according to
+        # http://urwid.org/manual/displayattributes.html#default-foreground-and-background
+        # "There is no way to tell what the default colors are", so I'm not
+        # sure if we can ever make this work unless specific
+        # foreground/background colors are declared, and there are downsides to
+        # that as well.
+        #if inverse:
+        #    return background_parts, foreground_parts
+        #else:
+        #    return foreground_parts, background_parts
+        return foreground_parts, background_parts
 
     def split_color_parts(self, color_parts):
         parts = color_parts.split() if color_parts else []
