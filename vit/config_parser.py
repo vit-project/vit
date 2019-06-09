@@ -303,20 +303,29 @@ class TaskParser(object):
         if 'sort' in attrs:
           columns = attrs['sort'].split(',')
           reports[report]['sort'] = [self.parse_sort_column(c) for c in columns]
-          reports[report]['subproject_indentable'] = self.is_subproject_indentable(reports[report])
         if 'dateformat' in attrs:
           reports[report]['dateformat'] = self.translate_date_markers(attrs['dateformat'])
 
         self.reports = reports
-      return reports
+        # Another pass is needed after all report data has been parsed.
+        for report_name, report in self.reports.items():
+            self.reports[report_name] = self.rectify_report(report_name, report)
+      return self.reports
 
-    def is_subproject_indentable(self, report):
+    def rectify_report(self, report_name, report):
+        report['subproject_indentable'] = self.has_project_column(report_name) and self.has_primary_project_ascending_sort(report)
+        return report
+
+    def has_project_column(self, report_name):
+        return self.get_column_index(report_name, 'project') is not None
+
+    def has_primary_project_ascending_sort(self, report):
         primary_sort = report['sort'][0]
         return primary_sort[0] == 'project' and primary_sort[1] == 'ascending'
 
-    def get_column_index(self, report, column):
-        return self.reports[report]['columns'].index(column)
+    def get_column_index(self, report_name, column):
+        return self.reports[report_name]['columns'].index(column) if column in self.reports[report_name]['columns'] else None
 
-    def get_column_label(self, report, column):
-        column_index = self.get_column_index(report, column)
-        return self.reports[report]['labels'][column_index]
+    def get_column_label(self, report_name, column):
+        column_index = self.get_column_index(report_name, column)
+        return self.reports[report_name]['labels'][column_index]
