@@ -134,6 +134,7 @@ class Application():
     def setup_config(self):
         self.confirm = self.config.confirmation_enabled
         self.wait = self.config.wait_enabled
+        self.update = self.config.update
 
     def register_managed_actions(self):
         # Global.
@@ -392,7 +393,7 @@ class Application():
                     metadata.pop('uuid')
             elif command in self.reports:
                 self.extra_filters = args
-                self.update_report(command)
+                self.update_report(report=command)
                 if 'uuid' in metadata:
                     metadata.pop('uuid')
             else:
@@ -832,7 +833,7 @@ class Application():
         self.loop.screen.clear()
         self.loop.widget = self.widget
 
-    def update_report(self, report=None):
+    def update_report(self, loop=None, report=None):
         start = time.time()
         if report:
             self.report = report
@@ -854,6 +855,8 @@ class Application():
         self.autocomplete.refresh()
         end = time.time()
         self.update_status_performance(end - start)
+        if self.update > 0:
+            self.loop.set_alarm_in(60 * self.update, self.update_report)
 
     def build_main_widget(self, report=None):
         if report:

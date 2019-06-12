@@ -42,6 +42,7 @@ DEFAULTS = {
         'theme': 'default',
         'confirmation': True,
         'wait': True,
+        'update': 0,
     },
     'report': {
         'default_report': 'next',
@@ -109,6 +110,7 @@ class ConfigParser(object):
         self.row_striping_enabled = self.is_row_striping_enabled()
         self.confirmation_enabled = self.is_confirmation_enabled()
         self.wait_enabled = self.is_wait_enabled()
+        self.update = self.get_update()
 
     def config_file_exists(self, filepath):
         try:
@@ -180,6 +182,10 @@ class ConfigParser(object):
 
     def is_wait_enabled(self):
         return self.get('vit', 'wait')
+
+    def get_update(self):
+        return int(self.get('vit', 'update'))
+
 
 class TaskParser(object):
     def __init__(self, config):
