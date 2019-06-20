@@ -59,13 +59,17 @@ class CommandBar(urwid.Edit):
             self.event.emit('command-bar:keypress', data)
             return None
         elif key in ('tab', 'shift tab'):
-            text = self.get_edit_text()
-            kwargs = {}
-            if key in ('shift tab',):
-                kwargs['reverse'] = True
-            self.autocomplete.activate(text, self.edit_pos, **kwargs)
+            if self.is_autocomplete_op():
+                text = self.get_edit_text()
+                kwargs = {}
+                if key in ('shift tab',):
+                    kwargs['reverse'] = True
+                self.autocomplete.activate(text, self.edit_pos, **kwargs)
             return None
         return super().keypress(size, key)
+
+    def is_autocomplete_op(self):
+        return self.metadata['op'] not in ['search-forward', 'search-reverse']
 
     def set_edit_text(self, text, edit_pos=None):
         ret = super().set_edit_text(text)
