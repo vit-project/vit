@@ -186,6 +186,7 @@ class TaskParser(object):
         self.config = config
         self.task_config = []
         self.projects = []
+        self.contexts = {}
         self.reports = {}
         self.command = Command(self.config)
         self.get_task_config()
@@ -204,6 +205,13 @@ class TaskParser(object):
                 self.task_config.append((hierarchy, values))
         else:
             raise RuntimeError('Error parsing task config: %s' % stderr)
+
+    def get_active_context(self):
+        returncode, stdout, stderr = self.command.run('task _get rc.context', capture_output=True)
+        if returncode == 0:
+            return stdout.strip()
+        else:
+            raise RuntimeError('Error retrieving active context: %s' % stderr)
 
     def get_projects(self):
         returncode, stdout, stderr = self.command.run('task _projects', capture_output=True)
@@ -280,6 +288,17 @@ class TaskParser(object):
 
     def translate_date_markers(self, string):
         return reduce(lambda accum, code: accum.replace(code[0], code[1]), list(DATE_FORMAT_MAPPING.items()), string)
+
+    def get_contexts(self):
+        contexts = {}
+        subtree = self.subtree('context.')
+        for context, filters in list(subtree.items()):
+            filters = shlex.split(re.sub(FILTER_PARENS_REGEX, r' \1 ', filters))
+            contexts[context] = {
+                'filter': [f for f in filters if not FILTER_EXCLUSION_REGEX.match(f)],
+            }
+        self.contexts = contexts
+        return self.contexts
 
     def get_reports(self):
       reports = {}

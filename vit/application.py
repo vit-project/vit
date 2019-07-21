@@ -93,10 +93,15 @@ class Application():
         except:
             pass
 
+    def set_active_context(self):
+        self.context = self.task_config.get_active_context()
+
     def bootstrap(self, load_early_config=True):
         self.loader = Loader()
         if load_early_config:
             self.load_early_config()
+        self.contexts = self.task_config.get_contexts()
+        self.set_active_context()
         self.event = event.Emitter()
         self.setup_config()
         self.search_term_active = ''
@@ -774,12 +779,8 @@ class Application():
         self.status_performance.original_widget.set_text(text)
 
     def update_status_context(self):
-        returncode, stdout, stderr = self.command.run(['task', 'context', 'show'], capture_output=True)
-        if returncode == 0:
-            text = ' '.join(stdout.split()[:2])
-            self.status_context.original_widget.set_text(text)
-        else:
-            raise RuntimeError("Error retrieving current context: %s" % stderr)
+        text = 'Context: %s' % self.context if self.context else 'No context'
+        self.status_context.original_widget.set_text(text)
 
     def update_status_tasks_shown(self):
         num_tasks = len(self.model.tasks)
@@ -808,10 +809,12 @@ class Application():
         start = time.time()
         if report:
             self.report = report
+        self.set_active_context()
         self.task_config.get_projects()
         self.refresh_blocking_task_uuids()
         self.formatter.recalculate_due_datetimes()
-        self.model.update_report(self.report, self.extra_filters)
+        context_filters = self.contexts[self.context]['filter'] if self.context else []
+        self.model.update_report(self.report, context_filters + self.extra_filters)
         self.update_task_table()
         self.update_status_report()
         self.update_status_context()
