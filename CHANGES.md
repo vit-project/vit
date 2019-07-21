@@ -1,3 +1,22 @@
+##### Fri Jul 19 2019 - released v2.0.0b1
+
+* **Thu Jun 20 2019:** only activate autocomplete for autocomplete capable ops
+* **Tue Jun 11 2019:** add script to generate a dummy installation
+* **Mon Jun 10 2019:** fix #186: test for project column in report before updating project column header
+* **Sun Jun  9 2019:** test for existence of project column when determining subproject_indentable report setting
+* **Fri Jun  7 2019:** remove support for inverse color attribute, also add a caveat note to COLOR.md for a workaround
+* **Wed Jun  5 2019:** try to focus by task UUID in no confirmation case
+* **Wed Jun  5 2019:** fix #183: Confirmation dialog when starting a task
+* **Fri May 31 2019:** fix #180: Crash when tasklib raises exception for illegal operation
+* **Fri May 31 2019:** fix #182: User not returned to previous task on tasks after first page
+* **Wed Jun  5 2019:** fix #183: Confirmation dialog when starting a task
+* **Thu May 30 2019:** fix #178: Smarter column width formatting
+* **Mon May 27 2019:** add missing color mappings for bright black/white
+* **Sun May 26 2019:** id or short uuid for done
+* **Sun May 26 2019:** fix endless loop on forward search with no results
+* **Sun May 26 2019:** id or short uuid for delete/start/stop
+* **Sat May 25 2019:** fix #179: Search forward and reverse should use same history
+
 ##### Sat May 25 2019 - released v2.0.0a1
 
 **IMPORTANT NOTE:** This is an alpha release, no guarantees are made for stability or data integrity. While the author has used the alpha code for over a month with no data corruption issues, it is strongly recommended to back up your data prior to usage.
