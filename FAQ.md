@@ -1,6 +1,6 @@
 # Frequently asked questions
 
-## How do I fix UnknownTimeZoneError in Windows Subsystem for Linux?
+### How do I fix UnknownTimeZoneError in Windows Subsystem for Linux?
 
 If you're running VIT in
 [Windows Subsystem for Linux](https://docs.microsoft.com/en-us/windows/wsl/about)
