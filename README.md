@@ -37,6 +37,10 @@ Follow the directions in [INSTALL.md](INSTALL.md)
  * For suggestions on futher tweaks, see [CUSTOMIZE.md](CUSTOMIZE.md)
  * VIT handles task coloring differently than Taskwarrior, see [COLOR.md](COLOR.md) for more details
 
+#### Troubleshooting:
+
+See [FAQ.md](FAQ.md)
+
 #### Development:
 
 Interested in the architecture, or in helping out with development? See [DEVELOPMENT.md](DEVELOPMENT.md)
