@@ -149,6 +149,7 @@ class Application():
         self.action_manager_registrar.register('COMMAND_BAR_SEARCH_REVERSE', self.activate_command_bar_search_reverse)
         self.action_manager_registrar.register('COMMAND_BAR_SEARCH_NEXT', self.activate_command_bar_search_next)
         self.action_manager_registrar.register('COMMAND_BAR_SEARCH_PREVIOUS', self.activate_command_bar_search_previous)
+        self.action_manager_registrar.register('COMMAND_BAR_TASK_CONTEXT', self.activate_command_bar_task_context)
         self.action_manager_registrar.register('GLOBAL_ESCAPE', self.global_escape)
         self.action_manager_registrar.register(self.action_registry.noop_action_name, self.action_registry.noop)
         # Task.
@@ -291,6 +292,13 @@ class Application():
                     self.activate_message_bar('Task %s wait updated' % self.model.task_id(metadata['uuid']))
                 else:
                     self.activate_message_bar("Error setting wait: %s" % stderr, 'error')
+            elif op == 'context':
+                # TODO: Validation if more than one arg passed.
+                context = args[0] if len(args) > 0 else 'none'
+                if self.execute_command(['task', 'context', context], wait=self.wait):
+                    self.activate_message_bar('Context switched to: %s' % context)
+                else:
+                    self.activate_message_bar('Error switching context', 'error')
             elif len(args) > 0:
                 if op == 'add':
                     if self.execute_command(['task', 'add'] + args, wait=self.wait):
@@ -491,6 +499,13 @@ class Application():
     def init_task_list(self):
         self.model = TaskListModel(self.task_config, self.reports)
 
+    def init_autocomplete(self):
+        context_list = list(self.contexts.keys()) + ['none']
+        self.autocomplete = AutoComplete(self.config, extra_filters={'report': self.reports.keys(), 'help': self.help.autocomplete_entries(), 'context': context_list})
+
+    def init_command_bar(self):
+        self.command_bar = CommandBar(autocomplete=self.autocomplete, event=self.event)
+
     def build_frame(self):
         self.status_report = urwid.AttrMap(urwid.Text('Welcome to VIT'), 'status')
         self.status_context = urwid.AttrMap(urwid.Text(''), 'status')
@@ -519,8 +534,8 @@ class Application():
             urwid.Text('Loading...'),
         ])
         self.footer = MultiWidget()
-        self.autocomplete = AutoComplete(self.config, extra_filters={'report': self.reports.keys(), 'help': self.help.autocomplete_entries()})
-        self.command_bar = CommandBar(autocomplete=self.autocomplete, event=self.event)
+        self.init_autocomplete()
+        self.init_command_bar()
         self.message_bar = urwid.Text('', align='center')
         self.footer.add_widget('command', self.command_bar)
         self.footer.add_widget('message', self.message_bar)
@@ -599,6 +614,9 @@ class Application():
 
     def activate_command_bar_search_previous(self):
         self.search(reverse=True)
+
+    def activate_command_bar_task_context(self):
+        self.activate_command_bar('context', 'Context: ')
 
     def global_escape(self):
         self.denotation_pop_up.close_pop_up()
@@ -754,6 +772,15 @@ class Application():
                 'tag': {
                     'prefixes': ['+', '-'],
                     'include_unprefixed': True,
+                },
+            }
+            self.autocomplete.setup(callback, filters=filters, filter_config=filter_config)
+        elif op in ('context',):
+            filters = ('context',)
+            filter_config = {
+                'context': {
+                    'include_unprefixed': True,
+                    'root_only': True,
                 },
             }
             self.autocomplete.setup(callback, filters=filters, filter_config=filter_config)

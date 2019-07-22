@@ -19,6 +19,7 @@ class Actions(object):
         self.action_registrar.register('COMMAND_BAR_SEARCH_REVERSE', 'Search reverse for provided STRING')
         self.action_registrar.register('COMMAND_BAR_SEARCH_NEXT', 'Search next')
         self.action_registrar.register('COMMAND_BAR_SEARCH_PREVIOUS', 'Search previous')
+        self.action_registrar.register('COMMAND_BAR_TASK_CONTEXT', 'Set task context')
         self.action_registrar.register(self.action_registry.noop_action_name, 'Used to disable a default keybinding action')
         # List.
         self.action_registrar.register('LIST_UP', 'Move list focus up one entry')
