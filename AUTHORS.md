@@ -1,7 +1,7 @@
 The development of VIT was made possible by the significant
 contributions of the following people:
 
- * Chad Phillips      (Original Author >= 2.x)
+ * Chad Phillips      (Maintainer and Original Author >= 2.x)
  * Scott Kostyshak    (Maintainer and Contributing Author)
  * Steve Rader        (Original Author)
  * Paul Beckingham    (Advisor)
