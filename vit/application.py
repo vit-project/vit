@@ -5,6 +5,7 @@ from importlib import import_module
 import subprocess
 # TODO: Use regex module for better PCRE support?
 #       https://bitbucket.org/mrabarnett/mrab-regex
+import os
 import re
 import time
 import copy
@@ -12,6 +13,8 @@ from inspect import isfunction
 from functools import reduce
 
 import urwid
+from watchdog.observers import Observer
+from watchdog.events import PatternMatchingEventHandler
 
 from vit import version
 from vit.exception import VitException
@@ -341,6 +344,7 @@ class Application():
                 # individual edit actions consistent, recurrence.confirmation
                 # is set to 'no', so that only the edited recurring task is
                 # modified.
+                self.model.skip_watchdog = True
                 returncode, stdout, stderr = self.command.run(['task', 'rc.recurrence.confirmation=no', metadata['uuid'], 'modify', 'wait:%s' % wait], capture_output=True)
                 if returncode == 0:
                     self.table.flash_focus()
@@ -576,6 +580,24 @@ class Application():
     def init_task_list(self):
         self.model = TaskListModel(self.task_config, self.reports)
 
+    def observer_update(self, _):
+        if not self.model.skip_watchdog:
+            self.update_report()
+        self.model.skip_watchdog = False
+
+    def init_observer(self):
+        pipe = self.loop.watch_pipe(self.observer_update)
+
+        def on_modified(event):
+            os.write(pipe, b'x')
+
+        event_handler = PatternMatchingEventHandler(patterns=['*/pending.data'], ignore_directories=True)
+        event_handler.on_modified = on_modified
+
+        self.observer = Observer()
+        self.observer.schedule(event_handler, self.model.data_location)
+        self.observer.start()
+
     def init_autocomplete(self):
         context_list = list(self.contexts.keys()) + ['none']
         self.autocomplete = AutoComplete(self.config, extra_filters={'report': self.reports.keys(), 'help': self.help.autocomplete_entries(), 'context': context_list})
@@ -626,6 +648,7 @@ class Application():
 
     def execute_command(self, args, **kwargs):
         update_report = True
+        self.model.skip_watchdog = True
         wait = True
         if 'update_report' in kwargs:
             update_report = kwargs.pop('update_report')
@@ -957,6 +980,8 @@ class Application():
         if report:
             self.report = report
         self.init_task_list()
+        if self.config.get('vit', 'auto_reload'):
+            self.init_observer()
         self.build_frame()
         self.widget = MainFrame(
             urwid.ListBox([]),

@@ -18,6 +18,7 @@ class TaskListModel(object):
         self.reports = reports
         self.report = report
         self.tasks = []
+        self.skip_watchdog = False
         if report:
             self.update_report(report)
 
@@ -69,6 +70,7 @@ class TaskListModel(object):
     def task_description(self, uuid, description):
         task = self.get_task(uuid)
         if task:
+            self.skip_watchdog = True
             task['description'] = description
             task.save()
             return task
@@ -77,6 +79,7 @@ class TaskListModel(object):
     def task_annotate(self, uuid, description):
         task = self.get_task(uuid)
         if task:
+            self.skip_watchdog = True
             task.add_annotation(description)
             return task
         return False
@@ -84,6 +87,7 @@ class TaskListModel(object):
     def task_denotate(self, uuid, annotation):
         task = self.get_task(uuid)
         if task:
+            self.skip_watchdog = True
             task.remove_annotation(annotation)
             return task
         return False
@@ -91,6 +95,7 @@ class TaskListModel(object):
     def task_priority(self, uuid, priority):
         task = self.get_task(uuid)
         if task:
+            self.skip_watchdog = True
             task['priority'] = priority
             task.save()
             return task
@@ -99,6 +104,7 @@ class TaskListModel(object):
     def task_project(self, uuid, project):
         task = self.get_task(uuid)
         if task:
+            self.skip_watchdog = True
             task['project'] = project
             task.save()
             return task
@@ -107,36 +113,43 @@ class TaskListModel(object):
     def task_done(self, uuid):
         task = self.get_task(uuid)
         if task:
+            self.skip_watchdog = True
             try:
                 task.done()
                 return True, task
             except (Task.CompletedTask, Task.DeletedTask) as e:
+                self.skip_watchdog = False
                 return False, e
         return False, None
 
     def task_delete(self, uuid):
         task = self.get_task(uuid)
         if task:
+            self.skip_watchdog = True
             try:
                 task.delete()
                 return True, task
             except Task.DeletedTask as e:
+                self.skip_watchdog = False
                 return False, e
         return False, None
 
     def task_start_stop(self, uuid):
         task = self.get_task(uuid)
         if task:
+            self.skip_watchdog = True
             try:
                 task.stop() if task.active else task.start()
                 return True, task
             except (Task.CompletedTask, Task.DeletedTask, Task.ActiveTask, Task.InactiveTask) as e:
+                self.skip_watchdog = False
                 return False, e
         return False, None
 
     def task_tags(self, uuid, tags):
         task = self.get_task(uuid)
         if task:
+            self.skip_watchdog = True
             for tag in tags:
                 marker = tag[0]
                 if marker in ('+', '-'):
