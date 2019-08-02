@@ -343,6 +343,8 @@ class TaskParser(object):
         return primary_sort[0] == 'project' and primary_sort[1] == 'ascending'
 
     def get_column_index(self, report_name, column):
+        if not 'columns' in self.reports[report_name]:
+            return None
         return self.reports[report_name]['columns'].index(column) if column in self.reports[report_name]['columns'] else None
 
     def get_column_label(self, report_name, column):
