@@ -13,6 +13,7 @@ class Actions(object):
         self.action_registrar.register('TASK_ADD', 'Add a task (supports tab completion)')
         self.action_registrar.register('REPORT_FILTER', 'Filter current report using provided FILTER arguments (supports tab completion)')
         self.action_registrar.register('TASK_UNDO', 'Undo last task change')
+        self.action_registrar.register('TASK_SYNC', 'Synchronize with configured taskd server')
         self.action_registrar.register('COMMAND_BAR_EX', "Open the command bar in 'ex' mode")
         self.action_registrar.register('COMMAND_BAR_EX_TASK_READ_WAIT', "Open the command bar in 'ex' mode with '!rw task ' appended")
         self.action_registrar.register('COMMAND_BAR_SEARCH_FORWARD', 'Search forward for provided STRING')

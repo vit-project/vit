@@ -142,7 +142,8 @@ class Application():
         self.action_manager_registrar.register('QUIT_WITH_CONFIRM', self.activate_command_bar_quit_with_confirm)
         self.action_manager_registrar.register('TASK_ADD', self.activate_command_bar_add)
         self.action_manager_registrar.register('REPORT_FILTER', self.activate_command_bar_filter)
-        self.action_manager_registrar.register('TASK_UNDO', self.activate_command_bar_undo)
+        self.action_manager_registrar.register('TASK_UNDO', self.task_undo)
+        self.action_manager_registrar.register('TASK_SYNC', self.task_sync)
         self.action_manager_registrar.register('COMMAND_BAR_EX', self.activate_command_bar_ex)
         self.action_manager_registrar.register('COMMAND_BAR_EX_TASK_READ_WAIT', self.activate_command_bar_ex_read_wait_task)
         self.action_manager_registrar.register('COMMAND_BAR_SEARCH_FORWARD', self.activate_command_bar_search_forward)
@@ -584,8 +585,11 @@ class Application():
     def activate_command_bar_filter(self):
         self.activate_command_bar('filter', 'Filter: ')
 
-    def activate_command_bar_undo(self):
+    def task_undo(self):
         self.execute_command(['task', 'undo'])
+
+    def task_sync(self):
+        self.execute_command(['task', 'sync'])
 
     def activate_command_bar_quit_with_confirm(self):
         if self.confirm:
