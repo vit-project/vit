@@ -45,8 +45,8 @@ def format_dictionary_list(item, description):
     print("\t%s\n" % description)
 
 def list_actions():
-    from registry import ActionRegistry
-    from actions import Actions
+    from vit.registry import ActionRegistry
+    from vit.actions import Actions
     action_registry = ActionRegistry()
     actions = Actions(action_registry)
     actions.register()
