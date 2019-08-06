@@ -87,7 +87,7 @@ class Application():
             self.report = self.config.get('report', 'default_filter_only_report')
 
     def setup_main_loop(self):
-        self.loop = urwid.MainLoop(urwid.Text(''), unhandled_input=self.key_pressed, pop_ups=True)
+        self.loop = urwid.MainLoop(urwid.Text(''), unhandled_input=self.key_pressed, pop_ups=True, handle_mouse=self.config.mouse_enabled)
         try:
             self.loop.screen.set_terminal_properties(colors=256)
         except:

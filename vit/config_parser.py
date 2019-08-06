@@ -42,6 +42,7 @@ DEFAULTS = {
         'theme': 'default',
         'confirmation': True,
         'wait': True,
+        'mouse': False,
     },
     'report': {
         'default_report': 'next',
@@ -109,6 +110,7 @@ class ConfigParser(object):
         self.row_striping_enabled = self.is_row_striping_enabled()
         self.confirmation_enabled = self.is_confirmation_enabled()
         self.wait_enabled = self.is_wait_enabled()
+        self.mouse_enabled = self.is_mouse_enabled()
 
     def config_file_exists(self, filepath):
         try:
@@ -180,6 +182,9 @@ class ConfigParser(object):
 
     def is_wait_enabled(self):
         return self.get('vit', 'wait')
+
+    def is_mouse_enabled(self):
+        return self.get('vit', 'mouse')
 
 class TaskParser(object):
     def __init__(self, config):
