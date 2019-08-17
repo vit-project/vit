@@ -14,7 +14,6 @@ from vit.base_list_box import BaseListBox
 from vit.list_batcher import ListBatcher
 from vit.formatter.project import Project as ProjectFormatter
 
-MAX_COLUMN_WIDTH = 60
 REDUCE_COLUMN_WIDTH_LIMIT = 20
 COLUMN_PADDING = 2
 MARKER_COLUMN_NAME = 'markers'
@@ -249,8 +248,8 @@ class TaskTable(object):
             self.rows.append(TaskRow(task, row_data, alt_row))
 
     def update_column_width(self, idx, current_width, new_width):
-        if new_width > current_width and current_width < MAX_COLUMN_WIDTH:
-            self.columns[idx]['width'] = new_width if new_width < MAX_COLUMN_WIDTH else MAX_COLUMN_WIDTH
+        if new_width > current_width:
+            self.columns[idx]['width'] = new_width
 
     def build_row_column(self, formatted_value):
         if isinstance(formatted_value, tuple):
