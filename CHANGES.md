@@ -1,3 +1,12 @@
+##### Sun Aug 18 2019 - released v2.0.0b2
+
+* **Thu Aug 15 2019:** Remove MAX_COLUMN_WIDTH (Closes: #190)
+* **Tue Aug 06 2019:** fix #196: Add action to sync with taskd
+* **Tue Aug 06 2019:** fix #197: Allow disabling mouse support
+* **Sun Aug 04 2019:** Correct import of vit modules in option parser
+* **Mon Jul 22 2019:** fix #187: TZ env not setup by default in WSL
+* **Sun Jul 21 2019:** fix #136: Context support in vit
+
 ##### Fri Jul 19 2019 - released v2.0.0b1
 
 * **Thu Jun 20 2019:** only activate autocomplete for autocomplete capable ops

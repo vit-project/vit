@@ -15,8 +15,6 @@
 
 ### Architecture
 
-VIT 2.x is currently in alpha release, and the architecture is subject to change at any time. There's still quite a bit of refactoring left.
-
 Whereas VIT 1.x simply layered an
 [ncurses](https://en.wikipedia.org/wiki/Ncurses)
 interface over CLI calls to the ```task``` binary, VIT 2.x handles
