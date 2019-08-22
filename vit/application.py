@@ -170,11 +170,11 @@ class Application():
     def setup_keybindings(self):
         self.keybinding_parser.load_default_keybindings()
         bindings = self.config.items('keybinding')
-        def task_id():
+        def _task_uuid():
             uuid, _ = self.get_focused_task()
             return uuid
         replacements = {
-            'TASKID': task_id,
+            'TASK_UUID': _task_uuid,
         }
         keybindings = self.keybinding_parser.add_keybindings(bindings=bindings, replacements=replacements)
         self.key_cache = KeyCache(keybindings)
