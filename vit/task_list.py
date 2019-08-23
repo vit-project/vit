@@ -177,20 +177,21 @@ class TaskTable(object):
                 self.draw_screen()
 
     def sort(self):
-        for column, order, collate in reversed(self.report['sort']):
-            def comparator(first, second):
-                if first[column] is not None and second[column] is not None:
-                    return -1 if first[column] < second[column] else 1 if first[column] > second[column] else 0
-                elif first[column] is None and second[column] is None:
-                    return 0
-                elif first[column] is not None and second[column] is None:
-                    return -1
-                elif first[column] is None and second[column] is not None:
-                    return 1
-            if order and order == 'descending':
-                self.tasks = sorted(self.tasks, key=cmp_to_key(comparator), reverse=True)
-            else:
-                self.tasks = sorted(self.tasks, key=cmp_to_key(comparator))
+        if 'sort' in self.report:
+            for column, order, collate in reversed(self.report['sort']):
+                def comparator(first, second):
+                    if first[column] is not None and second[column] is not None:
+                        return -1 if first[column] < second[column] else 1 if first[column] > second[column] else 0
+                    elif first[column] is None and second[column] is None:
+                        return 0
+                    elif first[column] is not None and second[column] is None:
+                        return -1
+                    elif first[column] is None and second[column] is not None:
+                        return 1
+                if order and order == 'descending':
+                    self.tasks = sorted(self.tasks, key=cmp_to_key(comparator), reverse=True)
+                else:
+                    self.tasks = sorted(self.tasks, key=cmp_to_key(comparator))
 
     def column_formatter_kwargs(self):
         kwargs = {}
