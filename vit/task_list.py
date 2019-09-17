@@ -327,7 +327,10 @@ class TaskTable(object):
         ratio_total = reduce(lambda acc, c: acc + c['ratio'], to_adjust, 0)
         to_adjust = list(map(lambda c: c.update({'percentage': c['ratio'] / ratio_total}) or c, to_adjust))
         for c in to_adjust:
-            adjusted_width = c['width'] - math.ceil(reduce_by * c['percentage'])
+            # This shouldn't technically be necessary, but there are edge cases
+            # when a single adjusted column is 1 column too wide for the
+            # display, which results in it not being displayed.
+            adjusted_width = c['width'] - (reduce_by + 1 if c['percentage'] == 1 else math.ceil(reduce_by * c['percentage']))
             self.columns[c['idx']]['width'] = adjusted_width if adjusted_width > REDUCE_COLUMN_WIDTH_LIMIT else REDUCE_COLUMN_WIDTH_LIMIT
 
     def reconcile_column_width_for_label(self):
