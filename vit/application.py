@@ -845,7 +845,7 @@ class Application():
         self.refresh_blocking_task_uuids()
         self.formatter.recalculate_due_datetimes()
         context_filters = self.contexts[self.context]['filter'] if self.context else []
-        self.model.update_report(self.report, context_filters + self.extra_filters)
+        self.model.update_report(self.report, context_filters=context_filters, extra_filters=self.extra_filters)
         self.update_task_table()
         self.update_status_report()
         self.update_status_context()

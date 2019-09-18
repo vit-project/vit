@@ -1,4 +1,6 @@
 import os
+from functools import reduce
+
 import tasklib
 from tasklib.task import Task
 
@@ -23,12 +25,20 @@ class TaskListModel(object):
     def active_report(self):
         return self.reports[self.report]
 
-    def update_report(self, report, extra_filters=[]):
+    def update_report(self, report, context_filters=[], extra_filters=[]):
         self.report = report
         active_report = self.active_report()
-        filters = active_report['filter'] if 'filter' in active_report else []
-        all_filters = filters + extra_filters
-        self.tasks = self.tw.tasks.filter(*all_filters) if len(all_filters) > 0 else self.tw.tasks.all()
+        report_filters = active_report['filter'] if 'filter' in active_report else []
+        filters = self.build_task_filters(context_filters, report_filters, extra_filters)
+        self.tasks = self.tw.tasks.filter(filters) if filters else self.tw.tasks.all()
+
+    def build_task_filters(self, *all_filters):
+        def reducer(accum, filters):
+            if filters:
+                accum.append('(%s)' % ' '.join(filters))
+            return accum
+        filter_parts = reduce(reducer, all_filters, [])
+        return ' '.join(filter_parts) if filter_parts else ''
 
     def get_task(self, uuid):
         try:
