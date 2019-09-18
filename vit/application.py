@@ -241,7 +241,7 @@ class Application():
             self.table.flash_focus()
             self.update_report()
             self.activate_message_bar('Task %s denotated' % self.model.task_id(task['uuid']))
-            self.task_list.focus_by_task_uuid(data['uuid'])
+            self.task_list.focus_by_task_uuid(data['uuid'], self.previous_focus_position)
 
     def command_bar_keypress(self, data):
         metadata = data['metadata']
@@ -326,7 +326,7 @@ class Application():
                     self.search(reverse=(op == 'search-reverse'))
         self.widget.focus_position = 'body'
         if 'uuid' in metadata:
-            self.task_list.focus_by_task_uuid(metadata['uuid'])
+            self.task_list.focus_by_task_uuid(metadata['uuid'], self.previous_focus_position)
 
     def key_pressed(self, key):
         if is_mouse_event(key):
@@ -660,7 +660,7 @@ class Application():
         uuid, _ = self.get_focused_task()
         if uuid:
             self.activate_command_bar('annotate', 'Annotate: ', {'uuid': uuid})
-            self.task_list.focus_by_task_uuid(uuid)
+            self.task_list.focus_by_task_uuid(uuid, self.previous_focus_position)
 
     def task_action_delete(self):
         uuid, task = self.get_focused_task()
@@ -669,7 +669,7 @@ class Application():
                 self.activate_command_bar('delete', 'Delete task %s? (y/n): ' % self.model.task_id(uuid), {'uuid': uuid, 'choices': {'y': True}})
             else:
                 self.task_delete(uuid)
-                self.task_list.focus_by_task_uuid(uuid)
+                self.task_list.focus_by_task_uuid(uuid, self.previous_focus_position)
 
     def task_action_denotate(self):
         uuid, task = self.get_focused_task()
@@ -680,7 +680,7 @@ class Application():
         uuid, _ = self.get_focused_task()
         if uuid:
             self.activate_command_bar('modify', 'Modify: ', {'uuid': uuid})
-            self.task_list.focus_by_task_uuid(uuid)
+            self.task_list.focus_by_task_uuid(uuid, self.previous_focus_position)
 
     def task_action_start_stop(self):
         uuid, task = self.get_focused_task()
@@ -689,7 +689,7 @@ class Application():
                 self.activate_command_bar('start-stop', '%s task %s? (y/n): ' % (task.active and 'Stop' or 'Start', self.model.task_id(uuid)), {'uuid': uuid, 'choices': {'y': True}})
             else:
                 self.task_start_stop(uuid)
-                self.task_list.focus_by_task_uuid(uuid)
+                self.task_list.focus_by_task_uuid(uuid, self.previous_focus_position)
 
     def task_action_done(self):
         uuid, task = self.get_focused_task()
@@ -698,7 +698,7 @@ class Application():
                 self.activate_command_bar('done', 'Mark task %s done? (y/n): ' % self.model.task_id(uuid), {'uuid': uuid, 'choices': {'y': True}})
             else:
                 self.task_done(uuid)
-                self.task_list.focus_by_task_uuid(uuid)
+                self.task_list.focus_by_task_uuid(uuid, self.previous_focus_position)
 
     def task_action_priority(self):
         uuid, _ = self.get_focused_task()
@@ -730,7 +730,7 @@ class Application():
         uuid, _ = self.get_focused_task()
         if uuid:
             self.execute_command(['task', uuid, 'edit'], wait=self.wait)
-            self.task_list.focus_by_task_uuid(uuid)
+            self.task_list.focus_by_task_uuid(uuid, self.previous_focus_position)
 
     def task_action_show(self):
         uuid, _ = self.get_focused_task()
@@ -838,6 +838,8 @@ class Application():
 
     def update_report(self, report=None):
         start = time.time()
+        self.task_list = self.table.listbox
+        self.previous_focus_position = self.task_list.focus_position if self.task_list.list_walker else 0
         if report:
             self.report = report
         self.set_active_context()
@@ -852,8 +854,7 @@ class Application():
         self.update_status_tasks_shown()
         self.update_status_tasks_completed()
         self.header.contents[1] = (self.table.header, self.header.options())
-        self.denotation_pop_up = DenotationPopupLauncher(self.table.listbox, self.formatter, self.loop.screen, event=self.event, request_reply=self.request_reply, action_manager=self.action_manager)
-        self.task_list = self.table.listbox
+        self.denotation_pop_up = DenotationPopupLauncher(self.task_list, self.formatter, self.loop.screen, event=self.event, request_reply=self.request_reply, action_manager=self.action_manager)
         self.widget.body = self.denotation_pop_up
         self.autocomplete.refresh()
         end = time.time()

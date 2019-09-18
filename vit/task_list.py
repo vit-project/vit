@@ -96,7 +96,7 @@ class TaskTable(object):
         self.resize_columns()
         self.reconcile_column_width_for_label()
         self.build_table()
-        self.set_focus_position()
+        self.listbox.set_focus_position()
         self.update_focus()
 
     def update_header(self, size):
@@ -134,12 +134,6 @@ class TaskTable(object):
 
     def project_label_for_parents(self, parents):
         return '.'.join(parents) if parents else self.task_config.get_column_label(self.report['name'], 'project')
-
-    def set_focus_position(self):
-        for idx, widget in enumerate(self.list_walker):
-            if widget.selectable():
-                self.listbox.set_focus(idx)
-                return
 
     def update_focus(self):
         if self.listbox.focus:
@@ -518,6 +512,12 @@ class TaskListBox(BaseListBox):
         self.event.emit('task-list:keypress:focus_valign_center', size)
         super().keypress_focus_valign_center(size)
 
+    def set_focus_position(self, start_idx=0):
+        for idx, widget in enumerate(self.body[start_idx:]):
+            if widget.selectable():
+                self.set_focus(start_idx + idx)
+                return
+
     def focus_by_batch(self, match_callback, start_idx):
         end_idx = start_idx
         for idx, row in enumerate(self.body[start_idx:]):
@@ -527,7 +527,7 @@ class TaskListBox(BaseListBox):
                 return True, end_idx
         return False, end_idx
 
-    def focus_by_batch_loop(self, match_callback):
+    def focus_by_batch_loop(self, match_callback, previous_idx=0):
         start_idx = 0
         while True:
             found, start_idx = self.focus_by_batch(match_callback, start_idx)
@@ -535,7 +535,9 @@ class TaskListBox(BaseListBox):
             if found:
                 return
             elif complete:
-                self.focus_by_batch(match_callback, start_idx)
+                found, end_idx = self.focus_by_batch(match_callback, start_idx)
+                if not found:
+                    self.set_focus_position(end_idx if previous_idx > end_idx else previous_idx)
                 return
 
     def focus_by_task_id(self, task_id):
@@ -543,10 +545,10 @@ class TaskListBox(BaseListBox):
             return row.id == task_id
         self.focus_by_batch_loop(match_callback)
 
-    def focus_by_task_uuid(self, uuid):
+    def focus_by_task_uuid(self, uuid, previous_idx=0):
         def match_callback(row):
             return row.uuid == uuid
-        self.focus_by_batch_loop(match_callback)
+        self.focus_by_batch_loop(match_callback, previous_idx)
 
     def list_action_executed(self, size, key):
         data = {
