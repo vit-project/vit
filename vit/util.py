@@ -12,7 +12,10 @@ def clear_screen():
     os.write(sys.stdout.fileno(), e3_seq + clear_screen_seq)
 
 def string_to_args(string):
-    return shlex.split(string)
+    try:
+      return shlex.split(string)
+    except ValueError:
+      return []
 
 def is_mouse_event(key):
     return not isinstance(key, str)

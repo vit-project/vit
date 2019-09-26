@@ -156,7 +156,10 @@ class AutoComplete(object):
     def parse_text(self, text, edit_pos):
         full_prefix = text[:edit_pos]
         self.prefix_parts = util.string_to_args(full_prefix)
-        if self.is_help_request():
+        if not self.prefix_parts:
+            self.search_fragment = self.prefix = full_prefix
+            self.suffix = text[(edit_pos + 1):]
+        elif self.is_help_request():
             self.search_fragment = full_prefix
             self.prefix = self.suffix = ''
         else:
