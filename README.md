@@ -41,6 +41,10 @@ Follow the directions in [INSTALL.md](INSTALL.md)
 
 See [FAQ.md](FAQ.md)
 
+#### Upgrading
+
+Follow the directions in [UPGRADE.md](UPGRADE.md)
+
 #### Development:
 
 Interested in the architecture, or in helping out with development? See [DEVELOPMENT.md](DEVELOPMENT.md)
