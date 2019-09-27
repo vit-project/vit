@@ -53,9 +53,22 @@ There are tons of existing formatters to use as examples, and the  [base formatt
 
 ### Keybindings
 
-To provide your own keybindings:
+VIT exposes actions to be mapped to keybindings however you like, and custom macros can also be triggered by keybindings.
+
+By default, VIT uses the ```keybinding/vi.ini``` configuration to provide Vi-style bindings.
+
+To see the list of actions that can be mapped, execute ```vit --list-actions```.
+
+##### To override default keybindings:
+
+The ```[keybinding]``` section in ```config.ini``` overrides any core keybindings or keybindings that you place in the user ```keybinding``` directory. If you just want to make some small tweaks and/or add some macros, it's probably better to take this approach.
+
+The [config.sample.ini](https://github.com/scottkosty/vit/blob/2.x/vit/config/config.sample.ini) has many examples to illustrate how to customize keybindings for actions and add macros, check it out!
+
+##### To provide your own default keybindings:
+
+*NOTE: This functionality is more suited to users who want to do something completely different than a Vi-style workflow -- most users will simply want to make some tweaks in the ```[keybinding]``` section of ```config.ini```.*
 
 1. Create a ```keybinding``` directory in the user directory
 2. Copy over one of the core keybindings, and customize to your liking.
 3. Set the ```default_keybindings``` setting in ```config.ini``` to the name of the keybinding file you created, without the ```.ini``` extension. For example, if you created ```keybinding/strange.ini```, you would set ```default_keybindings = strange``` in ```config.ini```
-4. Note that the ```[keybinding]``` section in ```config.ini``` overrides any core keybindings or keybindings that you place in the user ```keybinding``` directory. If you just want to make some small tweaks, it's probably better to use the section in ```config.ini```. This functionality is more suited to users who want to do something completely different than a Vi-style workflow.
