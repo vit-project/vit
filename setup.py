@@ -25,7 +25,7 @@ setup(
     author='Chad Phillips',
     author_email='chad@apartmentlines.com',
     classifiers=[
-        'Development Status :: 4 - Beta',
+        'Development Status :: 5 - Production/Stable',
         'License :: OSI Approved :: MIT License',
         'Environment :: Console',
         'Programming Language :: Python',
