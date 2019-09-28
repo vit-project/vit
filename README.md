@@ -2,8 +2,6 @@
 
 Visual Interactive Taskwarrior full-screen terminal interface.
 
-**IMPORTANT:** VIT 2.x is currently in beta release, and is looking for testers/contributors. The featureset of VIT 1.x has been fully implemented, and the author is already using it for everyday interface with Taskwarrior.
-
 *For VIT 1.3, [visit here](https://github.com/scottkosty/vit/tree/1.3)*
 
 ## Features
