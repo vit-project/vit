@@ -1,3 +1,14 @@
+##### Sat Sep 28 2019 - released v2.0.0
+
+* **Fri Sep 27 2019:** add UPGRADE.md, include v2.0.0 upgrade instructions
+* **Thu Sep 26 2019:** fix crash when shlex cannot parse a string to args
+* **Wed Sep 18 2019:** fix #201: fall back to previous list position when no task found
+* **Tue Sep 17 2019:** fix #202: properly group different filter types
+* **Tue Sep 17 2019:** fix #203: Account for edge case with single adjusted column
+* **Sun Sep 15 2019:** platform-independent temp dir, better debug file name
+* **Thu Aug 22 2019:** fix crash for reports with no sort specified
+* **Wed Aug 21 2019:** fix #200: change {TASKID} variable to {TASK_UUID}
+
 ##### Sun Aug 18 2019 - released v2.0.0b2
 
 * **Thu Aug 15 2019:** Remove MAX_COLUMN_WIDTH (Closes: #190)
