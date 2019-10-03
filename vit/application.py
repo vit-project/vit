@@ -396,6 +396,8 @@ class Application():
                 self.update_report(command)
                 if 'uuid' in metadata:
                     metadata.pop('uuid')
+            elif command in self.task_config.disallowed_reports:
+                self.activate_message_bar("Report '%s' is non-standard, use ':!w task %s'" % (command, command), 'error')
             else:
                 # Matches 's/foo/bar/' and s%/foo/bar/, allowing for separators
                 # to be any non-word character.

@@ -193,6 +193,9 @@ class TaskParser(object):
         self.projects = []
         self.contexts = {}
         self.reports = {}
+        self.disallowed_reports = [
+            'timesheet',
+        ]
         self.command = Command(self.config)
         self.get_task_config()
         self.get_projects()
@@ -309,6 +312,8 @@ class TaskParser(object):
       reports = {}
       subtree = self.subtree('report.')
       for report, attrs in list(subtree.items()):
+        if report in self.disallowed_reports:
+            continue
         reports[report] = {
             'name': report,
             'subproject_indentable': False,
