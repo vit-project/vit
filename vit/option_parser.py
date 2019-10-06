@@ -1,17 +1,15 @@
 import sys
-import optparse
+import argparse
 
 from vit import version
 
-class OptionParser(optparse.OptionParser):
-    def format_epilog(self, formatter):
-        return self.epilog
-
-parser = OptionParser(
-  usage='%prog [options] [report] [filters]',
-  version=version.VIT,
-  epilog="""
-VIT (Visual  Interactive Taskwarrior) is a lightweight, curses-based front end for
+parser = argparse.ArgumentParser(
+    description="VIT (Visual Interactive Taskwarrior)",
+    usage='%(prog)s [options] [report] [filters]',
+    formatter_class=argparse.RawTextHelpFormatter,
+    allow_abbrev=False,
+    epilog="""
+VIT (Visual Interactive Taskwarrior) is a lightweight, curses-based front end for
 Taskwarrior that provides a convenient way to quickly navigate and process tasks.
 VIT allows you to interact with tasks in a Vi-intuitive way.
 
@@ -26,15 +24,19 @@ See https://github.com/scottkosty/vit for more information.
 """
 )
 
-parser.add_option('--list-actions',
-  dest="list_actions",
-  default=False,
-  action="store_true",
-  help="list all available actions",
+parser.add_argument('-v', '--version',
+    action='version',
+    version=version.VIT,
+)
+parser.add_argument('--list-actions',
+      dest="list_actions",
+      default=False,
+      action="store_true",
+      help="list all available actions",
 )
 
 def parse_options():
-    options, filters = parser.parse_args()
+    options, filters = parser.parse_known_args()
     if options.list_actions:
         list_actions()
         sys.exit(0)
