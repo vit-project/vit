@@ -365,10 +365,11 @@ class TaskTable(object):
         self.header = urwid.AttrMap(list_header, 'list-header')
 
     def make_header_column(self, column, is_last, space_between=COLUMN_PADDING):
-        total_width = column['width'] + space_between
+        padding_width = 0 if is_last else space_between
+        total_width = column['width'] + padding_width
         column_content = urwid.AttrMap(urwid.Padding(urwid.Text(column['label'], align='left')), 'list-header-column')
         padding_content = self.make_padding(is_last and 'list-header-column' or 'list-header-column-separator')
-        columns = urwid.Columns([(column['width'], column_content), (space_between, padding_content)])
+        columns = urwid.Columns([(column['width'], column_content), (padding_width, padding_content)])
         return (total_width, columns)
 
     def make_padding(self, display_attr):
