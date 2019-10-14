@@ -315,10 +315,11 @@ class TaskTable(object):
                 to_adjust.append({'idx': idx, 'width': width})
         if total_width > cols:
             self.adjust_oversized_columns(total_width - cols, to_adjust)
-            # This is called recursively to account for cases when further
-            # reduction is necessary because one or more column's reductions
-            # were limited to REDUCE_COLUMN_WIDTH_LIMIT.
-            self.resize_columns()
+            if to_adjust:
+                # This is called recursively to account for cases when further
+                # reduction is necessary because one or more column's reductions
+                # were limited to REDUCE_COLUMN_WIDTH_LIMIT.
+                self.resize_columns()
 
     def adjust_oversized_columns(self, reduce_by, to_adjust):
         to_adjust = list(map(lambda c: c.update({'ratio': (c['width'] - REDUCE_COLUMN_WIDTH_LIMIT) / c['width']}) or c, to_adjust))
