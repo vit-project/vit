@@ -32,5 +32,5 @@ suggestions:
  * Jason Woofenden
  * Benedikt Morbach
  * Alick Zhao
- * Bernhard M. Wiedemann
+ * Bernhard M.  Wiedemann
  * Thomas Rebele
