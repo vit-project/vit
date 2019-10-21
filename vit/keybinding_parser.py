@@ -13,7 +13,7 @@ from vit import util
 BASE_DIR = os.path.dirname(os.path.realpath(__file__))
 BRACKETS_REGEX = re.compile("[<>]")
 DEFAULT_KEYBINDINGS_SECTIONS = ('global', 'navigation', 'command', 'report')
-CONFIG_NAME_SPECIAL_KEY_SUBSTITUTIONS = {
+CONFIG_SPECIAL_KEY_SUBSTITUTIONS = {
     'colon': ':',
     'equals': '=',
     'space': ' ',
@@ -60,10 +60,10 @@ class KeybindingParser(object):
             bindings = self.items(section)
             self.add_keybindings(bindings)
 
-    def keybinding_special_keys_substitutions(self, name):
-        if name in CONFIG_NAME_SPECIAL_KEY_SUBSTITUTIONS:
-            name = CONFIG_NAME_SPECIAL_KEY_SUBSTITUTIONS[name]
-        return name
+    def keybinding_special_keys_substitutions(self, value):
+        if value in CONFIG_SPECIAL_KEY_SUBSTITUTIONS:
+            value = CONFIG_SPECIAL_KEY_SUBSTITUTIONS[value]
+        return value
 
     def parse_keybinding_keys(self, keys):
         has_modifier = bool(re.match(BRACKETS_REGEX, keys))
@@ -77,7 +77,7 @@ class KeybindingParser(object):
                 accum['bracket_string'] = ''
             elif char == '>':
                 accum['in_brackets'] = False
-                accum['keybinding'].append(accum['bracket_string'].lower())
+                accum['keybinding'].append(self.keybinding_special_keys_substitutions(accum['bracket_string'].lower()))
             elif char == '{':
                 accum['in_variable'] = True
                 accum['variable_string'] = ''
