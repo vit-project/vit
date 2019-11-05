@@ -209,7 +209,7 @@ class TaskParser(object):
         if returncode == 0:
             lines = list(filter(lambda x: True if x else False, stdout.split("\n")))
             for line in lines:
-                hierarchy, values = line.split('=')
+                hierarchy, values = line.split('=', maxsplit=1)
                 self.task_config.append((hierarchy, values))
         else:
             raise RuntimeError('Error parsing task config: %s' % stderr)
