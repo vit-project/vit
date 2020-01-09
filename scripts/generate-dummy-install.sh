@@ -30,6 +30,7 @@ task add b
 task +LATEST start
 task add c
 task +LATEST start
+task +LATEST modify project:foo
 
 echo "Complete!
 
