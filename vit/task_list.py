@@ -92,7 +92,7 @@ class TaskTable(object):
         self.project_formatter = ProjectFormatter('project', self.report, self.formatter)
         self.build_rows()
         self.clean_columns()
-        self.has_project_column = self.project_column_present()
+        self.project_column_idx = self.get_project_column_idx()
         self.resize_columns()
         self.reconcile_column_width_for_label()
         self.build_table()
@@ -100,14 +100,14 @@ class TaskTable(object):
         self.update_focus()
 
     def update_header(self, size):
-        if self.has_project_column:
+        if self.project_column_idx is not None:
             self.update_project_column_header(size)
 
-    def project_column_present(self):
-        for _, column in enumerate(self.columns):
+    def get_project_column_idx(self):
+        for idx, column in enumerate(self.columns):
             if column['name'] == 'project':
-                return True
-        return False
+                return idx
+        return None
 
     def get_project_from_row(self, row):
         return row.task['project'] if isinstance(row, SelectableRow) else row.project
@@ -124,9 +124,7 @@ class TaskTable(object):
                     self.set_project_column_header()
 
     def set_project_column_header(self, parents=None):
-        column_index = self.task_config.get_column_index(self.report['name'], 'project')
-        if self.has_marker_column():
-            column_index += 1
+        column_index = self.project_column_idx
         (columns_widget, _) = self.header.original_widget.contents[column_index]
         (widget, _) = columns_widget.contents[0]
         label = self.project_label_for_parents(parents)
