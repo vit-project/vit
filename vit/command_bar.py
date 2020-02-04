@@ -1,4 +1,5 @@
 import urwid
+from vit.readline import Readline
 
 class CommandBar(urwid.Edit):
     """Custom urwid.Edit class for the command bar.
@@ -8,6 +9,7 @@ class CommandBar(urwid.Edit):
         self.autocomplete = kwargs['autocomplete']
         self.metadata = None
         self.history = CommandBarHistory()
+        self.readline = Readline(self)
         kwargs.pop('event')
         kwargs.pop('autocomplete')
         return super().__init__(**kwargs)
@@ -15,7 +17,6 @@ class CommandBar(urwid.Edit):
     def keypress(self, size, key):
         """Overrides Edit.keypress method.
         """
-        # TODO: Readline edit shortcuts.
         if key not in ('tab', 'shift tab'):
             self.autocomplete.deactivate()
         if 'choices' in self.metadata:
@@ -29,21 +30,11 @@ class CommandBar(urwid.Edit):
             self.cleanup(op)
             self.event.emit('command-bar:keypress', data)
             return None
-        elif key in ('ctrl a',):
-            self.set_edit_pos(0)
+        elif key in ('up',):
+            self.readline.keypress('ctrl p')
             return None
-        elif key in ('ctrl e',):
-            self.set_edit_pos(len(self.get_edit_text()))
-            return None
-        elif key in ('up', 'ctrl p'):
-            text = self.history.previous(self.metadata['history'])
-            if text != False:
-                self.set_edit_text(text)
-            return None
-        elif key in ('down', 'ctrl n'):
-            text = self.history.next(self.metadata['history'])
-            if text != False:
-                self.set_edit_text(text)
+        elif key in ('down',):
+            self.readline.keypress('ctrl n')
             return None
         elif key in ('enter', 'esc'):
             text = self.get_edit_text().strip()
@@ -66,6 +57,8 @@ class CommandBar(urwid.Edit):
                     kwargs['reverse'] = True
                 self.autocomplete.activate(text, self.edit_pos, **kwargs)
             return None
+        elif key in self.readline.keys():
+            return self.readline.keypress(key)
         return super().keypress(size, key)
 
     def is_autocomplete_op(self):
