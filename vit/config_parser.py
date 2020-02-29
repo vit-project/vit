@@ -30,6 +30,7 @@ CONFIG_STRING_LEAVES = [
     'color.calendar.due',
     'color.due',
     'color.label',
+    'dateformat',
 ]
 CONFIG_STRING_LEAVES_DEFAULT_BRANCH = 'default'
 
