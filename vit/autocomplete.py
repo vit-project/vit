@@ -76,6 +76,16 @@ class AutoComplete(object):
         entries.sort()
         return entries
 
+    def make_space_escape_regex(self, filters, filter_config):
+        prefix_parts = []
+        for ac_type in filters:
+            items = getattr(self, ac_type)
+            type_prefixes = filter_config[ac_type]['prefixes'] if ac_type in filter_config and 'prefixes' in filter_config[ac_type] else []
+            for prefix in type_prefixes:
+                prefix_parts.append(re.escape(prefix))
+        prefix_or = "|".join(prefix_parts)
+        return re.compile("^(%s).+[ ]+.+$" % prefix_or)
+
     def setup(self, text_callback, filters=None, filter_config=None):
         if self.is_setup:
             self.reset()
@@ -86,6 +96,7 @@ class AutoComplete(object):
             filter_config = self.default_filter_config
         self.refresh()
         self.entries = self.make_entries(filters, filter_config)
+        self.space_escape_regex = self.make_space_escape_regex(filters, filter_config)
         self.root_only_filters = list(filter(lambda f: True if f in filter_config and 'root_only' in filter_config[f] else False, filters))
         self.is_setup = True
 
@@ -153,9 +164,18 @@ class AutoComplete(object):
     def is_help_request(self):
         return self.prefix_parts[0] in ['help']
 
+    def add_space_escaping(self, text):
+        if self.space_escape_regex.match(text):
+            return text.replace(' ', '\ ')
+        else:
+            return text
+
+    def remove_space_escaping(self, text):
+        return text.replace('\\ ', ' ')
+
     def parse_text(self, text, edit_pos):
         full_prefix = text[:edit_pos]
-        self.prefix_parts = util.string_to_args(full_prefix)
+        self.prefix_parts = list(map(self.add_space_escaping, util.string_to_args(full_prefix)))
         if not self.prefix_parts:
             self.search_fragment = self.prefix = full_prefix
             self.suffix = text[(edit_pos + 1):]
@@ -166,6 +186,7 @@ class AutoComplete(object):
             self.search_fragment = self.prefix_parts.pop()
             self.prefix = ' '.join(self.prefix_parts)
             self.suffix = text[(edit_pos + 1):]
+        self.search_fragment = self.remove_space_escaping(self.search_fragment)
 
     def can_tab(self, text, edit_pos):
         if edit_pos == 0:
@@ -178,8 +199,10 @@ class AutoComplete(object):
         return text[edit_pos:next_pos] in (' ', '') and text[previous_pos:edit_pos] not in (' ', '')
 
     def assemble(self, tab_option, solo_match=False):
-        if solo_match and not tab_option.endswith(":"):
-            tab_option += ' '
+        if not tab_option.endswith(":"):
+            tab_option = self.add_space_escaping(tab_option)
+            if solo_match:
+                tab_option += ' '
         parts = [self.prefix, tab_option, self.suffix]
         tabbed_text = ' '.join(filter(lambda p: True if p else False, parts))
         parts.pop()
