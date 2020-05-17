@@ -350,7 +350,11 @@ class TaskParser(object):
         return self.get_column_index(report_name, 'project') is not None
 
     def has_primary_project_ascending_sort(self, report):
-        primary_sort = report['sort'][0]
+        try:
+            primary_sort = report['sort'][0]
+        except KeyError:
+            return False
+
         return primary_sort[0] == 'project' and primary_sort[1] == 'ascending'
 
     def get_column_index(self, report_name, column):
