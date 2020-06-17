@@ -32,7 +32,7 @@ Follow the directions in [INSTALL.md](INSTALL.md)
  * Do ```vit --help``` *(know the vit command line arguments)*
  * Do ```:help``` in vit *(look over the "commands")*
  * Use an xterm terminal *(for full color support)*
- * For suggestions on futher tweaks, see [CUSTOMIZE.md](CUSTOMIZE.md)
+ * For suggestions on further tweaks, see [CUSTOMIZE.md](CUSTOMIZE.md)
  * VIT handles task coloring differently than Taskwarrior, see [COLOR.md](COLOR.md) for more details
 
 #### Troubleshooting:

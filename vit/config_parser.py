@@ -21,8 +21,8 @@ VIT_CONFIG_FILE = 'config.ini'
 FILTER_EXCLUSION_REGEX = re.compile('^limit:')
 FILTER_PARENS_REGEX = re.compile('([\(\)])')
 CONFIG_BOOLEAN_TRUE_REGEX = re.compile('1|yes|true', re.IGNORECASE)
-# TaskParser expects clean hierachies in the Taskwarrior dotted config names.
-# However, this is occassionally violated, with a leaf ending in both a string
+# TaskParser expects clean hierarchies in the Taskwarrior dotted config names.
+# However, this is occasionally violated, with a leaf ending in both a string
 # value and another branch. The below list contains the config values that
 # violate this convention, and transform them into a single additional branch
 # of value CONFIG_STRING_LEAVES_DEFAULT_BRANCH

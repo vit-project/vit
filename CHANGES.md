@@ -52,7 +52,7 @@ Complete ground up rewrite in Python, feature-complete with VIT 1.x. New feature
  * Table-row striping
  * Show version/context/report execution time in status area
  * Customizable config dir
- * Comand line bash completion wrapper
+ * Command line bash completion wrapper
 
  This release also changes the software license from GPL to MIT.
 
@@ -196,7 +196,7 @@ Complete ground up rewrite in Python, feature-complete with VIT 1.x. New feature
  Fri Nov 30 2012 - added ./configure (autoconf)  (e.g. "./configure --prefix=/usr/local/vit")
  Thu Nov 29 2012 - added support for '^w' (erase word) at the command line
  Thu Nov 29 2012 - added default.command to the list of available reports
- Wed Nov 28 2012 - added support for ":REPORT <filter>" syntax (e.g. ":mimimal prio:H")
+ Wed Nov 28 2012 - added support for ":REPORT <filter>" syntax (e.g. ":minimal prio:H")
  Wed Nov 28 2012 - added support for the DEL key ('^?') as per bug #1134
 ```
 
