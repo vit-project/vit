@@ -113,10 +113,11 @@ class Application():
         self.actions = Actions(self.action_registry)
         self.actions.register()
         self.keybinding_parser = KeybindingParser(self.loader, self.config, self.action_registry)
+        self.command = Command(self.config)
+        self.get_available_task_columns()
         self.setup_keybindings()
         self.action_manager = ActionManagerRegistry(self.action_registry, self.key_cache.keybindings, event=self.event)
         self.register_managed_actions()
-        self.command = Command(self.config)
         self.markers = Markers(self.config, self.task_config)
         self.theme = self.init_theme()
         self.theme_alt_backgrounds = self.get_theme_alt_backgrounds()
@@ -171,15 +172,57 @@ class Application():
         self.action_manager_registrar.register('TASK_EDIT', self.task_action_edit)
         self.action_manager_registrar.register('TASK_SHOW', self.task_action_show)
 
+    def default_keybinding_replacements(self):
+        import json
+        from datetime import datetime
+        task_replacement_match = re.compile("^TASK_(\w+)$")
+        def _task_attribute_match(variable):
+            matches = re.match(task_replacement_match, variable)
+            if matches:
+                attribute = matches.group(1).lower()
+                if attribute in self.available_columns:
+                    return [attribute]
+        def _task_attribute_replace(task, attribute):
+            if task and task[attribute]:
+                if type(task[attribute]) in ['set', 'tuple', 'dict', 'list']:
+                    try:
+                        json.dumps(task[attribute])
+                    except Exception as e:
+                        raise RuntimeError('Error parsing task attribute %s as JSON: %s' % (task[attribute], e))
+                elif isinstance(task[attribute], datetime):
+                    return task[attribute].strftime(self.formatter.report)
+                else:
+                    return str(task[attribute])
+            return ''
+        replacements = [
+            {
+                'match_callback': _task_attribute_match,
+                'replacement_callback': _task_attribute_replace,
+            },
+        ]
+        return replacements
+
+    def add_user_keybinding_replacements(self, replacements):
+        klass = self.loader.load_user_class('keybinding', 'keybinding', 'Keybinding')
+        if klass:
+            keybinding_custom = klass()
+            replacements.extend(keybinding_custom.replacements())
+        return replacements
+
+    def wrap_replacements_callbacks(self, replacements):
+        def build_wrapper(callback):
+            def wrapper(*args):
+                _, task = self.get_focused_task()
+                return callback(task, *args)
+            return wrapper
+        for i, replacement in enumerate(replacements):
+            replacements[i]['replacement_callback'] = build_wrapper(replacement['replacement_callback'])
+        return replacements
+
     def setup_keybindings(self):
         self.keybinding_parser.load_default_keybindings()
         bindings = self.config.items('keybinding')
-        def _task_uuid():
-            uuid, _ = self.get_focused_task()
-            return uuid
-        replacements = {
-            'TASK_UUID': _task_uuid,
-        }
+        replacements = self.wrap_replacements_callbacks(self.add_user_keybinding_replacements(self.default_keybinding_replacements()))
         keybindings = self.keybinding_parser.add_keybindings(bindings=bindings, replacements=replacements)
         self.key_cache = KeyCache(keybindings)
         self.key_cache.build_multi_key_cache()
@@ -232,8 +275,8 @@ class Application():
 
     def prepare_keybinding_keypresses(self, keypresses):
         def reducer(accum, key):
-            if isfunction(key):
-                accum += list(key())
+            if type(key) is tuple:
+                accum += list(key[0](*key[1]))
             else:
                 accum.append(key)
             return accum
@@ -746,6 +789,13 @@ class Application():
         if uuid:
             self.execute_command(['task', uuid, 'info'], update_report=False)
             self.task_list.focus_by_task_uuid(uuid)
+
+    def get_available_task_columns(self):
+        returncode, stdout, stderr = self.command.run(['task', '_columns'], capture_output=True)
+        if returncode == 0:
+            self.available_columns = stdout.split()
+        else:
+            raise RuntimeError("Error retrieving available task columns: %s" % stderr)
 
     def refresh_blocking_task_uuids(self):
         returncode, stdout, stderr = self.command.run(['task', 'uuids', '+BLOCKING'], capture_output=True)

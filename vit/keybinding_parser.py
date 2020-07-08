@@ -85,9 +85,12 @@ class KeybindingParser(object):
                 accum['in_variable'] = False
                 if accum['variable_string'] in self.actions:
                     accum['action_name'] = accum['variable_string']
-                elif accum['variable_string'] in replacements:
-                    accum['keybinding'].append(replacements[accum['variable_string']])
                 else:
+                    for replacement in replacements:
+                        args = replacement['match_callback'](accum['variable_string'])
+                        if isinstance(args, list):
+                            accum['keybinding'].append((replacement['replacement_callback'], args))
+                            return accum
                     raise ValueError("unknown config variable '%s'" % accum['variable_string'])
             else:
                 if accum['in_brackets']:

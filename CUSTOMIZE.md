@@ -59,13 +59,51 @@ By default, VIT uses the ```keybinding/vi.ini``` configuration to provide Vi-sty
 
 To see the list of actions that can be mapped, execute ```vit --list-actions```.
 
-##### To override default keybindings:
+#### To override default keybindings:
 
 The ```[keybinding]``` section in ```config.ini``` overrides any core keybindings or keybindings that you place in the user ```keybinding``` directory. If you just want to make some small tweaks and/or add some macros, it's probably better to take this approach.
 
 The [config.sample.ini](https://github.com/scottkosty/vit/blob/2.x/vit/config/config.sample.ini) has many examples to illustrate how to customize keybindings for actions and add macros, check it out!
 
-##### To provide your own default keybindings:
+#### To provide your own custom variable replacements:
+
+VIT exposes a simple API to provide your own variable replacements in keybindings.
+
+Variables enclosed in curly brackets that VIT doesn't know about will be passed to your custom code,
+where you can match against the variable, and parse the string to extract metadata in the form of
+arguments that you pass to your custom replacement callback.
+
+To provide custom variable replacement:
+
+1. In your user ```keybinding``` directory, create ```keybinding.py```
+2. Create a ```Keybinding``` class in that file
+3. Expose a ```replacements``` method in that class, that returns a list of replacement configuration objects
+4. Replacement configuration objects have the following keys:
+  * match_callback: should be a function with one argument, which is the variable to test for a match against.
+    If the variable matches your case, return a list with any arguments you want passed to your replacement callback.
+  * replacement_callback: should be a function, with the task object as the first argument, followed by the other
+    arguments you returned from the match callback, and should return a string replacement for the variable.
+
+Here's a minimal example:
+
+```python
+# keybinding/keybinding.py
+class Keybinding(object):
+    def replacements(self):
+        def _custom_match(variable):
+            if variable == 'TEST':
+                return ['pass']
+        def _custom_replace(task, arg):
+            return 'TEST:%s' % arg
+        return [
+            {
+                'match_callback': _custom_match,
+                'replacement_callback': _custom_replace,
+            },
+        ]
+```
+
+#### To provide your own default keybindings:
 
 *NOTE: This functionality is more suited to users who want to do something completely different than a Vi-style workflow -- most users will simply want to make some tweaks in the ```[keybinding]``` section of ```config.ini```.*
 
