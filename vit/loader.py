@@ -17,16 +17,14 @@ class Loader(object):
         filepath = '%s/%s/%s.py' % (self.user_config_dir, module_type, module_name)
         try:
             mod = self.import_from_path(module, filepath)
+        except SyntaxError as e:
+            raise SyntaxError("User class: %s (%s) -- %s" % (class_name, filepath, e))
         except:
             return None
         return getattr(mod, class_name)
 
     def import_from_path(self, module, filepath):
-        try:
-            spec = importlib.util.spec_from_file_location(module, filepath)
-            mod = importlib.util.module_from_spec(spec)
-            spec.loader.exec_module(mod)
-            return mod
-        except:
-            mod = imp.load_source(module, filepath)
-            return mod
+        spec = importlib.util.spec_from_file_location(module, filepath)
+        mod = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(mod)
+        return mod
