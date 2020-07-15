@@ -330,6 +330,8 @@ class TaskParser(object):
           reports[report]['filter'] = [f for f in filters if not FILTER_EXCLUSION_REGEX.match(f)]
         if 'labels' in attrs:
           reports[report]['labels'] = attrs['labels'].split(',')
+        else:
+          reports[report]['labels'] = [ column.title() for column in attrs['columns'].split(',') ]
         if 'sort' in attrs:
           columns = attrs['sort'].split(',')
           reports[report]['sort'] = [self.parse_sort_column(c) for c in columns]
