@@ -35,7 +35,7 @@ class TaskListModel(object):
     def build_task_filters(self, *all_filters):
         def reducer(accum, filters):
             if filters:
-                accum.append('(%s)' % ' '.join(filters))
+                accum.append('( %s )' % ' '.join(filters))
             return accum
         filter_parts = reduce(reducer, all_filters, [])
         return ' '.join(filter_parts) if filter_parts else ''
