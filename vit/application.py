@@ -14,6 +14,7 @@ from functools import reduce
 import urwid
 
 from vit import version
+from vit.exception import VitException
 from vit.formatter_base import FormatterBase
 from vit import event
 from vit.loader import Loader
@@ -849,7 +850,11 @@ class Application():
         self.refresh_blocking_task_uuids()
         self.formatter.recalculate_due_datetimes()
         context_filters = self.contexts[self.context]['filter'] if self.context else []
-        self.model.update_report(self.report, context_filters=context_filters, extra_filters=self.extra_filters)
+        try:
+            self.model.update_report(self.report, context_filters=context_filters, extra_filters=self.extra_filters)
+        except VitException as err:
+            self.activate_message_bar(str(err), 'error')
+            return
         self.update_task_table()
         self.update_status_report()
         self.update_status_context()

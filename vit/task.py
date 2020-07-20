@@ -3,8 +3,10 @@ from functools import reduce
 
 import tasklib
 from tasklib.task import Task
+from tasklib.backends import TaskWarriorException
 
 from vit import util
+from vit.exception import VitException
 
 class TaskListModel(object):
     def __init__(self, task_config, reports, report=None, data_location=None):
@@ -25,12 +27,22 @@ class TaskListModel(object):
     def active_report(self):
         return self.reports[self.report]
 
+    def parse_error(self, err):
+        messages = filter(lambda l : l.startswith('Error:'), str(err).splitlines())
+        return "\n".join(messages)
+
     def update_report(self, report, context_filters=[], extra_filters=[]):
         self.report = report
         active_report = self.active_report()
         report_filters = active_report['filter'] if 'filter' in active_report else []
         filters = self.build_task_filters(context_filters, report_filters, extra_filters)
-        self.tasks = self.tw.tasks.filter(filters) if filters else self.tw.tasks.all()
+        try:
+            self.tasks = self.tw.tasks.filter(filters) if filters else self.tw.tasks.all()
+            # TODO: Hack, remove when https://github.com/robgolding/tasklib/issues/81
+            # is clarified.
+            len(self.tasks)
+        except TaskWarriorException as err:
+            raise VitException(self.parse_error(err))
 
     def build_task_filters(self, *all_filters):
         def reducer(accum, filters):
