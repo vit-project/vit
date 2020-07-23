@@ -97,11 +97,14 @@ class Application():
     def set_active_context(self):
         self.context = self.task_config.get_active_context()
 
+    def load_contexts(self):
+        self.contexts = self.task_config.get_contexts()
+
     def bootstrap(self, load_early_config=True):
         self.loader = Loader()
         if load_early_config:
             self.load_early_config()
-        self.contexts = self.task_config.get_contexts()
+        self.load_contexts()
         self.set_active_context()
         self.event = event.Emitter()
         self.setup_config()
@@ -297,6 +300,9 @@ class Application():
             elif op == 'context':
                 # TODO: Validation if more than one arg passed.
                 context = args[0] if len(args) > 0 else 'none'
+                if context != 'none':
+                    # In case a new context was added between bootstraps.
+                    self.load_contexts()
                 if self.execute_command(['task', 'context', context], wait=self.wait):
                     self.activate_message_bar('Context switched to: %s' % context)
                 else:

@@ -206,6 +206,7 @@ class TaskParser(object):
         self.print_empty_columns = self.subtree('print.empty.columns') == 'yes'
 
     def get_task_config(self):
+        self.task_config = []
         returncode, stdout, stderr = self.command.run('task _show', capture_output=True)
         if returncode == 0:
             lines = list(filter(lambda x: True if x else False, stdout.split("\n")))
@@ -300,6 +301,7 @@ class TaskParser(object):
 
     def get_contexts(self):
         contexts = {}
+        self.get_task_config()
         subtree = self.subtree('context.')
         for context, filters in list(subtree.items()):
             filters = shlex.split(re.sub(FILTER_PARENS_REGEX, r' \1 ', filters))
