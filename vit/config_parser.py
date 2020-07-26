@@ -101,17 +101,32 @@ class ConfigParser(object):
         self.user_config_filepath = '%s/%s' % (self.user_config_dir, VIT_CONFIG_FILE)
         if not self.config_file_exists(self.user_config_filepath):
             self.optional_create_config_file(self.user_config_filepath)
+        self.taskrc_path = self.get_taskrc_path()
+        self.validate_taskrc()
         self.config.read(self.user_config_filepath)
         self.defaults = DEFAULTS
         self.set_config_data()
 
     def set_config_data(self):
-        self.taskrc_path = self.get_taskrc_path()
         self.subproject_indentable = self.is_subproject_indentable()
         self.row_striping_enabled = self.is_row_striping_enabled()
         self.confirmation_enabled = self.is_confirmation_enabled()
         self.wait_enabled = self.is_wait_enabled()
         self.mouse_enabled = self.is_mouse_enabled()
+
+    def validate_taskrc(self):
+        try:
+            open(self.taskrc_path, 'r').close()
+        except FileNotFoundError:
+            message = """
+%s not found.
+
+VIT requires a properly configured TaskWarrior instance in the current
+environment. Execute the 'task' binary with no arguments to initialize a new
+configuration.
+""" % (self.taskrc_path)
+            print(message)
+            exit(1)
 
     def config_file_exists(self, filepath):
         try:
