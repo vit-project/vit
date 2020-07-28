@@ -109,6 +109,7 @@ class Application():
         self.event = event.Emitter()
         self.setup_config()
         self.search_term_active = ''
+        self.search_direction_reverse = False
         self.action_registry = ActionRegistry()
         self.actions = Actions(self.action_registry)
         self.actions.register()
@@ -373,6 +374,7 @@ class Application():
                         self.activate_message_bar('Task %s tags updated' % self.model.task_id(task['uuid']))
                 elif op in ('search-forward', 'search-reverse'):
                     self.search_set_term(data['text'])
+                    self.search_set_direction(op)
                     self.search(reverse=(op == 'search-reverse'))
         self.widget.focus_position = 'body'
         if 'uuid' in metadata:
@@ -466,6 +468,9 @@ class Application():
 
     def search_set_term(self, text):
         self.search_term_active = text
+
+    def search_set_direction(self, op):
+        self.search_direction_reverse = op == 'search-reverse'
 
     def search(self, reverse=False):
         if not self.search_term_active:
@@ -666,10 +671,10 @@ class Application():
         self.activate_command_bar('search-reverse', '?', {'history': 'search'})
 
     def activate_command_bar_search_next(self):
-        self.search()
+        self.search(reverse=self.search_direction_reverse)
 
     def activate_command_bar_search_previous(self):
-        self.search(reverse=True)
+        self.search(reverse=not self.search_direction_reverse)
 
     def activate_command_bar_task_context(self):
         self.activate_command_bar('context', 'Context: ')
