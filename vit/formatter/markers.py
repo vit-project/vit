@@ -25,7 +25,7 @@ class Markers(Marker):
         for uda_name, uda_type in self.udas.items():
             if getattr(self, 'mark_%s' % uda_name):
                 width, text_markup = self.format_uda(width, text_markup, uda_name, uda_type, task[uda_name])
-        if task['uuid'] in self.blocking_tasks:
+        if task['uuid'] in self.blocking_task_uuids:
             width, text_markup = self.format_blocking(width, text_markup)
         return (width, '' if width == 0 else text_markup)
 

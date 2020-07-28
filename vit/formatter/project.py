@@ -1,8 +1,8 @@
 from vit.formatter import String
 
 class Project(String):
-    def __init__(self, column, report, defaults, **kwargs):
-        super().__init__(column, report, defaults)
+    def __init__(self, column, report, defaults, blocking_task_uuids, **kwargs):
+        super().__init__(column, report, defaults, blocking_task_uuids)
         self.indent_subprojects = self.is_subproject_indentable()
 
     def format(self, project, task):

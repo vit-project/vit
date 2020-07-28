@@ -89,7 +89,7 @@ class TaskTable(object):
         self.indent_subprojects = self.subproject_indentable()
         self.project_cache = {}
         # TODO: This is for the project placeholders, feels sloppy.
-        self.project_formatter = ProjectFormatter('project', self.report, self.formatter)
+        self.project_formatter = ProjectFormatter('project', self.report, self.formatter, self.get_blocking_task_uuids())
         self.build_rows()
         self.clean_columns()
         self.project_column_idx = self.get_project_column_idx()
@@ -219,7 +219,7 @@ class TaskTable(object):
         kwargs = self.column_formatter_kwargs()
         for idx, column_formatter in enumerate(self.report['columns']):
             name, formatter_class = self.formatter.get(column_formatter)
-            self.add_column(name, self.report['labels'][idx], formatter_class(name, self.report, self.formatter, **kwargs))
+            self.add_column(name, self.report['labels'][idx], formatter_class(name, self.report, self.formatter, self.get_blocking_task_uuids(), **kwargs))
 
     def is_marker_column(self, column):
         return column == MARKER_COLUMN_NAME

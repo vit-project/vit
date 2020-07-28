@@ -40,11 +40,12 @@ TIME_UNIT_MAP = {
 }
 
 class Formatter(object):
-    def __init__(self, column, report, formatter_base, **kwargs):
+    def __init__(self, column, report, formatter_base, blocking_task_uuids, **kwargs):
         self.column = column
         self.report = report
         self.formatter = formatter_base
         self.colorizer = self.formatter.task_colorizer
+        self.blocking_task_uuids = blocking_task_uuids
 
     def format(self, obj, task):
         if not obj:
@@ -69,9 +70,8 @@ class Formatter(object):
 
 class Marker(Formatter):
     def __init__(self, report, defaults, report_marker_columns, blocking_task_uuids):
-        super().__init__(None, report, defaults)
+        super().__init__(None, report, defaults, blocking_task_uuids)
         self.columns = report_marker_columns
-        self.blocking_tasks = blocking_task_uuids
         self.labels = self.formatter.markers.labels
         self.udas = self.formatter.markers.udas
         self.require_color = self.formatter.markers.require_color
@@ -100,9 +100,9 @@ class Duration(Formatter):
         return (self.colorize(obj), formatted_duration)
 
 class DateTime(Formatter):
-    def __init__(self, column, report, defaults, **kwargs):
+    def __init__(self, column, report, defaults, blocking_task_uuids, **kwargs):
         self.custom_formatter = None if not 'custom_formatter' in kwargs else kwargs['custom_formatter']
-        super().__init__(column, report, defaults)
+        super().__init__(column, report, defaults, blocking_task_uuids)
 
     def format(self, dt, task):
         if not dt:
