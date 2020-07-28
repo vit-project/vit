@@ -13,6 +13,20 @@
  * Located in the ```tests``` directory
  * Run with ```./run-tests.sh```
 
+### Debugging
+
+VIT comes with a simple ```debug``` class for pretty-printing variables to
+console or file. The file's default location is ```vit-debug.log``` in the
+system's temp directory.
+
+Usage in any of the code is straighforward:
+
+```python
+import debug
+debug.console(variable_name)
+debug.file(variable_name)
+```
+
 ### Architecture
 
 Whereas VIT 1.x simply layered an
