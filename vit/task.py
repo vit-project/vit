@@ -38,8 +38,9 @@ class TaskListModel(object):
         filters = self.build_task_filters(context_filters, report_filters, extra_filters)
         try:
             self.tasks = self.tw.tasks.filter(filters) if filters else self.tw.tasks.all()
-            # TODO: Hack, remove when https://github.com/robgolding/tasklib/issues/81
-            # is clarified.
+            # NOTE: tasklib uses lazy loading and some operation is necessary
+            # for self.tasks to actually be populated here.
+            # See https://github.com/robgolding/tasklib/issues/81
             len(self.tasks)
         except TaskWarriorException as err:
             raise VitException(self.parse_error(err))
