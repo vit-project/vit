@@ -478,14 +478,20 @@ class Application():
         self.table.batcher.add(0)
         self.search_display_message(reverse)
         current_index = 0 if self.task_list.focus is None else self.task_list.focus_position
-        new_focus = self.search_rows(self.search_term_active, current_index, reverse)
-        if new_focus is None:
-            self.activate_message_bar("Pattern not found: %s" % self.search_term_active, 'error')
-        else:
-            self.task_list.focus_position = new_focus
+        try:
+            new_focus = self.search_rows(self.search_term_active, current_index, reverse)
+            if new_focus is None:
+                self.activate_message_bar("Pattern not found: %s" % self.search_term_active, 'error')
+            else:
+                self.task_list.focus_position = new_focus
+        except ValueError as e:
+            self.activate_message_bar(str(e), 'error')
 
     def search_rows(self, term, start_index=0, reverse=False):
-        search_regex = re.compile(term, re.MULTILINE)
+        try:
+            search_regex = re.compile(term, re.MULTILINE)
+        except:
+            raise ValueError("Invalid regex: %s" % term)
         rows = self.table.rows
         current_index = start_index
         last_index = len(rows) - 1
