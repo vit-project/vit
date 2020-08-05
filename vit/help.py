@@ -110,7 +110,10 @@ class Help(object):
 
     def filter_entries(self, filter_args):
         if len(filter_args) > 0:
-            args_regex = re.compile('.*(%s).*' % '|'.join(filter_args))
+            try:
+                args_regex = re.compile('.*(%s).*' % '|'.join(filter_args))
+            except:
+                return []
             return [(section, keys, description) for section, keys, description, search_phrase in self.entries if args_regex.match(search_phrase)]
         else:
             return [(section, keys, description) for section, keys, description, _ in self.entries]
