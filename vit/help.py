@@ -104,17 +104,23 @@ class Help(object):
         ]
 
     def update(self, filter_args):
-        entries = self.filter_entries(filter_args)
-        self.listbox.reload_entries(entries)
+        try:
+            entries = self.filter_entries(filter_args)
+            self.listbox.reload_entries(entries)
+            self.error_widget.set_text('')
+        except ValueError as e:
+            self.error_widget.set_text(str(e))
+            self.listbox.reload_entries([])
         return self.widget
 
     def filter_entries(self, filter_args):
         if len(filter_args) > 0:
             try:
-                args_regex = re.compile('.*(%s).*' % '|'.join(filter_args))
+                rexp = '.*(%s).*' % '|'.join(filter_args)
+                args_regex = re.compile(rexp)
+                return [(section, keys, description) for section, keys, description, search_phrase in self.entries if args_regex.match(search_phrase)]
             except:
-                return []
-            return [(section, keys, description) for section, keys, description, search_phrase in self.entries if args_regex.match(search_phrase)]
+                raise ValueError("Invalid regex: %s" % rexp)
         else:
             return [(section, keys, description) for section, keys, description, _ in self.entries]
 
@@ -174,6 +180,7 @@ class Help(object):
 
     def build_help_widget(self):
         self.listbox = HelpListBox(urwid.SimpleFocusListWalker([]), self.keybinding_parser.keybindings, event=self.event, request_reply=self.request_reply, action_manager=self.action_manager)
+        self.error_widget = urwid.Text('', align='center')
         self.widget = urwid.Frame(
             self.listbox,
             header=urwid.Pile([
@@ -181,5 +188,6 @@ class Help(object):
                 # TODO: Remove this when keybinding overrides are shown.
                 urwid.Text("NOTE: Keybinding overrides in config.ini not shown", align='center'),
                 urwid.Text(''),
+                self.error_widget
             ]),
         )
