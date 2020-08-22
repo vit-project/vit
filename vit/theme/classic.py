@@ -4,6 +4,7 @@ theme = [
     ('list-header-column-separator', '', '', '', '', ''),
     ('striped-table-row', 'white', 'dark gray', '', 'white', 'g27'),
     ('reveal focus', 'white', 'dark blue', 'standout', 'white', 'dark blue'),
+    ('reveal select', 'white', 'dark red', 'standout', 'white', 'dark red'),
     ('message status', '', '', '', '', ''),
     ('message error', 'white', 'dark red', 'standout', 'white', 'dark red'),
     ('status', 'dark blue', 'black', '', 'dark blue', 'black'),

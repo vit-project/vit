@@ -20,7 +20,7 @@ MARKER_COLUMN_NAME = 'markers'
 
 class TaskTable(object):
 
-    def __init__(self, config, task_config, formatter, screen, on_select=None, event=None, action_manager=None, request_reply=None, markers=None, draw_screen_callback=None):
+    def __init__(self, config, task_config, formatter, screen, on_select=None, event=None, action_manager=None, request_reply=None, markers=None, draw_screen_callback=None, selected_tasks=None):
         self.config = config
         self.task_config = task_config
         self.formatter = formatter
@@ -36,10 +36,13 @@ class TaskTable(object):
         self.listbox = TaskListBox(self.list_walker, self.screen, event=self.event, request_reply=self.request_reply, action_manager=self.action_manager)
         self.init_event_listeners()
         self.set_request_callbacks()
+        self.selected_tasks = selected_tasks
 
     def init_event_listeners(self):
         def signal_handler():
             self.update_focus()
+            self.update_selection()
+
         urwid.connect_signal(self.list_walker, 'modified', signal_handler)
         def task_list_keypress(data):
             self.update_header(data['size'])
@@ -150,6 +153,12 @@ class TaskTable(object):
         if position is None:
             position = self.listbox.focus_position
         self.list_walker[position].row.set_attr_map({None: attr})
+
+    def update_selection(self):
+        selected_task_ids = set([task['id'] for task in self.selected_tasks])
+        for item in self.list_walker:
+            if item.id in selected_task_ids:
+                item.row.set_attr_map({None: 'reveal select'})
 
     def flash_focus(self, repeat_times=2, pause_seconds=0.1):
         if self.listbox.focus:

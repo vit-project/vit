@@ -130,6 +130,7 @@ class Application():
         self.set_request_callbacks()
         # TODO: TaskTable is dependent on a bunch of setup above, this order
         # feels brittle.
+        self.selected_tasks = set()
         self.build_task_table()
         self.help = Help(self.keybinding_parser, self.actions.get(), event=self.event, request_reply=self.request_reply, action_manager=self.action_manager)
         self.event.listen('command-bar:keypress', self.command_bar_keypress)
@@ -172,6 +173,7 @@ class Application():
         self.action_manager_registrar.register('TASK_WAIT', self.task_action_wait)
         self.action_manager_registrar.register('TASK_EDIT', self.task_action_edit)
         self.action_manager_registrar.register('TASK_SHOW', self.task_action_show)
+        self.action_manager_registrar.register('TASK_SELECT', self.task_action_select)
 
     def default_keybinding_replacements(self):
         import json
@@ -358,8 +360,13 @@ class Application():
                 elif op == 'modify':
                     # TODO: Will this break if user clicks another list item
                     # before hitting enter?
-                    if self.execute_command(['task', metadata['uuid'], 'modify'] + args, wait=self.wait):
-                        self.activate_message_bar('Task %s modified' % self.model.task_id(metadata['uuid']))
+                    if self.selected_tasks:
+                        for task in self.selected_tasks:
+                            self.op_modify(task['uuid'], args)
+                        self.selected_tasks.clear()
+                    else:
+                        self.op_modify(metadata['uuid'], args)
+
                 elif op == 'annotate':
                     task = self.model.task_annotate(metadata['uuid'], data['text'])
                     if task:
@@ -377,6 +384,7 @@ class Application():
                     self.search_set_direction(op)
                     self.search(reverse=(op == 'search-reverse'))
         self.widget.focus_position = 'body'
+
         if 'uuid' in metadata:
             self.task_list.focus_by_task_uuid(metadata['uuid'], self.previous_focus_position)
 
@@ -549,7 +557,7 @@ class Application():
         raise urwid.ExitMainLoop()
 
     def build_task_table(self):
-        self.table = TaskTable(self.config, self.task_config, self.formatter, self.loop.screen, on_select=self.on_select, event=self.event, action_manager=self.action_manager, request_reply=self.request_reply, markers=self.markers, draw_screen_callback=self.loop.draw_screen)
+        self.table = TaskTable(self.config, self.task_config, self.formatter, self.loop.screen, on_select=self.on_select, event=self.event, action_manager=self.action_manager, request_reply=self.request_reply, markers=self.markers, draw_screen_callback=self.loop.draw_screen, selected_tasks=self.selected_tasks)
 
     def update_task_table(self):
         self.table.update_data(self.reports[self.report], self.model.tasks)
@@ -681,6 +689,11 @@ class Application():
 
     def global_escape(self):
         self.denotation_pop_up.close_pop_up()
+        self.selected_tasks.clear()
+        uuid, _ = self.get_focused_task()
+        self.update_task_table()
+        if uuid:
+            self.task_list.focus_by_task_uuid(uuid, self.previous_focus_position)
 
 
     def task_done(self, uuid):
@@ -736,7 +749,19 @@ class Application():
     def task_action_modify(self):
         uuid, _ = self.get_focused_task()
         if uuid:
-            self.activate_command_bar('modify', 'Modify: ', {'uuid': uuid})
+            modify_message = 'Modify selected tasks: ' if self.selected_tasks else 'Modify:'
+            self.activate_command_bar('modify', modify_message, {'uuid': uuid})
+            self.task_list.focus_by_task_uuid(uuid, self.previous_focus_position)
+
+    def task_action_select(self):
+        uuid, task = self.get_focused_task()
+        if uuid:
+            if task in self.selected_tasks:
+                self.selected_tasks.remove(task)
+            else:
+                self.selected_tasks.add(task)
+            self.update_task_table()
+            self.activate_message_bar('Selected: %d tasks' % len(self.selected_tasks))
             self.task_list.focus_by_task_uuid(uuid, self.previous_focus_position)
 
     def task_action_start_stop(self):
@@ -927,6 +952,10 @@ class Application():
         self.autocomplete.refresh()
         end = time.time()
         self.update_status_performance(end - start)
+
+    def op_modify(self, uuid, args):
+        if self.execute_command(['task', uuid, 'modify'] + args, wait=self.wait):
+            self.activate_message_bar('Task %s modified' % self.model.task_id(uuid))
 
     def build_main_widget(self, report=None):
         if report:
