@@ -4,6 +4,8 @@ Visual Interactive Taskwarrior full-screen terminal interface.
 
 *For VIT 1.3, [visit here](https://github.com/scottkosty/vit/tree/1.3)*
 
+<img src="images/great-tit-square-small.png" style="float: right;"/>
+
 ## Features
 
  * Fully-customizable key bindings *(default Vim-like)*
