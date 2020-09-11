@@ -1,10 +1,11 @@
 # VIT
 
+<img src="images/great-tit-square-small.png" alt="Logo" width="150" height="150" align="right" />
+
 Visual Interactive Taskwarrior full-screen terminal interface.
 
 *For VIT 1.3, [visit here](https://github.com/scottkosty/vit/tree/1.3)*
 
-<img src="images/great-tit-square-small.png" style="float: right;"/>
 
 ## Features
 
