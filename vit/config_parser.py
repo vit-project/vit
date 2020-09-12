@@ -218,7 +218,7 @@ class TaskParser(object):
         self.set_config_data()
 
     def set_config_data(self):
-        self.print_empty_columns = self.subtree('print.empty.columns') == 'yes'
+        self.print_empty_columns = self.is_truthy(self.subtree('print.empty.columns'))
 
     def get_task_config(self):
         self.task_config = []
@@ -364,6 +364,10 @@ class TaskParser(object):
     def rectify_report(self, report_name, report):
         report['subproject_indentable'] = self.has_project_column(report_name) and self.has_primary_project_ascending_sort(report)
         return report
+
+    def is_truthy(self, value):
+        value = str(value)
+        return value.lower() in ['y', 'yes', 'on', 'true', '1']
 
     def has_project_column(self, report_name):
         return self.get_column_index(report_name, 'project') is not None
