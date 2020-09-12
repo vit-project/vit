@@ -34,9 +34,23 @@ class AutoComplete(object):
         for ac_type in filters:
             setattr(self, ac_type, self.refresh_type(ac_type))
 
+    def get_refresh_type_command(self, ac_type):
+        command = [
+            'task',
+        ]
+        if ac_type == 'project':
+            command.extend([
+                'rc.list.all.projects=yes',
+                '_projects',
+            ])
+        else:
+            command.extend([
+                '_%ss' % ac_type
+            ])
+        return command
+
     def refresh_type(self, ac_type):
-        command = 'task _%ss' % ac_type
-        returncode, stdout, stderr = self.command.run(command, capture_output=True)
+        returncode, stdout, stderr = self.command.run(self.get_refresh_type_command(ac_type), capture_output=True)
         if returncode == 0:
             items = list(filter(lambda x: True if x else False, stdout.split("\n")))
             if ac_type == 'project':
