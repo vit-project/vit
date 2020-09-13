@@ -760,13 +760,11 @@ class Application():
     def task_action_priority(self):
         uuid, _ = self.get_focused_task()
         if uuid:
-            choices = {
-                'h': 'H',
-                'm': 'M',
-                'l': 'L',
-                'n': '',
-            }
-            self.activate_command_bar('priority', 'Priority (h/m/l/n): ', {'uuid': uuid, 'choices': choices})
+            choices = {}
+            for choice in self.task_config.priority_values:
+                key = choice.lower() or 'n'
+                choices[key] = choice
+            self.activate_command_bar('priority', 'Priority (%s): ' % '/'.join(choices), {'uuid': uuid, 'choices': choices})
 
     def task_action_project(self):
         uuid, _ = self.get_focused_task()

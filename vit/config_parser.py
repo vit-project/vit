@@ -219,6 +219,7 @@ class TaskParser(object):
 
     def set_config_data(self):
         self.print_empty_columns = self.is_truthy(self.subtree('print.empty.columns'))
+        self.priority_values = self.get_priority_values()
 
     def get_task_config(self):
         self.task_config = []
@@ -246,6 +247,9 @@ class TaskParser(object):
             self.projects.pop()
         else:
             raise RuntimeError('Error parsing task projects: %s' % stderr)
+
+    def get_priority_values(self):
+        return self.subtree('uda.priority.values').split(',')
 
     def transform_string_leaves(self, hierarchy):
         if hierarchy in CONFIG_STRING_LEAVES:
