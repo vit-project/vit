@@ -116,7 +116,7 @@ class Keybinding(object):
 ##### Jumping with digits
 
 As jumping to tasks is central to VIT's operation, you might want to map each
-digit key to an ex command containing that digit, by adding the following to
+digit key to an `ex` command containing that digit, by adding the following to
 your keybindings:
 
 ```
