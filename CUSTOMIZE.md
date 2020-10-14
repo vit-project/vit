@@ -110,3 +110,27 @@ class Keybinding(object):
 1. Create a ```keybinding``` directory in the user directory
 2. Copy over one of the core keybindings, and customize to your liking.
 3. Set the ```default_keybindings``` setting in ```config.ini``` to the name of the keybinding file you created, without the ```.ini``` extension. For example, if you created ```keybinding/strange.ini```, you would set ```default_keybindings = strange``` in ```config.ini```
+
+#### Keybinding suggestions
+
+##### Jumping with digits
+
+As jumping to tasks is central to vit's operation, you might want to map each
+digit key to an ex command containing that digit, by adding the following to
+your keybindings:
+
+```
+1 = :1
+2 = :2
+3 = :3
+4 = :4
+5 = :5
+6 = :6
+7 = :7
+8 = :8
+9 = :9
+```
+
+Now, for example, to jump to a task whose ID is 42, you need to press `4`, `2`
+and `<Enter>`, instead of `:`, `4`, `2` and `<Enter>`.
+This saves a `:` keypress whenever jumping to a task.
