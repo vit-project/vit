@@ -5,13 +5,12 @@ class CommandBar(urwid.Edit):
     """Custom urwid.Edit class for the command bar.
     """
     def __init__(self, **kwargs):
-        self.event = kwargs['event']
-        self.autocomplete = kwargs['autocomplete']
+        self.event = kwargs.pop('event')
+        self.autocomplete = kwargs.pop('autocomplete')
+        self.abort_backspace = kwargs.pop('abort_backspace')
         self.metadata = None
         self.history = CommandBarHistory()
         self.readline = Readline(self)
-        kwargs.pop('event')
-        kwargs.pop('autocomplete')
         return super().__init__(**kwargs)
 
     def keypress(self, size, key):
@@ -20,15 +19,7 @@ class CommandBar(urwid.Edit):
         if key not in ('tab', 'shift tab'):
             self.autocomplete.deactivate()
         if 'choices' in self.metadata:
-            op = self.metadata['op']
-            data = {
-                'choice': None,
-                'metadata': self.get_metadata(),
-            }
-            if key in self.metadata['choices']:
-                data['choice'] = self.metadata['choices'][key]
-            self.cleanup(op)
-            self.event.emit('command-bar:keypress', data)
+            self.quit({'choice': self.metadata['choices'].get(key)})
             return None
         elif key in ('up',):
             self.readline.keypress('ctrl p')
@@ -38,16 +29,9 @@ class CommandBar(urwid.Edit):
             return None
         elif key in ('enter', 'esc'):
             text = self.get_edit_text().strip()
-            metadata = self.get_metadata()
-            data = {
-                'key': key,
-                'text': text,
-                'metadata': metadata,
-            }
-            self.cleanup(metadata['op'])
-            if text and key in ('enter'):
-                self.history.add(metadata['history'], text)
-            self.event.emit('command-bar:keypress', data)
+            if text and key == 'enter':
+                self.history.add(self.metadata['history'], text)
+            self.quit({'key': key, 'text': text})
             return None
         elif key in ('tab', 'shift tab'):
             if self.is_autocomplete_op():
@@ -59,7 +43,13 @@ class CommandBar(urwid.Edit):
             return None
         elif key in self.readline.keys():
             return self.readline.keypress(key)
+        elif self.is_aborting_backspace(key):
+            self.quit({'key': key})
+            return None
         return super().keypress(size, key)
+
+    def is_aborting_backspace(self, key):
+        return key == 'backspace' and self.abort_backspace and not self.get_edit_text()
 
     def is_autocomplete_op(self):
         return self.metadata['op'] not in ['search-forward', 'search-reverse']
@@ -73,18 +63,22 @@ class CommandBar(urwid.Edit):
 
     def set_command_prompt(self, caption, edit_text=None):
         self.set_caption(caption)
-        if edit_text:
+        if edit_text is not None:
             self.set_edit_text(edit_text)
 
     def activate(self, caption, metadata, edit_text=None):
         self.set_metadata(metadata)
         self.set_command_prompt(caption, edit_text)
 
-    def cleanup(self, command):
-        self.set_caption('')
-        self.set_edit_text('')
-        self.history.cleanup(command)
+    def deactivate(self):
+        self.set_command_prompt('', '')
+        self.history.cleanup(self.metadata['op'])
         self.set_metadata(None)
+
+    def quit(self, metadata_args={}):
+        data = {'metadata': self.get_metadata(), **metadata_args}
+        self.deactivate()
+        self.event.emit('command-bar:keypress', data)  # remove focus from command bar
 
     def get_metadata(self):
         return self.metadata.copy() if self.metadata else None

@@ -44,6 +44,7 @@ DEFAULTS = {
         'confirmation': True,
         'wait': True,
         'mouse': False,
+        'abort_backspace': False,
     },
     'report': {
         'default_report': 'next',

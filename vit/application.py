@@ -562,7 +562,8 @@ class Application():
         self.autocomplete = AutoComplete(self.config, extra_filters={'report': self.reports.keys(), 'help': self.help.autocomplete_entries(), 'context': context_list})
 
     def init_command_bar(self):
-        self.command_bar = CommandBar(autocomplete=self.autocomplete, event=self.event)
+        abort_backspace = self.config.get('vit', 'abort_backspace')
+        self.command_bar = CommandBar(autocomplete=self.autocomplete, abort_backspace=abort_backspace, event=self.event)
 
     def build_frame(self):
         self.status_report = urwid.AttrMap(urwid.Text('Welcome to VIT'), 'status')
