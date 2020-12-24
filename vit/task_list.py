@@ -443,10 +443,6 @@ class SelectableRow(urwid.WidgetWrap):
             key = self.on_select(self, size, key)
         return key
 
-        # ... and update the displayed items.
-        for t, (w, _) in zip(contents, self._columns.contents):
-            w.set_text(t)
-
 class ProjectPlaceholderRow(urwid.WidgetWrap):
     """Wraps 'urwid.Columns' for a project placeholder row.
     """
