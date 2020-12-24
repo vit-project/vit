@@ -1,3 +1,45 @@
+##### Wed Dec 23 2020 - released v2.1.0b1
+
+This release includes compatibility with Taskwarrior 2.5.2 -- earlier releases
+of VIT may not work with Taskwarrior 2.5.2 and beyond.
+
+* **Wed Dec 23 2020:** update URL to vit-project
+* **Wed Oct 14 2020:** Make VIT uppercase
+* **Wed Oct 14 2020:** Add digit-jumping keybindings suggestion to CUSTOMIZE doc
+* **Sun Sep 13 2020:** fix #269: Can't set priority when uda.priority.values is customized
+* **Fri Sep 11 2020:** fix #266: print.empty.columns truthness values are not properly handled
+* **Fri Sep 11 2020:** fix #265: Project name completion only works for projects with pending tasks
+* **Fri Sep 11 2020:** add logo
+* **Thu Sep 03 2020:** fix #268: remove priority formatters, use uda formatters instead
+* **Tue Jul 28 2020:** fix #256: Non-pending blocking tasks should not appear in reports as dependencies
+* **Tue Jul 28 2020:** fix #260: n / N commands should honor search direction
+* **Tue Jul 28 2020:** add debug section to devel readme
+* **Mon Jul 27 2020:** Update issue templates
+* **Sun Jul 26 2020:** add TEST-CASE description
+* **Sat Jul 25 2020:** fix #255: vit freezes on startup if there is no taskrc file present
+* **Tue Jul 07 2020:** API for variable replacements in keybindings
+* **Wed Jul 22 2020:** fix #253: Crash on switch to newly created context
+* **Mon Jul 20 2020:** fix #252: catch filter errors and display nicely
+* **Sat Jul 18 2020:** Fix: #251 -- Filtering with empty attribute value yields a crash
+* **Wed Jul 15 2020:** fix #250: provide default labels when none configured in report
+* **Fri Jul 10 2020:** provide some feedback on failed user module load
+* **Sat May 16 2020:** Fix crash when report has project column but no sort
+* **Wed Mar 11 2020:** Fix #203: Column resizing incorrect when column labels are wider than column
+* **Fri Mar 06 2020:** fix #222, fix #221: first step to properly supporting spaces in tab completion
+* **Sat Feb 29 2020:** Fix #227: Provide default report/annotation format if none configured
+* **Tue Feb 25 2020:** resolves #225: document keybinding config for capital letters
+* **Sun Nov 03 2019:** fix #176: Readline edit shortcuts for command bar
+* **Wed Jan 08 2020:** fix #186, part two: get correct project column index after cleaning
+* **Wed Jan 08 2020:** add project to dummy task script
+* **Sat Dec 07 2019:** fix #218: specify minimum versions for dependent packages
+* **Tue Nov 05 2019:** Allows config option value to contain '='
+* **Sun Oct 20 2019:** fix #211: Space at the end of keybinding not parsed
+* **Sun Oct 13 2019:** cleanup on #203, only resize again if any columns need it
+* **Sun Oct 13 2019:** fix #203: Descriptions not shown when mulitple columns need reducing
+* **Sun Oct 13 2019:** fix display of last header column when abuts side of terminal window
+* **Sun Oct 06 2019:** fix #206: passing negative filters through to task don't work
+* **Wed Oct 02 2019:** Fix #192: add disallowed reports with error message
+
 ##### Sat Sep 28 2019 - released v2.0.0
 
 * **Fri Sep 27 2019:** add UPGRADE.md, include v2.0.0 upgrade instructions
