@@ -19,7 +19,7 @@ commands.
 
 While VIT is running, type :help followed by enter to review basic command/navigation actions.
 
-See https://github.com/scottkosty/vit for more information.
+See https://github.com/vit-project/vit for more information.
 
 """
 )

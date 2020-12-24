@@ -21,7 +21,7 @@ setup(
     long_description_content_type='text/markdown',
     install_requires=INSTALL_PACKAGES,
     version=VERSION,
-    url='https://github.com/scottkosty/vit',
+    url='https://github.com/vit-project/vit',
     author='Chad Phillips',
     author_email='chad@apartmentlines.com',
     classifiers=[

@@ -4,7 +4,7 @@
 
 Visual Interactive Taskwarrior full-screen terminal interface.
 
-*For VIT 1.3, [visit here](https://github.com/scottkosty/vit/tree/1.3)*
+*For VIT 1.3, [visit here](https://github.com/vit-project/vit/tree/1.3)*
 
 
 ## Features

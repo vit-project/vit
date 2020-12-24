@@ -63,7 +63,7 @@ To see the list of actions that can be mapped, execute ```vit --list-actions```.
 
 The ```[keybinding]``` section in ```config.ini``` overrides any core keybindings or keybindings that you place in the user ```keybinding``` directory. If you just want to make some small tweaks and/or add some macros, it's probably better to take this approach.
 
-The [config.sample.ini](https://github.com/scottkosty/vit/blob/2.x/vit/config/config.sample.ini) has many examples to illustrate how to customize keybindings for actions and add macros, check it out!
+The [config.sample.ini](vit/config/config.sample.ini) has many examples to illustrate how to customize keybindings for actions and add macros, check it out!
 
 #### To provide your own custom variable replacements:
 
