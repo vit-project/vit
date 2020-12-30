@@ -27,7 +27,7 @@ class KeyCache(object):
         return list(filter(None, sorted_keybindings))
 
     def get_non_modified_keybindings(self):
-        return [k for k in self.keybindings if not self.keybindings[k]['has_modifier']]
+        return [k for k in self.keybindings if self.keybindings[k]['has_special_keys'] or not self.keybindings[k]['has_modifier']]
 
     def add_keybinding_to_key_cache(self, to_cache, keybinding, existing_keybindings, key_cache):
         if to_cache in existing_keybindings:

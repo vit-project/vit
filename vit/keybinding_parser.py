@@ -17,6 +17,7 @@ CONFIG_SPECIAL_KEY_SUBSTITUTIONS = {
     'colon': ':',
     'equals': '=',
     'space': ' ',
+    'semicolon': ';',
 }
 
 class KeybindingError(Exception):
@@ -61,14 +62,35 @@ class KeybindingParser(object):
             self.add_keybindings(bindings)
 
     def keybinding_special_keys_substitutions(self, value):
-        if value in CONFIG_SPECIAL_KEY_SUBSTITUTIONS:
+        is_special_key = value in CONFIG_SPECIAL_KEY_SUBSTITUTIONS
+        if is_special_key:
             value = CONFIG_SPECIAL_KEY_SUBSTITUTIONS[value]
-        return value
+        return value, is_special_key
 
     def parse_keybinding_keys(self, keys):
         has_modifier = bool(re.match(BRACKETS_REGEX, keys))
-        parsed_keys = ' '.join(re.sub(BRACKETS_REGEX, ' ', keys).strip().split()).lower() if has_modifier else keys
-        return self.keybinding_special_keys_substitutions(parsed_keys), has_modifier
+        def reducer(accum, char):
+            if char == '<':
+                accum['in_brackets'] = True
+                accum['bracket_string'] = ''
+            elif char == '>':
+                accum['in_brackets'] = False
+                value, is_special_key = self.keybinding_special_keys_substitutions(accum['bracket_string'].lower())
+                accum['keys'] += value
+                accum['has_special_keys'] = is_special_key
+            else:
+                if accum['in_brackets']:
+                    accum['bracket_string'] += char
+                else:
+                    accum['keys'] += char
+            return accum
+        accum = reduce(reducer, keys, {
+            'keys': '',
+            'in_brackets': False,
+            'bracket_string': '',
+            'has_special_keys': False,
+        })
+        return accum['keys'], has_modifier, accum['has_special_keys']
 
     def parse_keybinding_value(self, value, replacements={}):
         def reducer(accum, char):
@@ -77,7 +99,8 @@ class KeybindingParser(object):
                 accum['bracket_string'] = ''
             elif char == '>':
                 accum['in_brackets'] = False
-                accum['keybinding'].append(self.keybinding_special_keys_substitutions(accum['bracket_string'].lower()))
+                value, is_special_key = self.keybinding_special_keys_substitutions(accum['bracket_string'].lower())
+                accum['keybinding'].append(value)
             elif char == '{':
                 accum['in_variable'] = True
                 accum['variable_string'] = ''
@@ -128,10 +151,11 @@ class KeybindingParser(object):
             bound_keys, action_name = self.parse_keybinding_value(value, replacements)
             self.validate_parsed_value(key_groups, bound_keys, action_name)
             for keys in key_groups.strip().split(','):
-                parsed_keys, has_modifier = self.parse_keybinding_keys(keys)
+                parsed_keys, has_modifier, has_special_keys = self.parse_keybinding_keys(keys)
                 self.keybindings[parsed_keys] = {
                     'label': keys,
                     'has_modifier': has_modifier,
+                    'has_special_keys': has_special_keys,
                 }
                 if action_name:
                     self.keybindings[parsed_keys]['action_name'] = action_name
