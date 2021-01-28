@@ -29,6 +29,14 @@ Visual Interactive Taskwarrior full-screen terminal interface.
 
 Follow the directions in [INSTALL.md](INSTALL.md)
 
+## Quick start
+
+Run ```vit --help``` from the command line for basic usage instructions.
+
+Run ```vit``` from the command line to start VIT with default config, report, and filters.
+
+While VIT is running, type ```:help``` followed by enter to review basic command/navigation actions.
+
 #### Recommendations:
 
  * VIT will suggest to install a default user config file if none exists -- it's fully commented with all configuration options, check it out.
