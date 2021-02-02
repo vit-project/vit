@@ -7,6 +7,3 @@ class Depends(List):
 
     def colorize(self, depends):
         return self.colorizer.blocked(depends)
-
-    def filter_by_blocking_task_uuids(self, depends):
-        return [ task for task in depends if task['uuid'] in self.blocking_task_uuids ]

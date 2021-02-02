@@ -12,7 +12,7 @@ class Markers(Marker):
             width, text_markup = self.format_due(width, text_markup, task['due'], task)
         if self.mark_status:
             width, text_markup = self.format_status(width, text_markup, task['status'])
-        if self.mark_depends and task['depends']:
+        if self.mark_depends and self.filter_by_blocking_task_uuids(task['depends']):
             width, text_markup = self.format_blocked(width, text_markup, task['depends'])
         if self.mark_start and task['start']:
             width, text_markup = self.format_active(width, text_markup, task['start'], task)

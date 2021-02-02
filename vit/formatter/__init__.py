@@ -68,6 +68,9 @@ class Formatter(object):
     def colorize(self, obj):
         return None
 
+    def filter_by_blocking_task_uuids(self, depends):
+        return [ task for task in depends if task['uuid'] in self.blocking_task_uuids ]
+
 class Marker(Formatter):
     def __init__(self, report, defaults, report_marker_columns, blocking_task_uuids):
         super().__init__(None, report, defaults, blocking_task_uuids)
