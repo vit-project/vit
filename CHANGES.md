@@ -1,5 +1,7 @@
 ##### Sun Feb 28 2021 - released v2.1.0
 
+Support for TaskWarrior >= 2.5.2
+
 This release includes a breaking change to the keybinding parser, and may affect
 users who have implemented custom keybindings in their configuration.
 
