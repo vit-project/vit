@@ -1,3 +1,16 @@
+##### Sun Feb 28 2021 - released v2.1.0
+
+This release includes a breaking change to the keybinding parser, and may affect
+users who have implemented custom keybindings in their configuration.
+
+See https://github.com/vit-project/vit/commit/dd0f34347e7b77dce37fe72e3797581d212f0d90 for more information.
+
+* **Mon Feb 01 2021:** fix: blocked marker displaying for deleted/completed depends
+* **Thu Jan 28 2021:** add quick start instructions to README
+* **Wed Dec 30 2020:** [BREAKING CHANGE] correctly parse bracket expressions for keybinding keys
+* **Thu Dec 24 2020:** Add 'abort_backspace' config, False by default. If true, hitting backspace against an empty prompt aborts the prompt.
+* **Fri Dec 25 2020:** Use Python.ignore from github
+
 ##### Wed Dec 23 2020 - released v2.1.0b1
 
 This release includes compatibility with Taskwarrior 2.5.2 -- earlier releases
