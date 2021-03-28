@@ -33,8 +33,7 @@ class TaskListModel(object):
 
     def update_report(self, report, context_filters=[], extra_filters=[]):
         self.report = report
-        active_report = self.active_report()
-        report_filters = active_report['filter'] if 'filter' in active_report else []
+        report_filters = self.active_report_filter()
         filters = self.build_task_filters(context_filters, report_filters, extra_filters)
         try:
             self.tasks = self.tw.tasks.filter(filters) if filters else self.tw.tasks.all()
@@ -44,6 +43,10 @@ class TaskListModel(object):
             len(self.tasks)
         except TaskWarriorException as err:
             raise VitException(self.parse_error(err))
+
+    def active_report_filter(self):
+        active_report = self.active_report()
+        return active_report['filter'] if 'filter' in active_report else []
 
     def build_task_filters(self, *all_filters):
         def reducer(accum, filters):
