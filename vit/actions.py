@@ -38,6 +38,7 @@ class Actions(object):
         self.action_registrar.register('TASK_DELETE', 'Delete task')
         self.action_registrar.register('TASK_DENOTATE', 'Denotate a task')
         self.action_registrar.register('TASK_MODIFY', 'Modify task (supports tab completion)')
+        self.action_registrar.register('TASK_MODIFY_ALL', 'Modify all tasks currently in view')
         self.action_registrar.register('TASK_START_STOP', 'Start/stop task')
         self.action_registrar.register('TASK_DONE', 'Mark task done')
         self.action_registrar.register('TASK_PRIORITY', 'Modify task priority')

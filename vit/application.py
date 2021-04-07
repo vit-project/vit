@@ -171,6 +171,7 @@ class Application():
         self.action_manager_registrar.register('TASK_DELETE', self.task_action_delete)
         self.action_manager_registrar.register('TASK_DENOTATE', self.task_action_denotate)
         self.action_manager_registrar.register('TASK_MODIFY', self.task_action_modify)
+        self.action_manager_registrar.register('TASK_MODIFY_ALL', self.task_action_modify_all)
         self.action_manager_registrar.register('TASK_START_STOP', self.task_action_start_stop)
         self.action_manager_registrar.register('TASK_DONE', self.task_action_done)
         self.action_manager_registrar.register('TASK_PRIORITY', self.task_action_priority)
@@ -762,6 +763,11 @@ class Application():
         if uuid:
             self.activate_command_bar('modify', 'Modify: ', {'uuid': uuid})
             self.task_list.focus_by_task_uuid(uuid, self.previous_focus_position)
+
+    def task_action_modify_all(self):
+        currentviewfilter = self.active_view_filters()
+        ntasks = self.model.get_n_tasks(currentviewfilter)
+        self.activate_command_bar('modify_multiple', 'Modify all (%s tasks): ' % ntasks, {'target': currentviewfilter, 'ntasks': ntasks})
 
     def task_action_start_stop(self):
         uuid, task = self.get_focused_task()
