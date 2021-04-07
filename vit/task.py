@@ -56,6 +56,9 @@ class TaskListModel(object):
         filter_parts = reduce(reducer, all_filters, [])
         return ' '.join(filter_parts) if filter_parts else ''
 
+    def get_n_tasks(self, filter):
+        return len(self.tw.tasks.filter(filter))
+
     def get_task(self, uuid):
         try:
             return self.tw.tasks.get(uuid=uuid)
