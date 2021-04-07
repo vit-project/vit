@@ -364,6 +364,21 @@ class Application():
                     # before hitting enter?
                     if self.execute_command(['task', metadata['uuid'], 'modify'] + args, wait=self.wait):
                         self.activate_message_bar('Task %s modified' % self.model.task_id(metadata['uuid']))
+                elif op == 'modify_multiple':
+                    # same underlying command is the modify command above, only the results is parsed
+                    # differently and the message bar set accordingly
+
+                    # to be absolutely safe, double-check whether the number of tasks matched by
+                    # the filter is still the same (or has changed because of some other operations,
+                    # due/schedule/wait timeouts etc)
+                    ntasks = self.model.get_n_tasks(metadata['target'])
+                    if ntasks != metadata['ntasks']:
+                        self.activate_message_bar('Not applying the modification because the number of tasks has changed (was %s now %s)' % (metadata['ntasks'], ntasks))
+                    elif self.execute_command(['task', metadata['target'], 'modify'] + args, wait=self.wait):
+                        # TODO depending on interactive confirmation prompts, not all tasks
+                        # might actually have been modified. for completeness one would need to extract
+                        # the number of modified tasks from the stdout of the task command above!
+                        self.activate_message_bar('Modified %s tasks' % ntasks)
                 elif op == 'annotate':
                     task = self.model.task_annotate(metadata['uuid'], data['text'])
                     if task:
