@@ -100,6 +100,10 @@ class Application():
     def active_context_filter(self):
         return self.contexts[self.context]['filter'] if self.context else []
 
+    def active_view_filters(self):
+        # precedence-preserving concatenation of context, report and extra filters
+        return self.model.build_task_filters(self.active_context_filter(), self.model.active_report_filter(), self.extra_filters)
+
     def load_contexts(self):
         self.contexts = self.task_config.get_contexts()
 
