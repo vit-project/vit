@@ -370,8 +370,9 @@ class Application():
                     if self.execute_command(['task', metadata['uuid'], 'modify'] + args, wait=self.wait):
                         self.activate_message_bar('Task %s modified' % self.model.task_id(metadata['uuid']))
                 elif op == 'modify_multiple':
-                    # same underlying command is the modify command above, only the results is parsed
-                    # differently and the message bar set accordingly
+                    # same underlying command as the modify command above, only
+                    # the message bar is set to information about the number of
+                    # tasks modified, instead of a single task info
 
                     # to be absolutely safe, double-check whether the number of tasks matched by
                     # the filter is still the same (or has changed because of some other operations,
@@ -380,10 +381,16 @@ class Application():
                     if ntasks != metadata['ntasks']:
                         self.activate_message_bar('Not applying the modification because the number of tasks has changed (was %s now %s)' % (metadata['ntasks'], ntasks))
                     elif self.execute_command(['task', metadata['target'], 'modify'] + args, wait=self.wait):
-                        # TODO depending on interactive confirmation prompts, not all tasks
-                        # might actually have been modified. for completeness one would need to extract
-                        # the number of modified tasks from the stdout of the task command above!
-                        self.activate_message_bar('Modified %s tasks' % ntasks)
+                        # TODO depending on interactive confirmation prompts,
+                        # not all tasks might actually have been modified. for
+                        # completeness one would need to extract the number of
+                        # modified tasks from the stdout of the task command above.
+                        # this is currently not possible because execute_command(),
+                        # even when called with capture_output=True, doesn't return
+                        # the captured output back to here. An easier method might
+                        # be to go through tasklib and simply check the number of
+                        # modified tasks based on their modified time
+                        self.activate_message_bar('Attempted to modify %s tasks, mileage may vary' % ntasks)
                 elif op == 'annotate':
                     task = self.model.task_annotate(metadata['uuid'], data['text'])
                     if task:
@@ -765,9 +772,9 @@ class Application():
             self.task_list.focus_by_task_uuid(uuid, self.previous_focus_position)
 
     def task_action_modify_all(self):
-        currentviewfilter = self.active_view_filters()
-        ntasks = self.model.get_n_tasks(currentviewfilter)
-        self.activate_command_bar('modify_multiple', 'Modify all (%s tasks): ' % ntasks, {'target': currentviewfilter, 'ntasks': ntasks})
+        current_view_filter = self.active_view_filters()
+        ntasks = self.model.get_n_tasks(current_view_filter)
+        self.activate_command_bar('modify_multiple', 'Modify all (%s tasks): ' % ntasks, {'target': current_view_filter, 'ntasks': ntasks})
 
     def task_action_start_stop(self):
         uuid, task = self.get_focused_task()
