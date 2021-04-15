@@ -369,7 +369,7 @@ class Application():
                     # before hitting enter?
                     if self.execute_command(['task', metadata['uuid'], 'modify'] + args, wait=self.wait):
                         self.activate_message_bar('Task %s modified' % self.model.task_id(metadata['uuid']))
-                elif op == 'modify_multiple':
+                elif op == 'modify_bulk':
                     # same underlying command as the modify command above, only
                     # the message bar is set to information about the number of
                     # tasks modified, instead of a single task info
@@ -774,7 +774,7 @@ class Application():
     def task_action_modify_all(self):
         current_view_filter = self.active_view_filters()
         ntasks = self.model.get_n_tasks(current_view_filter)
-        self.activate_command_bar('modify_multiple', 'Modify all (%s tasks): ' % ntasks, {'target': current_view_filter, 'ntasks': ntasks})
+        self.activate_command_bar('modify_bulk', 'Modify all (%s tasks): ' % ntasks, {'target': current_view_filter, 'ntasks': ntasks})
 
     def task_action_start_stop(self):
         uuid, task = self.get_focused_task()
@@ -846,7 +846,7 @@ class Application():
 
     def setup_autocomplete(self, op):
         callback = self.command_bar.set_edit_text_callback()
-        if op in ('filter', 'add', 'modify'):
+        if op in ('filter', 'add', 'modify', 'modify_bulk'):
             self.autocomplete.setup(callback)
         elif op in ('ex',):
             filters = ('report', 'column', 'project', 'tag', 'help')
