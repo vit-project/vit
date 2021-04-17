@@ -31,6 +31,7 @@ LABEL_DEFAULTS = {
     'uda.label': '',
     'uda.priority.label': '(PR)',
     'until.label': '(U)',
+    'waiting.label': '(W)',
 }
 
 class Markers(object):
