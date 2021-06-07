@@ -125,6 +125,8 @@ class AutoComplete(object):
         self.teardown()
 
     def activate(self, text, edit_pos, reverse=False):
+        if not self.is_setup:
+            return
         if self.activated:
             self.send_tabbed_text(text, edit_pos, reverse)
             return
