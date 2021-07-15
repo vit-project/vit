@@ -438,6 +438,12 @@ class Application():
                     kwargs['wait'] = False
                 else:
                     kwargs['wait'] = True
+                uuid, _ = self.get_focused_task()
+                if not uuid:
+                    uuid = ""
+                kwargs['custom_env'] = {
+                  "VIT_TASK_UUID": uuid,
+                }
                 self.execute_command(args, **kwargs)
             elif command.isdigit():
                 self.task_list.focus_by_task_id(int(command))
@@ -536,13 +542,12 @@ class Application():
             return False
 
     def get_focused_task(self):
-        if self.widget.focus_position == 'body':
-            try:
-                uuid = self.task_list.focus.uuid
-                task = self.model.get_task(uuid)
-                return uuid, task
-            except:
-                pass
+        try:
+            uuid = self.task_list.focus.uuid
+            task = self.model.get_task(uuid)
+            return uuid, task
+        except:
+            pass
         return False, False
 
     def quit(self):
