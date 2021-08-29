@@ -13,19 +13,25 @@ class Loader(object):
         self.user_config_dir = os.path.expanduser('VIT_DIR' in env.user and env.user['VIT_DIR'] or DEFAULT_VIT_DIR)
 
         if not os.path.exists(self.user_config_dir):
-            xdg_config_home = env.user.get("XDG_CONFIG_HOME") or os.path.join(
-                os.path.expanduser("~"), ".config"
-            )
+            xdg_dir = Loader._get_xdg_config_dir(self.user_config_dir)
+            if xdg_dir:
+                self.user_config_dir = xdg_dir
 
-            xdg_config_dirs = [xdg_config_home] + (
-                env.user.get("XDG_CONFIG_DIRS") or "/etc/xdg"
-            ).split(":")
+    @staticmethod
+    def _get_xdg_config_dir(user_config_dir):
+        xdg_config_home = env.user.get("XDG_CONFIG_HOME") or os.path.join(
+            os.path.expanduser("~"), ".config"
+        )
 
-            for config_dir in xdg_config_dirs:
-                path = os.path.join(config_dir, "vit")
-                if os.path.exists(path):
-                    self.user_config_dir = path
-                    break
+        xdg_config_dirs = [xdg_config_home] + (
+            env.user.get("XDG_CONFIG_DIRS") or "/etc/xdg"
+        ).split(":")
+
+        for config_dir in xdg_config_dirs:
+            path = os.path.join(config_dir, "vit")
+            if os.path.exists(path):
+                return path
+        return None
 
     def load_user_class(self, module_type, module_name, class_name):
         module = '%s.%s' % (module_type, module_name)
