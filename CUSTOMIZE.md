@@ -2,11 +2,17 @@
 
 ### Configuration
 
+#### VIT's configuration
+
 VIT provides a user directory that allows for configuring basic settings *(via ```config.ini```)*, as well as custom themes, formatters, and keybindings.
 
-By default, the directory is located at ```~/.vit```
+VIT searches for the user directory in this order of priority:
 
-To customize the location of the user directory, you can set the ```VIT_DIR``` environment variable.
+1. The ```VIT_DIR``` environment variable
+2. ```~/.vit``` (the default location)
+3. A ```vit``` directory in any valid [XDG base directory](https://specifications.freedesktop.org/basedir-spec/basedir-spec-latest.html)
+
+#### Taskwarrior configuration
 
 By default, VIT uses the default location of the Taskwarrior configuration file to read configuration from Taskwarrior.
 
