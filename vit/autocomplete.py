@@ -182,7 +182,11 @@ class AutoComplete(object):
 
     def add_space_escaping(self, text):
         if self.space_escape_regex.match(text):
-            return text.replace(' ', '\ ')
+            parts = text.split(':', 1)
+            if len(parts) > 1:
+                return "%s:'%s'" % (parts[0], parts[1])
+            else:
+                return "'%s'" % text
         else:
             return text
 
@@ -191,7 +195,7 @@ class AutoComplete(object):
 
     def parse_text(self, text, edit_pos):
         full_prefix = text[:edit_pos]
-        self.prefix_parts = list(map(self.add_space_escaping, util.string_to_args(full_prefix)))
+        self.prefix_parts = list(map(self.add_space_escaping, util.string_to_args_on_whitespace(full_prefix)))
         if not self.prefix_parts:
             self.search_fragment = self.prefix = full_prefix
             self.suffix = text[(edit_pos + 1):]
