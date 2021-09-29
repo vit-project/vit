@@ -19,7 +19,7 @@ from vit.formatter_base import FormatterBase
 from vit import event
 from vit.loader import Loader
 from vit.config_parser import ConfigParser, TaskParser
-from vit.util import clear_screen, string_to_args, is_mouse_event
+from vit.util import clear_screen, string_to_args, is_mouse_event, task_id_or_uuid_short
 from vit.process import Command
 from vit.task import TaskListModel
 from vit.autocomplete import AutoComplete
@@ -354,7 +354,8 @@ class Application():
             elif len(args) > 0:
                 if op == 'add':
                     if self.execute_command(['task', 'add'] + args, wait=self.wait):
-                        self.activate_message_bar('Task added')
+                        task = self.task_get_latest()
+                        self.activate_message_bar('Task %s added' % task_id_or_uuid_short(task))
                 elif op == 'modify':
                     # TODO: Will this break if user clicks another list item
                     # before hitting enter?
@@ -653,6 +654,13 @@ class Application():
 
     def task_sync(self):
         self.execute_command(['task', 'sync'])
+
+    def task_get_latest(self):
+        returncode, stdout, stderr = self.command.run(['task', '+LATEST', 'uuids'], capture_output=True)
+        if returncode == 0:
+            return self.model.get_task(stdout)
+        else:
+            raise RuntimeError("Error retrieving latest task UUID: %s" % stderr)
 
     def activate_command_bar_quit_with_confirm(self):
         if self.confirm:
