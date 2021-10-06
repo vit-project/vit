@@ -12,7 +12,7 @@ try:
 except ImportError:
     import ConfigParser as configparser
 
-from vit import env
+from vit import env, xdg
 from vit.process import Command
 
 SORT_ORDER_CHARACTERS = ['+', '-']
@@ -186,7 +186,14 @@ configuration.
         return True if CONFIG_BOOLEAN_TRUE_REGEX.match(value) else False
 
     def get_taskrc_path(self):
-        return os.path.expanduser('TASKRC' in env.user and env.user['TASKRC'] or self.get('taskwarrior', 'taskrc'))
+        taskrc_path = os.path.expanduser('TASKRC' in env.user and env.user['TASKRC'] or self.get('taskwarrior', 'taskrc'))
+
+        if not os.path.exists(taskrc_path):
+            xdg_dir = xdg.get_xdg_config_dir(taskrc_path, "task")
+            if xdg_dir:
+                taskrc_path = os.path.join(xdg_dir, "taskrc")
+
+        return taskrc_path
 
     def is_subproject_indentable(self):
         return self.get('report', 'indent_subprojects')
