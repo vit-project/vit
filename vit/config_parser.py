@@ -331,12 +331,22 @@ class TaskParser(object):
         self.get_task_config()
         subtree = self.subtree('context.')
         for context, filters in list(subtree.items()):
-            filters = shlex.split(re.sub(FILTER_PARENS_REGEX, r' \1 ', filters))
             contexts[context] = {
-                'filter': [f for f in filters if not FILTER_EXCLUSION_REGEX.match(f)],
+                'filter': self.parse_context_filters(context, filters),
             }
         self.contexts = contexts
         return self.contexts
+
+    def parse_context_filters(self, context, filters):
+            # task >= 2.6.0 allows read/write configuration.
+            if type(filters) is dict:
+                if 'read' in filters:
+                    filters = filters['read']
+                else:
+                    raise RuntimeError("Error parsing task config, context '%s' missing the 'read' attribute" % context)
+            filters = shlex.split(re.sub(FILTER_PARENS_REGEX, r' \1 ', filters))
+            final_filters = [f for f in filters if not FILTER_EXCLUSION_REGEX.match(f)]
+            return final_filters
 
     def get_reports(self):
       reports = {}
