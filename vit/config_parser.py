@@ -331,6 +331,14 @@ class TaskParser(object):
         self.get_task_config()
         subtree = self.subtree('context.')
         for context, filters in list(subtree.items()):
+            # Filters can be a string (pre-2.6.0 definition, context.work=+work)
+            # or a dict (2.6.0 and newer, context.work.read=+work and context.work.write=+work)
+            if isinstance(filters, dict):
+                if "read" in filters:
+                    filters = filters["read"]
+                else:
+                    continue  # Only contexts with read component defined should be considered
+
             filters = shlex.split(re.sub(FILTER_PARENS_REGEX, r' \1 ', filters))
             contexts[context] = {
                 'filter': [f for f in filters if not FILTER_EXCLUSION_REGEX.match(f)],
