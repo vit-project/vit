@@ -338,12 +338,14 @@ class TaskParser(object):
         return self.contexts
 
     def parse_context_filters(self, context, filters):
-            # task >= 2.6.0 allows read/write configuration.
+            # Filters can be a string (pre-2.6.0 definition, context.work=+work)
+            # or a dict (2.6.0 and newer, context.work.read=+work and
+            # context.work.write=+work).
             if type(filters) is dict:
                 if 'read' in filters:
                     filters = filters['read']
                 else:
-                    raise RuntimeError("Error parsing task config, context '%s' missing the 'read' attribute" % context)
+                    continue  # Only contexts with read component defined should be considered.
             filters = shlex.split(re.sub(FILTER_PARENS_REGEX, r' \1 ', filters))
             final_filters = [f for f in filters if not FILTER_EXCLUSION_REGEX.match(f)]
             return final_filters
