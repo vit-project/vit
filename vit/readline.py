@@ -73,10 +73,10 @@ class Readline(object):
 
             edit_text = self.edit_obj.get_edit_text()
             self.edit_obj.set_edit_text(
-                        edit_text[: new_edit_pos - 2] +
-                        edit_text[new_edit_pos - 1] +
-                        edit_text[new_edit_pos - 2] +
-                        edit_text[new_edit_pos :])
+                edit_text[: new_edit_pos - 2] +
+                edit_text[new_edit_pos - 1] +
+                edit_text[new_edit_pos - 2] +
+                edit_text[new_edit_pos :])
             self.edit_obj.set_edit_pos(new_edit_pos)
             return None
         # Delete backwards to the beginning of the line.

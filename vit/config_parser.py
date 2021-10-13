@@ -97,7 +97,7 @@ class ConfigParser(object):
     def __init__(self, loader):
         self.loader = loader
         self.config = configparser.SafeConfigParser()
-        self.config.optionxform=str
+        self.config.optionxform = str
         self.user_config_dir = self.loader.user_config_dir
         self.user_config_filepath = '%s/%s' % (self.user_config_dir, VIT_CONFIG_FILE)
         if not self.config_file_exists(self.user_config_filepath):
@@ -272,38 +272,38 @@ class TaskParser(object):
         return list(filter(lambda config_pair: re.match(matcher_regex, config_pair[0]), self.task_config))
 
     def subtree(self, matcher, walk_subtree=True):
-      matcher_regex = matcher
-      if walk_subtree:
-          matcher_regex = r'%s' % (('^%s' % matcher).replace('.', '\.'))
-      full_tree = {}
-      lines = self.filter(matcher_regex)
-      for (hierarchy, value) in lines:
-        # NOTE: This is necessary in order to convert Taskwarrior's dotted
-        # config syntax into a full tree, as some leaves are both branches
-        # and leaves.
-        hierarchy = self.transform_string_leaves(hierarchy)
-        parts = hierarchy.split('.')
-        tree_location = full_tree
-        while True:
-          if len(parts):
-            part = parts.pop(0)
-            if part not in tree_location:
-              tree_location[part] = {} if len(parts) else value
-            tree_location = tree_location[part]
-          else:
-            break
-      if walk_subtree:
-          parts = matcher.split('.')
-          subtree = full_tree
-          while True:
-            if len(parts):
-              part = parts.pop(0)
-              if part in subtree:
-                  subtree = subtree[part]
-            else:
-              return subtree
-      else:
-        return full_tree
+        matcher_regex = matcher
+        if walk_subtree:
+            matcher_regex = r'%s' % (('^%s' % matcher).replace('.', '\.'))
+        full_tree = {}
+        lines = self.filter(matcher_regex)
+        for (hierarchy, value) in lines:
+            # NOTE: This is necessary in order to convert Taskwarrior's dotted
+            # config syntax into a full tree, as some leaves are both branches
+            # and leaves.
+            hierarchy = self.transform_string_leaves(hierarchy)
+            parts = hierarchy.split('.')
+            tree_location = full_tree
+            while True:
+                if len(parts):
+                    part = parts.pop(0)
+                    if part not in tree_location:
+                        tree_location[part] = {} if len(parts) else value
+                    tree_location = tree_location[part]
+                else:
+                    break
+        if walk_subtree:
+            parts = matcher.split('.')
+            subtree = full_tree
+            while True:
+                if len(parts):
+                    part = parts.pop(0)
+                    if part in subtree:
+                        subtree = subtree[part]
+                else:
+                    return subtree
+        else:
+            return full_tree
 
     def parse_sort_column(self, column_string):
         order = collate = None
@@ -338,54 +338,54 @@ class TaskParser(object):
         return self.contexts
 
     def parse_context_filters(self, context, filters):
-            # Filters can be a string (pre-2.6.0 definition, context.work=+work)
-            # or a dict (2.6.0 and newer, context.work.read=+work and
-            # context.work.write=+work).
-            if type(filters) is dict:
-                if 'read' in filters:
-                    filters = filters['read']
-                else:
-                    return []  # Only contexts with read component defined should be considered.
-            filters = shlex.split(re.sub(FILTER_PARENS_REGEX, r' \1 ', filters))
-            final_filters = [f for f in filters if not FILTER_EXCLUSION_REGEX.match(f)]
-            return final_filters
+        # Filters can be a string (pre-2.6.0 definition, context.work=+work)
+        # or a dict (2.6.0 and newer, context.work.read=+work and
+        # context.work.write=+work).
+        if type(filters) is dict:
+            if 'read' in filters:
+                filters = filters['read']
+            else:
+                return []  # Only contexts with read component defined should be considered.
+        filters = shlex.split(re.sub(FILTER_PARENS_REGEX, r' \1 ', filters))
+        final_filters = [f for f in filters if not FILTER_EXCLUSION_REGEX.match(f)]
+        return final_filters
 
     def get_reports(self):
-      reports = {}
-      subtree = self.subtree('report.')
-      for report, attrs in list(subtree.items()):
-        if report in self.disallowed_reports:
-            continue
-        reports[report] = {
-            'name': report,
-            'subproject_indentable': False,
-        }
-        if 'columns' in attrs:
-          reports[report]['columns'] = attrs['columns'].split(',')
-        if 'context' in attrs:
-          reports[report]['context'] = int(attrs['context'])
-        if 'description' in attrs:
-          reports[report]['description'] = attrs['description']
-        if 'filter' in attrs:
-          # Allows quoted strings.
-          # Adjust for missing spaces around parentheses.
-          filters = shlex.split(re.sub(FILTER_PARENS_REGEX, r' \1 ', attrs['filter']))
-          reports[report]['filter'] = [f for f in filters if not FILTER_EXCLUSION_REGEX.match(f)]
-        if 'labels' in attrs:
-          reports[report]['labels'] = attrs['labels'].split(',')
-        else:
-          reports[report]['labels'] = [ column.title() for column in attrs['columns'].split(',') ]
-        if 'sort' in attrs:
-          columns = attrs['sort'].split(',')
-          reports[report]['sort'] = [self.parse_sort_column(c) for c in columns]
-        if 'dateformat' in attrs:
-          reports[report]['dateformat'] = self.translate_date_markers(attrs['dateformat'])
+        reports = {}
+        subtree = self.subtree('report.')
+        for report, attrs in list(subtree.items()):
+            if report in self.disallowed_reports:
+                continue
+            reports[report] = {
+                'name': report,
+                'subproject_indentable': False,
+            }
+            if 'columns' in attrs:
+                reports[report]['columns'] = attrs['columns'].split(',')
+            if 'context' in attrs:
+                reports[report]['context'] = int(attrs['context'])
+            if 'description' in attrs:
+                reports[report]['description'] = attrs['description']
+            if 'filter' in attrs:
+                # Allows quoted strings.
+                # Adjust for missing spaces around parentheses.
+                filters = shlex.split(re.sub(FILTER_PARENS_REGEX, r' \1 ', attrs['filter']))
+                reports[report]['filter'] = [f for f in filters if not FILTER_EXCLUSION_REGEX.match(f)]
+            if 'labels' in attrs:
+                reports[report]['labels'] = attrs['labels'].split(',')
+            else:
+                reports[report]['labels'] = [column.title() for column in attrs['columns'].split(',')]
+            if 'sort' in attrs:
+                columns = attrs['sort'].split(',')
+                reports[report]['sort'] = [self.parse_sort_column(c) for c in columns]
+            if 'dateformat' in attrs:
+                reports[report]['dateformat'] = self.translate_date_markers(attrs['dateformat'])
 
-        self.reports = reports
-        # Another pass is needed after all report data has been parsed.
-        for report_name, report in self.reports.items():
-            self.reports[report_name] = self.rectify_report(report_name, report)
-      return self.reports
+            self.reports = reports
+            # Another pass is needed after all report data has been parsed.
+            for report_name, report in self.reports.items():
+                self.reports[report_name] = self.rectify_report(report_name, report)
+        return self.reports
 
     def rectify_report(self, report_name, report):
         report['subproject_indentable'] = self.has_project_column(report_name) and self.has_primary_project_ascending_sort(report)
