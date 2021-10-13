@@ -362,6 +362,8 @@ class TaskParser(object):
         }
         if 'columns' in attrs:
           reports[report]['columns'] = attrs['columns'].split(',')
+        if 'context' in attrs:
+          reports[report]['context'] = int(attrs['context'])
         if 'description' in attrs:
           reports[report]['description'] = attrs['description']
         if 'filter' in attrs:

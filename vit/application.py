@@ -922,7 +922,7 @@ class Application():
         self.task_config.get_projects()
         self.refresh_blocking_task_uuids()
         self.formatter.recalculate_due_datetimes()
-        context_filters = self.contexts[self.context]['filter'] if self.context else []
+        context_filters = self.contexts[self.context]['filter'] if self.context and self.reports[self.report].get('context', 1) else []
         try:
             self.model.update_report(self.report, context_filters=context_filters, extra_filters=self.extra_filters)
         except VitException as err:
