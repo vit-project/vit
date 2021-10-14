@@ -443,7 +443,7 @@ class Application():
                 if not uuid:
                     uuid = ""
                 kwargs['custom_env'] = {
-                  "VIT_TASK_UUID": uuid,
+                    "VIT_TASK_UUID": uuid,
                 }
                 self.execute_command(args, **kwargs)
             elif command.isdigit():
@@ -745,7 +745,7 @@ class Application():
     def task_action_denotate(self):
         uuid, task = self.get_focused_task()
         if task and task['annotations']:
-                self.denotation_pop_up.open(task)
+            self.denotation_pop_up.open(task)
 
     def task_action_modify(self):
         uuid, _ = self.get_focused_task()
