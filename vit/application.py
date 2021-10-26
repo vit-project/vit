@@ -356,6 +356,7 @@ class Application():
                     if self.execute_command(['task', 'add'] + args, wait=self.wait):
                         task = self.task_get_latest()
                         self.activate_message_bar('Task %s added' % task_id_or_uuid_short(task))
+                        self.focus_new_task(task)
                 elif op == 'modify':
                     # TODO: Will this break if user clicks another list item
                     # before hitting enter?
@@ -380,6 +381,10 @@ class Application():
         self.widget.focus_position = 'body'
         if 'uuid' in metadata:
             self.task_list.focus_by_task_uuid(metadata['uuid'], self.previous_focus_position)
+
+    def focus_new_task(self, task):
+        if self.config.get('vit', 'focus_added_task'):
+            self.task_list.focus_by_task_uuid(task['uuid'], self.previous_focus_position)
 
     def key_pressed(self, key):
         if is_mouse_event(key):
@@ -643,8 +648,6 @@ class Application():
         self.command_bar.activate(caption, metadata, edit_text)
         self.widget.focus_position = 'footer'
 
-    def activate_command_bar_add(self):
-        self.activate_command_bar('add', 'Add: ')
 
     def activate_command_bar_filter(self):
         self.activate_command_bar('filter', 'Filter: ')
@@ -696,6 +699,8 @@ class Application():
     def global_escape(self):
         self.denotation_pop_up.close_pop_up()
 
+    def activate_command_bar_add(self):
+        self.activate_command_bar('add', 'Add: ')
 
     def task_done(self, uuid):
         success, task = self.model.task_done(uuid)
