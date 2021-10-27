@@ -492,7 +492,8 @@ class Application():
             self.task_list.focus_position = new_focus
 
     def search_rows(self, term, start_index=0, reverse=False):
-        search_regex = re.compile(term, re.MULTILINE)
+        escaped_term = re.escape(term)
+        search_regex = re.compile(escaped_term, re.MULTILINE)
         rows = self.table.rows
         current_index = start_index
         last_index = len(rows) - 1
