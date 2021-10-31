@@ -383,7 +383,7 @@ class Application():
             self.task_list.focus_by_task_uuid(metadata['uuid'], self.previous_focus_position)
 
     def focus_new_task(self, task):
-        if self.config.get('vit', 'focus_added_task'):
+        if self.config.get('vit', 'focus_on_add'):
             self.task_list.focus_by_task_uuid(task['uuid'], self.previous_focus_position)
 
     def key_pressed(self, key):
