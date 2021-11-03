@@ -4,13 +4,18 @@ try:
 except:
     import imp
 
-from vit import env
+from vit import env, xdg
 
 DEFAULT_VIT_DIR = '~/.vit'
 
 class Loader(object):
     def __init__(self):
         self.user_config_dir = os.path.expanduser('VIT_DIR' in env.user and env.user['VIT_DIR'] or DEFAULT_VIT_DIR)
+
+        if not os.path.exists(self.user_config_dir):
+            xdg_dir = xdg.get_xdg_config_dir(self.user_config_dir, "vit")
+            if xdg_dir:
+                self.user_config_dir = xdg_dir
 
     def load_user_class(self, module_type, module_name, class_name):
         module = '%s.%s' % (module_type, module_name)

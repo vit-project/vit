@@ -19,7 +19,7 @@ from vit.formatter_base import FormatterBase
 from vit import event
 from vit.loader import Loader
 from vit.config_parser import ConfigParser, TaskParser
-from vit.util import clear_screen, string_to_args, is_mouse_event
+from vit.util import clear_screen, string_to_args, is_mouse_event, task_id_or_uuid_short
 from vit.process import Command
 from vit.task import TaskListModel
 from vit.autocomplete import AutoComplete
@@ -98,7 +98,7 @@ class Application():
         self.context = self.task_config.get_active_context()
 
     def active_context_filter(self):
-        return self.contexts[self.context]['filter'] if self.context else []
+        return self.contexts[self.context]['filter'] if self.context and self.reports[self.report].get('context', 1) else []
 
     def active_view_filters(self):
         # precedence-preserving concatenation of context, report and extra filters
@@ -363,7 +363,8 @@ class Application():
             elif len(args) > 0:
                 if op == 'add':
                     if self.execute_command(['task', 'add'] + args, wait=self.wait):
-                        self.activate_message_bar('Task added')
+                        task = self.task_get_latest()
+                        self.activate_message_bar('Task %s added' % task_id_or_uuid_short(task))
                 elif op == 'modify':
                     # TODO: Will this break if user clicks another list item
                     # before hitting enter?
@@ -469,6 +470,12 @@ class Application():
                     kwargs['wait'] = False
                 else:
                     kwargs['wait'] = True
+                uuid, _ = self.get_focused_task()
+                if not uuid:
+                    uuid = ""
+                kwargs['custom_env'] = {
+                    "VIT_TASK_UUID": uuid,
+                }
                 self.execute_command(args, **kwargs)
             elif command.isdigit():
                 self.task_list.focus_by_task_id(int(command))
@@ -516,7 +523,8 @@ class Application():
             self.task_list.focus_position = new_focus
 
     def search_rows(self, term, start_index=0, reverse=False):
-        search_regex = re.compile(term, re.MULTILINE)
+        escaped_term = re.escape(term)
+        search_regex = re.compile(escaped_term, re.MULTILINE)
         rows = self.table.rows
         current_index = start_index
         last_index = len(rows) - 1
@@ -567,13 +575,12 @@ class Application():
             return False
 
     def get_focused_task(self):
-        if self.widget.focus_position == 'body':
-            try:
-                uuid = self.task_list.focus.uuid
-                task = self.model.get_task(uuid)
-                return uuid, task
-            except:
-                pass
+        try:
+            uuid = self.task_list.focus.uuid
+            task = self.model.get_task(uuid)
+            return uuid, task
+        except:
+            pass
         return False, False
 
     def quit(self):
@@ -680,6 +687,13 @@ class Application():
     def task_sync(self):
         self.execute_command(['task', 'sync'])
 
+    def task_get_latest(self):
+        returncode, stdout, stderr = self.command.run(['task', '+LATEST', 'uuids'], capture_output=True)
+        if returncode == 0:
+            return self.model.get_task(stdout)
+        else:
+            raise RuntimeError("Error retrieving latest task UUID: %s" % stderr)
+
     def activate_command_bar_quit_with_confirm(self):
         if self.confirm:
             self.activate_command_bar('quit', 'Quit?', {'choices': {'y': True}})
@@ -763,7 +777,7 @@ class Application():
     def task_action_denotate(self):
         uuid, task = self.get_focused_task()
         if task and task['annotations']:
-                self.denotation_pop_up.open(task)
+            self.denotation_pop_up.open(task)
 
     def task_action_modify(self):
         uuid, _ = self.get_focused_task()

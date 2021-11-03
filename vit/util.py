@@ -13,9 +13,17 @@ def clear_screen():
 
 def string_to_args(string):
     try:
-      return shlex.split(string)
+        return shlex.split(string)
     except ValueError:
-      return []
+        return []
+
+def string_to_args_on_whitespace(string):
+    try:
+        lex = shlex.shlex(string)
+        lex.whitespace_split = True
+        return list(lex)
+    except ValueError:
+        return []
 
 def is_mouse_event(key):
     return not isinstance(key, str)

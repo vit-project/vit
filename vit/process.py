@@ -1,6 +1,7 @@
 import os
 import re
 import subprocess
+import copy
 
 from vit import env
 from vit.util import clear_screen, string_to_args
@@ -14,11 +15,13 @@ class Command(object):
         self.env = env.user.copy()
         self.env['TASKRC'] = self.config.taskrc_path
 
-    def run(self, command, capture_output=False):
+    def run(self, command, capture_output=False, custom_env={}):
         if isinstance(command, str):
             command = string_to_args(command)
+        env = copy.copy(self.env)
+        env.update(custom_env)
         kwargs = {
-            'env': self.env,
+            'env': env,
         }
         if capture_output:
             kwargs.update({
@@ -36,10 +39,10 @@ class Command(object):
             returncode = 1
         return returncode, stdout, self.filter_errors(returncode, stderr)
 
-    def result(self, command, confirm=DEFAULT_CONFIRM, capture_output=False, print_output=False, clear=True):
+    def result(self, command, confirm=DEFAULT_CONFIRM, capture_output=False, print_output=False, clear=True, custom_env={}):
         if clear:
             clear_screen()
-        returncode, stdout, stderr = self.run(command, capture_output)
+        returncode, stdout, stderr = self.run(command, capture_output, custom_env)
         output = returncode == 0 and stdout or stderr
         if print_output:
             print(output)
