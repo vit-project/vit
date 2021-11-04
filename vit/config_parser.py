@@ -45,6 +45,7 @@ DEFAULTS = {
         'wait': True,
         'mouse': False,
         'abort_backspace': False,
+        'focus_on_add': False,
     },
     'report': {
         'default_report': 'next',
