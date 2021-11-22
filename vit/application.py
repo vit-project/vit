@@ -53,9 +53,12 @@ class MainFrame(urwid.Frame):
         self.action_manager_registrar = self.action_manager.get_registrar()
         self.action_manager_registrar.register('REFRESH', self.refresh)
 
+    def is_default_refresh_key(self, keys):
+        return keys == 'ctrl l'
+
     def keypress(self, size, key):
         keys = self.key_cache.get(key)
-        if self.action_manager_registrar.handled_action(keys):
+        if self.action_manager_registrar.handled_action(keys) and self.is_default_refresh_key(keys):
             # NOTE: Calling refresh directly here to avoid the
             # action-manager:action-executed event, which clobbers the load
             # time currently.
@@ -146,6 +149,10 @@ class Application():
         self.action_manager_registrar = self.action_manager.get_registrar()
         self.action_manager_registrar.register('QUIT', self.quit)
         self.action_manager_registrar.register('QUIT_WITH_CONFIRM', self.activate_command_bar_quit_with_confirm)
+        # NOTE: This is a no-op for the default refresh keybinding, which is
+        # handled by the MainFrame() class. It's included here in case the user
+        # assigns a non-default key to the REFRESH action.
+        self.action_manager_registrar.register('REFRESH', self.refresh)
         self.action_manager_registrar.register('TASK_ADD', self.activate_command_bar_add)
         self.action_manager_registrar.register('REPORT_FILTER', self.activate_command_bar_filter)
         self.action_manager_registrar.register('TASK_UNDO', self.task_undo)
