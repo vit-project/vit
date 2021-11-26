@@ -1,3 +1,24 @@
+##### Fri Nov 26 2021 - released v2.2.0b1
+
+* **Fri Nov 26 2021:** fix #317: Broken links on PyPi
+* **Mon Nov 22 2021:** fix #313: ACTION_REFRESH keybind triggers while entering text
+* **Sun Oct 31 2021:** changed flag name
+* **Wed Oct 27 2021:** add `focus_on_add` configuration parameter, allows focusing on newly added task
+* **Wed Oct 27 2021:** properly escape search terms
+* **Tue Oct 12 2021:** Include 'report.X.context=0' option of tw 2.6.0
+* **Sat Oct 09 2021:** fix #305: vit fails when using new context definition
+* **Wed Oct 06 2021:** bump tasklib min version
+* **Wed Oct 06 2021:** Support XDG_CONFIG_DIR taskrc location
+* **Wed Sep 29 2021:** fix #302: display task id of created task in command bar
+* **Sun Aug 29 2021:** fix #140, fix #230. smarter handling of spaces/quotes in autocomplete
+* **Sun Aug 29 2021:** clarify doc for finding user config directory
+* **Sun Aug 11 2019:** Add support for XDG Base Directory
+* **Thu Jul 15 2021:** set VIT_TASK_UUID environment variable when executing external scripts
+* **Thu Jul 15 2021:** allow passing custom environment variables to external commands
+* **Mon Jun 07 2021:** fix #296: AutoComplete space_escape_regex not initialized for 'wait' command
+* **Tue Mar 16 2021:** fix #287: Incorrect marker width calculation of Unicode symbols can cause markers to not be displayed
+* **Sun Feb 28 2021:** add support for TaskWarrior >= 2.5.2 to changelog
+
 ##### Sun Feb 28 2021 - released v2.1.0
 
 Support for TaskWarrior >= 2.5.2
