@@ -2,7 +2,6 @@
 
 * **Fri Nov 26 2021:** fix #317: Broken links on PyPi
 * **Mon Nov 22 2021:** fix #313: ACTION_REFRESH keybind triggers while entering text
-* **Sun Oct 31 2021:** changed flag name
 * **Wed Oct 27 2021:** add `focus_on_add` configuration parameter, allows focusing on newly added task
 * **Wed Oct 27 2021:** properly escape search terms
 * **Tue Oct 12 2021:** Include 'report.X.context=0' option of tw 2.6.0
