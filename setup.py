@@ -2,10 +2,16 @@ import re
 from setuptools import setup
 from os import path
 
+DEFAULT_BRANCH = "2.x"
+BASE_GITHUB_URL = "https://github.com/vit-project/vit/blob"
+
+MARKUP_LINK_REGEX = "\[([^]]+)\]\(([\w]+\.md)\)"
 FILE_DIR = path.dirname(path.abspath(path.realpath(__file__)))
 
 with open(path.join(FILE_DIR, 'README.md')) as f:
-    README = f.read()
+    readme_contents = f.read()
+    markup_link_substitution = '[\\1](%s/%s/\\2)' % (BASE_GITHUB_URL, DEFAULT_BRANCH)
+    README = re.sub(MARKUP_LINK_REGEX, markup_link_substitution, readme_contents, flags=re.MULTILINE)
 
 with open(path.join(FILE_DIR, 'requirements.txt')) as f:
     INSTALL_PACKAGES = f.read().splitlines()
