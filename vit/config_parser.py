@@ -103,9 +103,9 @@ class ConfigParser(object):
         self.user_config_filepath = '%s/%s' % (self.user_config_dir, VIT_CONFIG_FILE)
         if not self.config_file_exists(self.user_config_filepath):
             self.optional_create_config_file(self.user_config_filepath)
+        self.config.read(self.user_config_filepath)
         self.taskrc_path = self.get_taskrc_path()
         self.validate_taskrc()
-        self.config.read(self.user_config_filepath)
         self.defaults = DEFAULTS
         self.set_config_data()
 
