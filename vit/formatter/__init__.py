@@ -1,6 +1,9 @@
 import math
 from datetime import datetime
-from pytz import timezone
+try:
+    from zoneinfo import ZoneInfo
+except ImportError:
+    from backports.zoneinfo import ZoneInfo
 
 TIME_UNIT_MAP = {
     'seconds': {
@@ -198,7 +201,7 @@ class DateTime(Formatter):
     def iso(self, dt):
         if dt == None:
             return ''
-        dt = dt.replace(tzinfo=timezone('UTC'))
+        dt = dt.replace(tzinfo=ZoneInfo('UTC'))
         return dt.isoformat()
 
 class List(Formatter):

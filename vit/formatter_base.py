@@ -1,7 +1,9 @@
 from importlib import import_module
 from datetime import datetime, timedelta
-from tzlocal import get_localzone
-from pytz import timezone
+try:
+    from zoneinfo import ZoneInfo
+except ImportError:
+    from backports.zoneinfo import ZoneInfo
 
 from vit import util
 from vit import uda
@@ -27,8 +29,8 @@ class FormatterBase(object):
         self.report = self.task_config.translate_date_markers(self.task_config.subtree('dateformat.report')) or self.date_default
         self.annotation = self.task_config.translate_date_markers(self.task_config.subtree('dateformat.annotation')) or self.date_default
         self.description_truncate_len = DEFAULT_DESCRIPTION_TRUNCATE_LEN
-        self.zone = get_localzone()
-        self.epoch_datetime = datetime(1970, 1, 1, tzinfo=timezone('UTC'))
+        self.zone = ZoneInfo('localtime')
+        self.epoch_datetime = datetime(1970, 1, 1, tzinfo=ZoneInfo('UTC'))
         self.due_days = int(self.task_config.subtree('due'))
         self.none_label = config.get('color', 'none_label')
         self.build_indicators()
