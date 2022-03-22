@@ -29,7 +29,6 @@ class FormatterBase(object):
         self.report = self.task_config.translate_date_markers(self.task_config.subtree('dateformat.report')) or self.date_default
         self.annotation = self.task_config.translate_date_markers(self.task_config.subtree('dateformat.annotation')) or self.date_default
         self.description_truncate_len = DEFAULT_DESCRIPTION_TRUNCATE_LEN
-        self.zone = ZoneInfo('localtime')
         self.epoch_datetime = datetime(1970, 1, 1, tzinfo=ZoneInfo('UTC'))
         self.due_days = int(self.task_config.subtree('due'))
         self.none_label = config.get('color', 'none_label')
@@ -99,7 +98,7 @@ class FormatterBase(object):
             return (width, ' ' * space_padding , indicator, subproject)
 
     def recalculate_due_datetimes(self):
-        self.now = datetime.now(self.zone)
+        self.now = datetime.now().astimezone()
         # NOTE: For some reason using self.zone for the tzinfo below results
         # in the tzinfo object having a zone of 'LMT', which is wrong. Using
         # the tzinfo associated with self.now returns the correct value, no
