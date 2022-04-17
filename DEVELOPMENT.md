@@ -37,6 +37,28 @@ data/reporting differently:
  * Reports are generated via custom code in VIT, which allows extra features not found in Taskwarrior. Most report-related settings are read directly from the Taskwarrior configuration, which *mostly* allows a single point of configuration
  * Data is written to Taskwarrior using a combination of ```import``` commands driven by [tasklib](https://github.com/robgolding/tasklib), and CLI calls for more complex scenarios
 
+### Release checklist
+
+For any developer managing VIT releases, here's a simple checklist:
+
+#### Pre-release
+
+ * Check `requirements.txt`, and bump any dependencies if necessary
+ * Check `setup.py`, and bump the minimum Python version if the current version is no longer supported
+
+#### Release
+
+ * Bump the release number in `vit/version.py`
+ * Generate changelog entries using `scripts/generate-changelog-entries.sh`
+ * Add changelog entries to `CHANGES.md`
+ * Commit
+ * Add the proper git tag and push it
+ * Create a Github release for the tag, use the generated changelog entries in the description
+ * Build and publish PyPi releases using `scripts/release-pypi.sh`
+
+#### Post-release
+
+ * Announce on all relevant channels
 
 ### Roadmap
 
