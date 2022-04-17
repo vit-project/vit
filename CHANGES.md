@@ -1,3 +1,11 @@
+##### Sun Apr 17 2022 - released v2.2.0
+
+* **Sun Apr 17 2022:** bump dependency versions
+* **Sun Apr 17 2022:** bump minimum Python version to 3.7
+* **Tue Mar 22 2022:** Simplify timezone handling
+* **Sat Jul 24 2021:** Replace pytz and tzlocal by zoneinfo
+* **Sat Mar 05 2022:** Make vit respect taskrc in config.ini
+
 ##### Fri Nov 26 2021 - released v2.2.0b1
 
 * **Fri Nov 26 2021:** fix #317: Broken links on PyPi
