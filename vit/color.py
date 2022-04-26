@@ -9,6 +9,10 @@ VALID_COLOR_MODIFIERS = [
     'underline',
 ]
 
+INVALID_COLOR_MODIFIERS = [
+    'inverse',
+]
+
 class TaskColorConfig(object):
     """Colorized task output.
     """
@@ -96,6 +100,11 @@ class TaskColorConfig(object):
         remapped_colors = self.map_named_colors(sorted_parts)
         return ','.join(remapped_colors)
 
+    def check_invalid_color_parts(self, color_parts):
+        invalid_color_parts = {*color_parts} & {*INVALID_COLOR_MODIFIERS}
+        if invalid_color_parts:
+            raise ValueError("The following TaskWarrior color definitions are unsupported in VIT: %s -- read the documentation for possible workarounds" % ", ".join(invalid_color_parts))
+
     def map_named_colors(self, color_parts):
         if len(color_parts) > 0 and color_parts[0] in self.task_256_to_urwid_256:
             color_parts[0] = self.task_256_to_urwid_256[color_parts[0]]
@@ -103,7 +112,9 @@ class TaskColorConfig(object):
 
     def make_color_parts(self, foreground, background):
         foreground_parts = self.split_color_parts(foreground)
+        self.check_invalid_color_parts(foreground_parts)
         background_parts = self.split_color_parts(background)
+        self.check_invalid_color_parts(background_parts)
         return foreground_parts, background_parts
 
     def split_color_parts(self, color_parts):
