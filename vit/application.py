@@ -2,6 +2,8 @@
 
 from importlib import import_module
 
+import os
+import signal
 import subprocess
 # TODO: Use regex module for better PCRE support?
 #       https://bitbucket.org/mrabarnett/mrab-regex
@@ -74,8 +76,24 @@ class Application():
         self.load_early_config()
         self.set_report()
         self.setup_main_loop()
+        self.setup_signal_listeners()
         self.refresh(False)
         self.loop.run()
+
+    def setup_signal_listeners(self):
+        pipe = self.loop.watch_pipe(self.async_refresh)
+        def sigusr1_handler(signum, frame):
+            os.write(pipe, b'x')
+        signal.signal(signal.SIGUSR1, sigusr1_handler)
+        def sigterm_handler(signum, frame):
+            self.signal_quit("SIGTERM")
+        signal.signal(signal.SIGTERM, sigterm_handler)
+        def sigint_handler(signum, frame):
+            self.signal_quit("SIGINT")
+        signal.signal(signal.SIGINT, sigint_handler)
+        def sigquit_handler(signum, frame):
+            self.signal_quit("SIGQUIT")
+        signal.signal(signal.SIGQUIT, sigquit_handler)
 
     def load_early_config(self):
         self.config = ConfigParser(self.loader)
@@ -564,6 +582,11 @@ class Application():
             pass
         return False, False
 
+    def signal_quit(self, signal):
+        #import debug
+        #debug.file("VIT received %s signal, quitting" % signal)
+        self.quit()
+
     def quit(self):
         raise urwid.ExitMainLoop()
 
@@ -915,6 +938,9 @@ class Application():
             self.status_tasks_completed.original_widget.set_text(text)
         else:
             raise RuntimeError("Error retrieving completed tasks: %s" % stderr)
+
+    def async_refresh(self, _):
+        self.refresh()
 
     def refresh(self, load_early_config=True):
         self.bootstrap(load_early_config)
