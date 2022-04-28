@@ -19,9 +19,13 @@ class PidManager(object):
     def teardown(self):
         try:
             os.remove(self.pid_file)
-        except OSError as e:
-            if e.errno != errno.ENOENT:
-                raise OSError("could not remove pid file %s" % self.pid_file)
+        # TODO: This needs a little more work to skip errors when no PID file
+        #       exists.
+        #except OSError as e:
+        #    if e.errno != errno.ENOENT:
+        #        raise OSError("could not remove pid file %s" % self.pid_file)
+        except:
+            pass
 
     def _format_pid_dir(self):
         config_pid_dir = self.config.get('vit', 'pid_dir')
