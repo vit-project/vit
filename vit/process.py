@@ -14,7 +14,6 @@ class Command(object):
         self.config = config
         self.env = env.user.copy()
         self.env['TASKRC'] = self.config.taskrc_path
-        self.env['IS_VIT_COMMAND'] = "1"
 
     def run(self, command, capture_output=False, custom_env={}):
         if isinstance(command, str):

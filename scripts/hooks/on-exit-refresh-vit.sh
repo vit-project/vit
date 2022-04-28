@@ -14,7 +14,7 @@ while read modified_task; do
 done
 
 if ((${n} > 0)); then
-  if [ -z "${IS_VIT_COMMAND}" ]; then
+  if [ -z "${IS_VIT_INSTANCE}" ]; then
     logger "Tasks modified outside of VIT: ${n}, refreshing"
     ${REFRESH_SCRIPT}
   fi
