@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
+
 # Auto-refreshes all open VIT interfaces on any modifications.
-# Looks for the special $IS_VIT_COMMAND environment variable,
+# Looks for the special $IS_VIT_INSTANCE environment variable,
 # and if found, skips the refresh.
 
 # Make sure this script is in your PATH and executable, modify as necessary.
