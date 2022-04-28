@@ -46,6 +46,7 @@ DEFAULTS = {
         'mouse': False,
         'abort_backspace': False,
         'focus_on_add': False,
+        'pid_dir': '',
     },
     'report': {
         'default_report': 'next',

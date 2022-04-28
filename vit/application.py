@@ -37,6 +37,7 @@ from vit.command_bar import CommandBar
 from vit.registry import ActionRegistry, RequestReply
 from vit.action_manager import ActionManagerRegistry
 from vit.denotation import DenotationPopupLauncher
+from vit.pid_manager import PidManager
 
 # NOTE: This entire class is a workaround for the fact that urwid catches the
 # 'ctrl l' keypress in its unhandled_input code, and prevents that from being
@@ -78,6 +79,7 @@ class Application():
         self.setup_main_loop()
         self.setup_signal_listeners()
         self.refresh(False)
+        self.setup_pid()
         self.loop.run()
 
     def setup_signal_listeners(self):
@@ -114,6 +116,13 @@ class Application():
             self.loop.screen.set_terminal_properties(colors=256)
         except:
             pass
+
+    def setup_pid(self):
+        self.pid_manager = PidManager(self.config)
+        self.pid_manager.setup()
+
+    def teardown_pid(self):
+        self.pid_manager.teardown()
 
     def set_active_context(self):
         self.context = self.task_config.get_active_context()
@@ -588,6 +597,7 @@ class Application():
         self.quit()
 
     def quit(self):
+        self.teardown_pid()
         raise urwid.ExitMainLoop()
 
     def build_task_table(self):

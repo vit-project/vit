@@ -1,3 +1,4 @@
+import glob
 import sys
 import argparse
 
@@ -34,12 +35,21 @@ parser.add_argument('--list-actions',
       action="store_true",
       help="list all available actions",
 )
+parser.add_argument('--list-pids',
+      dest="list_pids",
+      default=False,
+      action="store_true",
+      help="list all pids found in pid_dir, if configured",
+)
 
 def parse_options():
     options, filters = parser.parse_known_args()
     if options.list_actions:
         list_actions()
         sys.exit(0)
+    elif options.list_pids:
+        ret = list_pids()
+        sys.exit(ret)
     return options, filters
 
 def format_dictionary_list(item, description):
@@ -53,3 +63,29 @@ def list_actions():
     actions = Actions(action_registry)
     actions.register()
     any(format_dictionary_list(action, data['description']) for action, data in actions.get().items())
+
+def _get_pids_from_pid_dir(pid_dir):
+        filepaths = glob.glob("%s/*.pid" % pid_dir)
+        pids = []
+        for filepath in filepaths:
+            try:
+                with open(filepath, 'r') as f:
+                    pids.append(f.read())
+            except IOError:
+                pass
+        return pids
+
+def list_pids():
+    from vit.loader import Loader
+    from vit.config_parser import ConfigParser
+    from vit.pid_manager import PidManager
+    loader = Loader()
+    config = ConfigParser(loader)
+    pid_manager = PidManager(config)
+    if pid_manager.pid_dir:
+        pids = _get_pids_from_pid_dir(pid_manager.pid_dir)
+        print("\n".join(pids))
+        return 0
+    else:
+        print("ERROR: No pid_dir configured")
+        return 1
