@@ -167,4 +167,4 @@ However, VIT provides some basic mechanisms that, when combined, allow for an ea
 
 #### Other refresh scenarios
 
-The basics tools above can be used in other more complex scenarios, such as refreshing VIT's interface after an automated script updates one or more tasks. The implementation details will vary with the use case, and are left as an exercise for the user.
+The basic tools above can be used in other more complex scenarios, such as refreshing VIT's interface after an automated script updates one or more tasks. The implementation details will vary with the use case, and are left as an exercise for the user.
