@@ -143,6 +143,8 @@ This saves a `:` keypress whenever jumping to a task.
 
 ### Auto-refreshing VIT's interface
 
+*Note: Windows unfortunately does not support the `SIGUSR1` signal, so this feature is not currently available in that environment.*
+
 VIT was designed to be used in a request/response manner with the underlying TaskWarrior database, and by default its interface does not refresh when there are other changes happening outside of a specific VIT instance.
 
 However, VIT provides some basic mechanisms that, when combined, allow for an easy implementation of an auto-refreshing interface:
