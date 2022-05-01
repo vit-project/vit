@@ -83,19 +83,25 @@ class Application():
         self.loop.run()
 
     def setup_signal_listeners(self):
-        pipe = self.loop.watch_pipe(self.async_refresh)
-        def sigusr1_handler(signum, frame):
-            os.write(pipe, b'x')
-        signal.signal(signal.SIGUSR1, sigusr1_handler)
-        def sigterm_handler(signum, frame):
-            self.signal_quit("SIGTERM")
-        signal.signal(signal.SIGTERM, sigterm_handler)
-        def sigint_handler(signum, frame):
-            self.signal_quit("SIGINT")
-        signal.signal(signal.SIGINT, sigint_handler)
-        def sigquit_handler(signum, frame):
-            self.signal_quit("SIGQUIT")
-        signal.signal(signal.SIGQUIT, sigquit_handler)
+        # Since not all platforms may have all signals, ensure they are
+        # supported before adding a handler.
+        if hasattr(signal, 'SIGUSR1'):
+            pipe = self.loop.watch_pipe(self.async_refresh)
+            def sigusr1_handler(signum, frame):
+                os.write(pipe, b'x')
+            signal.signal(signal.SIGUSR1, sigusr1_handler)
+        if hasattr(signal, 'SIGTERM'):
+            def sigterm_handler(signum, frame):
+                self.signal_quit("SIGTERM")
+            signal.signal(signal.SIGTERM, sigterm_handler)
+        if hasattr(signal, 'SIGINT'):
+            def sigint_handler(signum, frame):
+                self.signal_quit("SIGINT")
+            signal.signal(signal.SIGINT, sigint_handler)
+        if hasattr(signal, 'SIGQUIT'):
+            def sigquit_handler(signum, frame):
+                self.signal_quit("SIGQUIT")
+            signal.signal(signal.SIGQUIT, sigquit_handler)
 
     def load_early_config(self):
         self.config = ConfigParser(self.loader)
