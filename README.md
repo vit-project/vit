@@ -22,7 +22,7 @@ Visual Interactive Taskwarrior full-screen terminal interface.
 ## Requirements
 
  * [Taskwarrior](https://taskwarrior.org)
- * [Python](https://www.python.org) 3.5+
+ * [Python](https://www.python.org) 3.7+
  * [pip](https://pypi.org/project/pip)
 
 ## Installation
