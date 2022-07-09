@@ -1,5 +1,6 @@
 import unicodedata
 from vit.formatter import Marker
+from vit.util import unicode_len
 
 class Markers(Marker):
     def format(self, _, task):
@@ -36,7 +37,7 @@ class Markers(Marker):
     def add_label(self, color, label, width, text_markup):
         if self.color_required(color) or not label:
             return width, text_markup
-        width += len(label) + len([c for c in label if unicodedata.east_asian_width(c) == 'W'])
+        width += unicode_len(label)
         text_markup += [(color, label)]
         return width, text_markup
 

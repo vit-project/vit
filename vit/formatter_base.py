@@ -7,6 +7,7 @@ except ImportError:
 
 from vit import util
 from vit import uda
+from vit.util import unicode_len
 
 INDICATORS = [
     'active',
@@ -89,12 +90,12 @@ class FormatterBase(object):
     def format_subproject_indented(self, project_parts):
         if len(project_parts) == 1:
             subproject = project_parts[0]
-            return (len(subproject), '', '', subproject)
+            return (unicode_len(subproject), '', '', subproject)
         else:
             subproject = project_parts.pop()
             space_padding = (len(project_parts) * 2) - 1
             indicator = u'\u21aa '
-            width = space_padding + len(indicator) + len(subproject)
+            width = space_padding + unicode_len(indicator) + unicode_len(subproject)
             return (width, ' ' * space_padding , indicator, subproject)
 
     def recalculate_due_datetimes(self):

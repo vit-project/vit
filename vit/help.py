@@ -3,6 +3,7 @@ import re
 import urwid
 
 from vit.base_list_box import BaseListBox
+from vit.util import unicode_len
 
 CURLY_BRACES_REGEX = re.compile("[{}]")
 SPECIAL_KEY_SUBSTITUTIONS = {
@@ -57,8 +58,8 @@ class HelpListBox(BaseListBox):
             'keys': 0,
         }
         for entry in entries:
-            type_len = len(entry[0])
-            keys_len = len(entry[1])
+            type_len = unicode_len(entry[0])
+            keys_len = unicode_len(entry[1])
             if type_len > column_widths['type']:
                 column_widths['type'] = type_len
             if keys_len > column_widths['keys']:

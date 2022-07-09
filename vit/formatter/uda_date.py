@@ -1,5 +1,6 @@
 import datetime
 from vit.formatter import DateTime
+from vit.util import unicode_len
 
 # TODO: Remove this once tasklib bug is fixed.
 from tasklib.serializing import SerializingObject
@@ -13,6 +14,6 @@ class UdaDate(DateTime):
         # https://github.com/robgolding/tasklib/issues/30
         dt = dt if isinstance(dt, datetime.datetime) else serializer.timestamp_deserializer(dt)
         formatted_date = dt.strftime(self.custom_formatter or self.formatter.report)
-        return (len(formatted_date), (self.colorize(dt), formatted_date))
+        return (unicode_len(formatted_date), (self.colorize(dt), formatted_date))
     def colorize(self, dt=None):
         return self.colorizer.uda_date(self.column, dt)

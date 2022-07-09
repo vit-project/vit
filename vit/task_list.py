@@ -13,6 +13,8 @@ from vit import util
 from vit.base_list_box import BaseListBox
 from vit.list_batcher import ListBatcher
 from vit.formatter.project import Project as ProjectFormatter
+from vit.util import unicode_len
+
 
 REDUCE_COLUMN_WIDTH_LIMIT = 20
 COLUMN_PADDING = 2
@@ -248,7 +250,7 @@ class TaskTable(object):
         if isinstance(formatted_value, tuple):
             return formatted_value
         else:
-            width = len(formatted_value) if formatted_value else 0
+            width = unicode_len(formatted_value) if formatted_value else 0
             return width, formatted_value
 
     def subproject_indentable(self):
@@ -329,7 +331,7 @@ class TaskTable(object):
 
     def reconcile_column_width_for_label(self):
         for idx, column in enumerate(self.columns):
-            label_len = len(column['label'])
+            label_len = unicode_len(column['label'])
             if column['width'] < label_len:
                 self.columns[idx]['width'] = label_len
 

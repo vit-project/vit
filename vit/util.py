@@ -4,6 +4,8 @@ import curses
 import shlex
 from functools import reduce
 
+from urwid.str_util import calc_width
+
 curses.setupterm()
 e3_seq = curses.tigetstr('E3') or b''
 clear_screen_seq = curses.tigetstr('clear') or b''
@@ -55,3 +57,6 @@ def file_to_class_name(file_name):
 
 def file_readable(filepath):
     return os.path.isfile(filepath) and os.access(filepath, os.R_OK)
+
+def unicode_len(string):
+    return calc_width(string, 0, len(string))
