@@ -1,12 +1,13 @@
 from functools import reduce
 
 from vit.formatter import String
+from vit.util import unicode_len
 
 class Description(String):
     def format(self, description, task):
         if not description:
             return self.empty()
-        width = len(description)
+        width = unicode_len(description)
         colorized_description = self.colorize_description(description)
         if task['annotations']:
             annotation_width, colorized_description = self.format_combined(colorized_description, task)
@@ -15,7 +16,7 @@ class Description(String):
         return (width, colorized_description)
 
     def format_description_truncated(self, description):
-        return '%s...' % description[:self.formatter.description_truncate_len] if len(description) > self.formatter.description_truncate_len else description
+        return '%s...' % description[:self.formatter.description_truncate_len] if unicode_len(description) > self.formatter.description_truncate_len else description
 
     def format_combined(self, colorized_description, task):
         annotation_width, formatted_annotations = self.format_annotations(task)
@@ -25,7 +26,7 @@ class Description(String):
         def reducer(accum, annotation):
             width, formatted_list = accum
             formatted = self.format_annotation(annotation)
-            new_width = len(formatted)
+            new_width = unicode_len(formatted)
             if new_width > width:
                 width = new_width
             formatted_list.append(formatted)

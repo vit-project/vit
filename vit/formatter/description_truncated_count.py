@@ -1,11 +1,12 @@
 from vit.formatter.description_count import DescriptionCount
+from vit.util import unicode_len
 
 class DescriptionTruncatedCount(DescriptionCount):
     def format(self, description, task):
         if not description:
             return self.empty()
         truncated_description = self.format_description_truncated(description)
-        width = len(truncated_description)
+        width = unicode_len(truncated_description)
         colorized_description = self.colorize_description(truncated_description)
         if not task['annotations']:
             return (width, colorized_description)

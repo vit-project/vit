@@ -1,4 +1,5 @@
 from vit.formatter import String
+from vit.util import unicode_len
 
 class Project(String):
     def __init__(self, column, report, defaults, blocking_task_uuids, **kwargs):
@@ -9,7 +10,7 @@ class Project(String):
         return self.format_project(project, task) if project else self.markup_none(self.colorizer.project_none())
 
     def format_project(self, project, task):
-        return self.format_subproject_indented(project, task) if self.indent_subprojects else (len(project), self.markup_element(project))
+        return self.format_subproject_indented(project, task) if self.indent_subprojects else (unicode_len(project), self.markup_element(project))
 
     def format_subproject_indented(self, project, task):
         parts = project.split('.')

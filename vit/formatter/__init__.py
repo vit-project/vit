@@ -5,6 +5,8 @@ try:
 except ImportError:
     from backports.zoneinfo import ZoneInfo
 
+from vit.util import unicode_len
+
 TIME_UNIT_MAP = {
     'seconds': {
         'label': 's',
@@ -54,7 +56,7 @@ class Formatter(object):
         if not obj:
             return self.empty()
         obj = str(obj)
-        return (len(obj), self.markup_element(obj))
+        return (unicode_len(obj), self.markup_element(obj))
 
     def empty(self):
         return (0, '')
@@ -64,7 +66,7 @@ class Formatter(object):
 
     def markup_none(self, color):
         if color:
-            return (len(self.formatter.none_label), (color, self.formatter.none_label))
+            return (unicode_len(self.formatter.none_label), (color, self.formatter.none_label))
         else:
             return self.empty()
 
@@ -97,7 +99,7 @@ class Duration(Formatter):
         if not obj:
             return self.empty()
         formatted_duration = self.format_duration(obj)
-        return (len(formatted_duration), self.markup_element(obj, formatted_duration))
+        return (unicode_len(formatted_duration), self.markup_element(obj, formatted_duration))
 
     def format_duration(self, obj):
         return obj
@@ -114,7 +116,7 @@ class DateTime(Formatter):
         if not dt:
             return self.empty()
         formatted_date = self.format_datetime(dt, task)
-        return (len(formatted_date), self.markup_element(dt, formatted_date, task))
+        return (unicode_len(formatted_date), self.markup_element(dt, formatted_date, task))
 
     def format_datetime(self, dt, task):
         return dt.strftime(self.custom_formatter or self.formatter.report)
@@ -210,7 +212,7 @@ class List(Formatter):
         if not obj:
             return self.empty()
         formatted = self.format_list(obj, task)
-        return (len(formatted), self.markup_element(obj, formatted))
+        return (unicode_len(formatted), self.markup_element(obj, formatted))
 
     def markup_element(self, obj, formatted):
         return (self.colorize(obj), formatted)
