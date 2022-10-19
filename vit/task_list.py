@@ -153,10 +153,14 @@ class TaskTable(object):
             position = self.listbox.focus_position
         self.list_walker[position].row.set_attr_map({None: attr})
 
-    def flash_focus(self, repeat_times=2, pause_seconds=0.1):
+    def flash_focus(self, repeat_times=None, pause_seconds=None):
+        if repeat_times is None:
+            repeat_times = self.config.get_flash_focus_repeat_times()
+        if pause_seconds is None:
+            pause_seconds = self.config.get_flash_focus_pause_seconds()
         if self.listbox.focus:
             position = self.listbox.focus_position if self.listbox.focus_position is not None else self.listbox.previous_focus_position if self.listbox.previous_focus_position is not None else None
-            if position is not None:
+            if position is not None and repeat_times > 0:
                 self.update_focus_attr('flash on', position)
                 self.draw_screen()
                 for i in repeat(None, repeat_times):

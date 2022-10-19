@@ -47,6 +47,8 @@ DEFAULTS = {
         'abort_backspace': False,
         'focus_on_add': False,
         'pid_dir': '',
+        'flash_focus_repeat_times': 2,
+        'flash_focus_pause_seconds': 0.1,
     },
     'report': {
         'default_report': 'next',
@@ -166,7 +168,7 @@ configuration.
         try:
             value = self.config.get(section, key)
             return self.transform(key, value, default)
-        except (configparser.NoSectionError, configparser.NoOptionError):
+        except (configparser.NoSectionError, configparser.NoOptionError, ValueError):
             return default
 
     def items(self, section):
@@ -181,11 +183,21 @@ configuration.
     def transform(self, key, value, default):
         if isinstance(default, bool):
             return self.transform_bool(value)
+        elif isinstance(default, int):
+            return self.transform_int(value)
+        elif isinstance(default, float):
+            return self.transform_float(value)
         else:
             return value
 
     def transform_bool(self, value):
         return True if CONFIG_BOOLEAN_TRUE_REGEX.match(value) else False
+
+    def transform_int(self, value):
+        return int(value)
+
+    def transform_float(self, value):
+        return float(value)
 
     def get_taskrc_path(self):
         taskrc_path = os.path.expanduser('TASKRC' in env.user and env.user['TASKRC'] or self.get('taskwarrior', 'taskrc'))
@@ -211,6 +223,12 @@ configuration.
 
     def is_mouse_enabled(self):
         return self.get('vit', 'mouse')
+
+    def get_flash_focus_repeat_times(self):
+        return self.get('vit', 'flash_focus_repeat_times')
+
+    def get_flash_focus_pause_seconds(self):
+        return self.get('vit', 'flash_focus_pause_seconds')
 
 class TaskParser(object):
     def __init__(self, config):
