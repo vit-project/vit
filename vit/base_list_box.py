@@ -71,11 +71,13 @@ class BaseListBox(urwid.ListBox):
         self.keypress(size, '<Page Down>')
 
     def keypress_home(self, size):
-        self.set_focus(0)
+        if len(self.body) > 0:
+            self.set_focus(0)
 
     def keypress_end(self, size):
-        self.set_focus(len(self.body) - 1)
-        self.set_focus_valign('bottom')
+        if len(self.body) > 0:
+            self.set_focus(len(self.body) - 1)
+            self.set_focus_valign('bottom')
 
     def keypress_screen_top(self, size):
         top, _, _ = self.get_top_middle_bottom_rows(size)
@@ -93,8 +95,9 @@ class BaseListBox(urwid.ListBox):
             self.set_focus(bottom.position)
 
     def keypress_focus_valign_center(self, size):
-        self.set_focus(self.focus_position)
-        self.set_focus_valign('middle')
+        if len(self.body) > 0:
+            self.set_focus(self.focus_position)
+            self.set_focus_valign('middle')
 
     def transform_special_keys(self, key):
         # NOTE: These are special key presses passed to allow navigation

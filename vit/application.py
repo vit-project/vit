@@ -542,20 +542,21 @@ class Application():
         rows = self.table.rows
         current_index = start_index
         last_index = len(rows) - 1
-        start_matches = self.search_row_has_search_term(rows[start_index], search_regex)
-        current_index = self.search_increment_index(current_index, reverse)
-        while True:
-            if reverse and current_index < 0:
-                self.search_loop_warning('TOP', reverse)
-                current_index = last_index
-            elif not reverse and current_index > last_index:
-                self.search_loop_warning('BOTTOM', reverse)
-                current_index = 0
-            if self.search_row_has_search_term(rows[current_index], search_regex):
-                return current_index
-            if current_index == start_index:
-                return start_index if start_matches else None
+        if len(rows) > 0:
+            start_matches = self.search_row_has_search_term(rows[start_index], search_regex)
             current_index = self.search_increment_index(current_index, reverse)
+            while True:
+                if reverse and current_index < 0:
+                    self.search_loop_warning('TOP', reverse)
+                    current_index = last_index
+                elif not reverse and current_index > last_index:
+                    self.search_loop_warning('BOTTOM', reverse)
+                    current_index = 0
+                if self.search_row_has_search_term(rows[current_index], search_regex):
+                    return current_index
+                if current_index == start_index:
+                    return start_index if start_matches else None
+                current_index = self.search_increment_index(current_index, reverse)
 
     def search_increment_index(self, current_index, reverse=False):
         return current_index + (-1 if reverse else 1)
