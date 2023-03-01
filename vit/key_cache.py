@@ -3,7 +3,7 @@ from functools import reduce
 class KeyCacheError(Exception):
     pass
 
-class KeyCache(object):
+class KeyCache:
     def __init__(self, keybindings):
         self.keybindings = keybindings
         self.cached_keys = ''

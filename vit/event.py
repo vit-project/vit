@@ -1,5 +1,5 @@
 # TODO: Use urwid signals instead of custom event emitter?
-class Emitter(object):
+class Emitter:
     """Simple event listener/emitter.
     """
     def __init__(self):

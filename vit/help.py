@@ -79,7 +79,7 @@ class HelpListBox(BaseListBox):
     def eat_other_keybindings(self):
         return True
 
-class Help(object):
+class Help:
     """Generates help list/display.
     """
     def __init__(self, keybinding_parser, actions, event=None, request_reply=None, action_manager=None):

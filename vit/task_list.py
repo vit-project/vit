@@ -20,7 +20,7 @@ REDUCE_COLUMN_WIDTH_LIMIT = 20
 COLUMN_PADDING = 2
 MARKER_COLUMN_NAME = 'markers'
 
-class TaskTable(object):
+class TaskTable:
 
     def __init__(self, config, task_config, formatter, screen, on_select=None, event=None, action_manager=None, request_reply=None, markers=None, draw_screen_callback=None):
         self.config = config

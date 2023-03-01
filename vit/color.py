@@ -13,7 +13,7 @@ INVALID_COLOR_MODIFIERS = [
     'inverse',
 ]
 
-class TaskColorConfig(object):
+class TaskColorConfig:
     """Colorized task output.
     """
     def __init__(self, config, task_config, theme, theme_alt_backgrounds):
@@ -134,8 +134,8 @@ class TaskColorConfig(object):
                 return 0
         return sorted(color_parts, key=cmp_to_key(comparator))
 
-class TaskColorizer(object):
-    class Decorator(object):
+class TaskColorizer:
+    class Decorator:
         def color_enabled(func):
             @wraps(func)
             def verify_color_enabled(self, *args, **kwargs):

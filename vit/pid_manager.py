@@ -1,7 +1,7 @@
 import os
 import errno
 
-class PidManager(object):
+class PidManager:
     """Simple process ID manager.
     """
     def __init__(self, config):

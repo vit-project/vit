@@ -1,6 +1,6 @@
 import uuid
 
-class ActionManagerRegistrar(object):
+class ActionManagerRegistrar:
     def __init__(self, registry):
         self.registry = registry
         self.uuid = uuid.uuid4()
@@ -37,7 +37,7 @@ class ActionManagerRegistrar(object):
             return actions[keybindings[keys]['action_name']]
         return None
 
-class ActionManagerRegistry(object):
+class ActionManagerRegistry:
     def __init__(self, action_registry, keybindings, event=None):
         self.actions = {}
         self.action_registry = action_registry

@@ -94,7 +94,7 @@ Here's a minimal example:
 
 ```python
 # keybinding/keybinding.py
-class Keybinding(object):
+class Keybinding:
     def replacements(self):
         def _custom_match(variable):
             if variable == 'TEST':

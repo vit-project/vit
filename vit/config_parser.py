@@ -97,7 +97,7 @@ DATE_FORMAT_MAPPING = {
     'J': '%j',                           # 3 digit day of year number, sometimes referred to as a Julian date, eg '001', '011', or '365'
 }
 
-class ConfigParser(object):
+class ConfigParser:
     def __init__(self, loader):
         self.loader = loader
         self.config = configparser.SafeConfigParser()
@@ -230,7 +230,7 @@ configuration.
     def get_flash_focus_pause_seconds(self):
         return self.get('vit', 'flash_focus_pause_seconds')
 
-class TaskParser(object):
+class TaskParser:
     def __init__(self, config):
         self.config = config
         self.task_config = []
