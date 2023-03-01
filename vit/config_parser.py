@@ -18,9 +18,9 @@ from vit.process import Command
 SORT_ORDER_CHARACTERS = ['+', '-']
 SORT_COLLATE_CHARACTERS = ['/']
 VIT_CONFIG_FILE = 'config.ini'
-FILTER_EXCLUSION_REGEX = re.compile('^limit:')
-FILTER_PARENS_REGEX = re.compile('([\(\)])')
-CONFIG_BOOLEAN_TRUE_REGEX = re.compile('1|yes|true', re.IGNORECASE)
+FILTER_EXCLUSION_REGEX = re.compile(r'^limit:')
+FILTER_PARENS_REGEX = re.compile(r'([\(\)])')
+CONFIG_BOOLEAN_TRUE_REGEX = re.compile(r'1|yes|true', re.IGNORECASE)
 # TaskParser expects clean hierarchies in the Taskwarrior dotted config names.
 # However, this is occasionally violated, with a leaf ending in both a string
 # value and another branch. The below list contains the config values that
@@ -294,7 +294,7 @@ class TaskParser(object):
     def subtree(self, matcher, walk_subtree=True):
         matcher_regex = matcher
         if walk_subtree:
-            matcher_regex = r'%s' % (('^%s' % matcher).replace('.', '\.'))
+            matcher_regex = r'%s' % (('^%s' % matcher).replace(r'.', r'\.'))
         full_tree = {}
         lines = self.filter(matcher_regex)
         for (hierarchy, value) in lines:

@@ -28,7 +28,7 @@ class TaskColorConfig(object):
         # without pipes, the 'color' config setting in Taskwarrior is not used, and
         # instead a custom setting is used.
         self.color_enabled = self.config.get('color', 'enabled')
-        self.display_attrs_available, self.display_attrs = self.convert_color_config(self.task_config.filter_to_dict('^color\.'))
+        self.display_attrs_available, self.display_attrs = self.convert_color_config(self.task_config.filter_to_dict(r'^color\.'))
         self.project_display_attrs = self.get_project_display_attrs()
         if self.include_subprojects:
             self.add_project_children()

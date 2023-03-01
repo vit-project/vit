@@ -5,7 +5,7 @@ from os import path
 DEFAULT_BRANCH = "2.x"
 BASE_GITHUB_URL = "https://github.com/vit-project/vit/blob"
 
-MARKUP_LINK_REGEX = "\[([^]]+)\]\(([\w]+\.md)\)"
+MARKUP_LINK_REGEX = r"\[([^]]+)\]\(([\w]+\.md)\)"
 FILE_DIR = path.dirname(path.abspath(path.realpath(__file__)))
 
 with open(path.join(FILE_DIR, 'README.md')) as f:

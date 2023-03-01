@@ -216,7 +216,7 @@ class Application():
     def default_keybinding_replacements(self):
         import json
         from datetime import datetime
-        task_replacement_match = re.compile("^TASK_(\w+)$")
+        task_replacement_match = re.compile(r"^TASK_(\w+)$")
         def _task_attribute_match(variable):
             matches = re.match(task_replacement_match, variable)
             if matches:
