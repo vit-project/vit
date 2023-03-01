@@ -21,7 +21,7 @@ with open(path.join(FILE_DIR, 'vit', 'version.py')) as f:
 
 setup(
     name='vit',
-    packages=['vit', 'vit.formatter', 'vit.theme'],
+    packages=['vit', 'vit.config', 'vit.formatter', 'vit.keybinding', 'vit.theme'],
     description="Visual Interactive Taskwarrior full-screen terminal interface",
     long_description=README,
     long_description_content_type='text/markdown',
