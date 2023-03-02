@@ -70,7 +70,7 @@ class MainFrame(urwid.Frame):
         else:
             return super().keypress(size, key)
 
-class Application():
+class Application:
     def __init__(self, option, filters):
         self.extra_filters = filters
         self.loader = Loader()

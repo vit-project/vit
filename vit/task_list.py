@@ -394,7 +394,7 @@ class TaskTable:
         if grew > 0:
             self.batcher.add(grew)
 
-class TaskRow():
+class TaskRow:
     def __init__(self, task, data, alt_row):
         self.task = task
         self.data = data
@@ -402,7 +402,7 @@ class TaskRow():
         self.uuid = self.task['uuid']
         self.id = self.task['id']
 
-class ProjectRow():
+class ProjectRow:
     def __init__(self, project, placeholder, alt_row):
         self.project = project
         self.placeholder = placeholder
