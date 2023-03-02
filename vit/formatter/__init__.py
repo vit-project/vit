@@ -44,7 +44,7 @@ TIME_UNIT_MAP = {
      },
 }
 
-class Formatter(object):
+class Formatter:
     def __init__(self, column, report, formatter_base, blocking_task_uuids, **kwargs):
         self.column = column
         self.report = report

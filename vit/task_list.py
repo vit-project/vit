@@ -20,7 +20,7 @@ REDUCE_COLUMN_WIDTH_LIMIT = 20
 COLUMN_PADDING = 2
 MARKER_COLUMN_NAME = 'markers'
 
-class TaskTable(object):
+class TaskTable:
 
     def __init__(self, config, task_config, formatter, screen, on_select=None, event=None, action_manager=None, request_reply=None, markers=None, draw_screen_callback=None):
         self.config = config
@@ -394,7 +394,7 @@ class TaskTable(object):
         if grew > 0:
             self.batcher.add(grew)
 
-class TaskRow():
+class TaskRow:
     def __init__(self, task, data, alt_row):
         self.task = task
         self.data = data
@@ -402,7 +402,7 @@ class TaskRow():
         self.uuid = self.task['uuid']
         self.id = self.task['id']
 
-class ProjectRow():
+class ProjectRow:
     def __init__(self, project, placeholder, alt_row):
         self.project = project
         self.placeholder = placeholder

@@ -13,7 +13,7 @@ INVALID_COLOR_MODIFIERS = [
     'inverse',
 ]
 
-class TaskColorConfig(object):
+class TaskColorConfig:
     """Colorized task output.
     """
     def __init__(self, config, task_config, theme, theme_alt_backgrounds):
@@ -28,7 +28,7 @@ class TaskColorConfig(object):
         # without pipes, the 'color' config setting in Taskwarrior is not used, and
         # instead a custom setting is used.
         self.color_enabled = self.config.get('color', 'enabled')
-        self.display_attrs_available, self.display_attrs = self.convert_color_config(self.task_config.filter_to_dict('^color\.'))
+        self.display_attrs_available, self.display_attrs = self.convert_color_config(self.task_config.filter_to_dict(r'^color\.'))
         self.project_display_attrs = self.get_project_display_attrs()
         if self.include_subprojects:
             self.add_project_children()
@@ -134,8 +134,8 @@ class TaskColorConfig(object):
                 return 0
         return sorted(color_parts, key=cmp_to_key(comparator))
 
-class TaskColorizer(object):
-    class Decorator(object):
+class TaskColorizer:
+    class Decorator:
         def color_enabled(func):
             @wraps(func)
             def verify_color_enabled(self, *args, **kwargs):

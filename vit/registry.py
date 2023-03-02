@@ -1,6 +1,6 @@
 import uuid
 
-class ActionRegistrar(object):
+class ActionRegistrar:
     def __init__(self, registry):
         self.registry = registry
         self.uuid = uuid.uuid4()
@@ -17,7 +17,7 @@ class ActionRegistrar(object):
     def actions(self):
         return self.registry.get_registered(self.uuid)
 
-class ActionRegistry(object):
+class ActionRegistry:
     def __init__(self):
         self.actions = {}
         self.noop_action_name = 'NOOP'
@@ -48,7 +48,7 @@ class ActionRegistry(object):
     def noop(self):
         pass
 
-class RequestReply(object):
+class RequestReply:
     def __init__(self):
         self.handlers = {}
 

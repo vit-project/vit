@@ -5,7 +5,7 @@ import re
 from vit import util
 from vit.process import Command
 
-class AutoComplete(object):
+class AutoComplete:
 
     def __init__(self, config, default_filters=None, extra_filters=None):
         self.default_filters = default_filters or ('column', 'project', 'tag')

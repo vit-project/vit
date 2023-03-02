@@ -95,7 +95,7 @@ class CommandBar(urwid.Edit):
     def set_edit_text_callback(self):
         return self.set_edit_text
 
-class CommandBarHistory(object):
+class CommandBarHistory:
     """Holds command-specific history for the command bar.
     """
     def __init__(self):

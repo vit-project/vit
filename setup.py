@@ -5,7 +5,7 @@ from os import path
 DEFAULT_BRANCH = "2.x"
 BASE_GITHUB_URL = "https://github.com/vit-project/vit/blob"
 
-MARKUP_LINK_REGEX = "\[([^]]+)\]\(([\w]+\.md)\)"
+MARKUP_LINK_REGEX = r"\[([^]]+)\]\(([\w]+\.md)\)"
 FILE_DIR = path.dirname(path.abspath(path.realpath(__file__)))
 
 with open(path.join(FILE_DIR, 'README.md')) as f:
@@ -21,7 +21,7 @@ with open(path.join(FILE_DIR, 'vit', 'version.py')) as f:
 
 setup(
     name='vit',
-    packages=['vit', 'vit.formatter', 'vit.theme'],
+    packages=['vit', 'vit.config', 'vit.formatter', 'vit.keybinding', 'vit.theme'],
     description="Visual Interactive Taskwarrior full-screen terminal interface",
     long_description=README,
     long_description_content_type='text/markdown',

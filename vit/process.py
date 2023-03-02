@@ -8,7 +8,7 @@ from vit.util import clear_screen, string_to_args
 
 DEFAULT_CONFIRM = 'Press Enter to continue...'
 
-class Command(object):
+class Command:
 
     def __init__(self, config):
         self.config = config

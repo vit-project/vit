@@ -70,7 +70,7 @@ class MainFrame(urwid.Frame):
         else:
             return super().keypress(size, key)
 
-class Application():
+class Application:
     def __init__(self, option, filters):
         self.extra_filters = filters
         self.loader = Loader()
@@ -216,7 +216,7 @@ class Application():
     def default_keybinding_replacements(self):
         import json
         from datetime import datetime
-        task_replacement_match = re.compile("^TASK_(\w+)$")
+        task_replacement_match = re.compile(r"^TASK_(\w+)$")
         def _task_attribute_match(variable):
             matches = re.match(task_replacement_match, variable)
             if matches:

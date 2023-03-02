@@ -3,7 +3,7 @@ DEFAULT_BATCH_SIZE=100
 class ListBatchError(Exception):
     pass
 
-class ListBatcher(object):
+class ListBatcher:
     def __init__(self, batch_from, batch_to, batch_to_formatter=None, default_batch_size=DEFAULT_BATCH_SIZE):
         self.batch_from = batch_from
         self.batch_to = batch_to

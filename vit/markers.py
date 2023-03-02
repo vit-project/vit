@@ -33,7 +33,7 @@ LABEL_DEFAULTS = {
     'until.label': '(U)',
 }
 
-class Markers(object):
+class Markers:
     def __init__(self, config, task_config):
         self.config = config
         self.task_config = task_config

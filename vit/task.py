@@ -8,7 +8,7 @@ from tasklib.backends import TaskWarriorException
 from vit import util
 from vit.exception import VitException
 
-class TaskListModel(object):
+class TaskListModel:
     def __init__(self, task_config, reports, report=None, data_location=None):
 
         if not data_location:

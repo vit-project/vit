@@ -8,7 +8,7 @@ from vit import env, xdg
 
 DEFAULT_VIT_DIR = '~/.vit'
 
-class Loader(object):
+class Loader:
     def __init__(self):
         self.user_config_dir = os.path.expanduser('VIT_DIR' in env.user and env.user['VIT_DIR'] or DEFAULT_VIT_DIR)
 

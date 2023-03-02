@@ -1,7 +1,7 @@
 import string
 import re
 
-class Readline(object):
+class Readline:
     def __init__(self, edit_obj):
         self.edit_obj = edit_obj
         word_chars = string.ascii_letters + string.digits + "_"

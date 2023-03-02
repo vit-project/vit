@@ -19,7 +19,7 @@ UDA_DEFAULT_INDICATOR = 'U'
 
 DEFAULT_DESCRIPTION_TRUNCATE_LEN=20
 
-class FormatterBase(object):
+class FormatterBase:
     def __init__(self, loader, config, task_config, markers, task_colorizer):
         self.loader = loader
         self.config = config

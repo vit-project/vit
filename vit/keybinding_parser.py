@@ -23,7 +23,7 @@ CONFIG_SPECIAL_KEY_SUBSTITUTIONS = {
 class KeybindingError(Exception):
     pass
 
-class KeybindingParser(object):
+class KeybindingParser:
     def __init__(self, loader, config, action_registry):
         self.loader = loader
         self.config = config

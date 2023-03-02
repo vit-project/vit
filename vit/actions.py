@@ -1,4 +1,4 @@
-class Actions(object):
+class Actions:
 
     def __init__(self, action_registry):
         self.action_registry = action_registry
