@@ -1,3 +1,25 @@
+##### Thu Apr 13 2023 - released v2.3.0
+
+* **Sat Oct 22 2022:** Fixing IndexErrors in functions
+* **Wed Oct 19 2022:** Allow flash configuration
+* **Sat Jul 09 2022:** correctly calculate text width of full-width characters
+* **Sun May 08 2022:** Fix required minimum Python version
+* **Sun May 01 2022:** add note that windows doesn't support SIGUSR1 signal
+* **Sun May 01 2022:** test for signal before adding handler
+* **Fri Apr 29 2022:** add documentation for auto-refresh configuration
+* **Thu Apr 28 2022:** fix bad variable reference
+* **Thu Apr 28 2022:** place IS_VIT_INSTANCE into environ earlier
+* **Thu Apr 28 2022:** example hook for intelligent VIT refresh
+* **Thu Apr 28 2022:** inject  environment variable
+* **Wed Apr 27 2022:** skip pid teardown if pid_dir not set
+* **Wed Apr 27 2022:** sample script to externally refresh VIT instances
+* **Wed Apr 27 2022:** add Bash function example for vit wrapper
+* **Wed Apr 27 2022:** skip raising error on not deleting pid file for now
+* **Wed Apr 27 2022:** add pid_dir option to [vit] section See sample config.ini for details on usage
+* **Wed Apr 27 2022:** add basic signal support SIGUSR1: refresh (equivalent to hitting refresh key in VIT) SIGTERM/SIGINT/SIGQUIT: quit VIT cleanly
+* **Tue Apr 26 2022:** more user-friendly error message for unsupported color definitions
+* **Sun Apr 17 2022:** add simple release checklist
+
 ##### Sun Apr 17 2022 - released v2.2.0
 
 * **Sun Apr 17 2022:** bump dependency versions
