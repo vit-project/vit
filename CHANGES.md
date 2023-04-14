@@ -1,5 +1,9 @@
 ##### Thu Apr 13 2023 - released v2.3.0
 
+* **Wed Mar 01 2023:** List vit.config and vit.keybinding in packages
+* **Thu Mar 02 2023:** Remove some unnecessary parenthesis from class definitions
+* **Wed Mar 01 2023:** Remove inherits from object
+* **Wed Mar 01 2023:** Use r-prefix when necessary
 * **Sat Oct 22 2022:** Fixing IndexErrors in functions
 * **Wed Oct 19 2022:** Allow flash configuration
 * **Sat Jul 09 2022:** correctly calculate text width of full-width characters
