@@ -1,3 +1,7 @@
+##### Sat Jun 24 2023 - released v2.3.1
+
+* **Sat Jun 24 2023:** fix #339: urwid.str_util import fails on some distros
+
 ##### Thu Apr 13 2023 - released v2.3.0
 
 * **Wed Mar 01 2023:** List vit.config and vit.keybinding in packages
