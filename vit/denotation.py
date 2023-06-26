@@ -10,6 +10,7 @@ class AnnotationFrame(urwid.Frame):
     def __init__(self, body, **kwargs):
         self.listbox = body.original_widget
         return super().__init__(body, **kwargs)
+
     def keypress(self, size, key):
         """Overrides Frame.keypress method.
         """
@@ -124,7 +125,7 @@ class DenotationPopUpDialog(urwid.WidgetWrap):
             lambda button:self._emit("close"))
         frame = AnnotationFrame(
             urwid.Padding(self.listbox, left=1, right=1),
-            header=urwid.Text("Select the annotation, then select 'Denotate'\n"),
+            header=urwid.Text("Select the annotation, then select 'Denotate'\nTab to move focus between list/buttons\n"),
             footer=urwid.Columns([urwid.Padding(denotate_button, left=5, right=6), urwid.Padding(cancel_button, left=6, right=5)]),
         )
         padded_frame = urwid.Padding(frame, left=1, right=1)
