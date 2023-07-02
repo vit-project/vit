@@ -3,7 +3,7 @@ import os
 from vit import env
 
 
-def get_xdg_config_dir(user_config_dir, resource):
+def check_for_existing_xdg_configs(resource):
     xdg_config_home = env.user.get("XDG_CONFIG_HOME") or os.path.join(
         os.path.expanduser("~"), ".config"
     )

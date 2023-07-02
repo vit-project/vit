@@ -17,7 +17,6 @@ from vit.process import Command
 
 SORT_ORDER_CHARACTERS = ['+', '-']
 SORT_COLLATE_CHARACTERS = ['/']
-VIT_CONFIG_FILE = 'config.ini'
 FILTER_EXCLUSION_REGEX = re.compile(r'^limit:')
 FILTER_PARENS_REGEX = re.compile(r'([\(\)])')
 CONFIG_BOOLEAN_TRUE_REGEX = re.compile(r'1|yes|true', re.IGNORECASE)
@@ -102,15 +101,15 @@ class ConfigParser:
         self.loader = loader
         self.config = configparser.SafeConfigParser()
         self.config.optionxform = str
-        self.user_config_dir = self.loader.user_config_dir
-        self.user_config_filepath = '%s/%s' % (self.user_config_dir, VIT_CONFIG_FILE)
-        if not self.config_file_exists(self.user_config_filepath):
-            self.optional_create_config_file(self.user_config_filepath)
-        self.config.read(self.user_config_filepath)
+        self.vit_config = self.loader.user_config_file
+        if not self.config_file_exists(self.vit_config):
+            self.optional_create_config_file(self.vit_config)
+        self.config.read(self.vit_config)
         self.taskrc_path = self.get_taskrc_path()
         self.validate_taskrc()
         self.defaults = DEFAULTS
         self.set_config_data()
+
 
     def set_config_data(self):
         self.subproject_indentable = self.is_subproject_indentable()
@@ -203,7 +202,7 @@ configuration.
         taskrc_path = os.path.expanduser('TASKRC' in env.user and env.user['TASKRC'] or self.get('taskwarrior', 'taskrc'))
 
         if not os.path.exists(taskrc_path):
-            xdg_dir = xdg.get_xdg_config_dir(taskrc_path, "task")
+            xdg_dir = xdg.check_for_existing_xdg_configs("task")
             if xdg_dir:
                 taskrc_path = os.path.join(xdg_dir, "taskrc")
 

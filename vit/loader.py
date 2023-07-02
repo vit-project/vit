@@ -1,21 +1,34 @@
 import os
-try:
-    import importlib.util
-except:
-    import imp
+import importlib.util
+from pathlib import Path
+from xdg_base_dirs import xdg_config_home
 
-from vit import env, xdg
-
-DEFAULT_VIT_DIR = '~/.vit'
 
 class Loader:
-    def __init__(self):
-        self.user_config_dir = os.path.expanduser('VIT_DIR' in env.user and env.user['VIT_DIR'] or DEFAULT_VIT_DIR)
 
-        if not os.path.exists(self.user_config_dir):
-            xdg_dir = xdg.get_xdg_config_dir(self.user_config_dir, "vit")
-            if xdg_dir:
-                self.user_config_dir = xdg_dir
+    def __init__(self):
+        VIT_CONFIG_FILE = "config.ini"
+        # Set the correct vit config file location.
+        # VIT searches for the user directory in this order of priority:
+        # 1. The VIT_DIR environment variable
+        # 2. ~/.vit (the old default location)
+        # 3.  A vit directory in any valid XDG base directory (the new default location)
+        old_default_vit_config = os.path.join(os.path.expanduser("~/.vit"), VIT_CONFIG_FILE)
+        if os.getenv("VIT_DIR"):
+            default_vit_dir = os.getenv("VIT_DIR")
+            config_path = os.path.join(default_vit_dir, VIT_CONFIG_FILE)
+            os.makedirs(default_vit_dir, exist_ok=True)
+            self.user_config_file = config_path
+        elif os.path.exists(old_default_vit_config):
+            self.user_config_file = old_default_vit_config
+        else:
+            vit_xdg_config_home = os.path.join(xdg_config_home(), 'vit')
+            xdg_config_file = os.path.join(vit_xdg_config_home, VIT_CONFIG_FILE)
+            os.makedirs(vit_xdg_config_home, exist_ok=True)
+            self.user_config_file = xdg_config_file
+
+        self.user_config_dir = os.path.dirname(self.user_config_file)
+
 
     def load_user_class(self, module_type, module_name, class_name):
         module = '%s.%s' % (module_type, module_name)
