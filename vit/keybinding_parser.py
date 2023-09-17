@@ -31,7 +31,7 @@ class KeybindingParser:
         self.actions = self.action_registry.get_actions()
         self.noop_action_name = self.action_registry.make_action_name(self.action_registry.noop_action_name)
         self.default_keybinding_name = self.config.get('vit', 'default_keybindings')
-        self.default_keybindings = configparser.SafeConfigParser()
+        self.default_keybindings = configparser.ConfigParser()
         self.default_keybindings.optionxform=str
         self.sections = DEFAULT_KEYBINDINGS_SECTIONS
         self.keybindings = {}

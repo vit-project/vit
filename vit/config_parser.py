@@ -100,7 +100,7 @@ DATE_FORMAT_MAPPING = {
 class ConfigParser:
     def __init__(self, loader):
         self.loader = loader
-        self.config = configparser.SafeConfigParser()
+        self.config = configparser.ConfigParser()
         self.config.optionxform = str
         self.user_config_dir = self.loader.user_config_dir
         self.user_config_filepath = '%s/%s' % (self.user_config_dir, VIT_CONFIG_FILE)
