@@ -1,3 +1,8 @@
+##### Mon Oct 16 2023 - released v2.3.2
+
+* **Sun Sep 17 2023:** fix(py3.12): `SafeConfigParser` -> `ConfigParser`
+* **Mon Jun 26 2023:** fix #340: Clarify how to interact inside 'Denotate' window
+
 ##### Sat Jun 24 2023 - released v2.3.1
 
 * **Sat Jun 24 2023:** fix #339: urwid.str_util import fails on some distros
