@@ -1,0 +1,43 @@
+#!/usr/bin/env python3
+#
+# Watchdog script for vit -- automatically reloads vit when task data changes.
+# Monitors the pending.data file and sends a SIGUSR1 signal to vit to trigger a refresh.
+# Only works with Taskwarrior < 3.0 for now.
+
+from os.path import expanduser
+from subprocess import Popen, signal
+
+from vit.config_parser import ConfigParser, TaskParser
+from vit.loader import Loader
+
+try:
+    from watchdog.events import PatternMatchingEventHandler
+    from watchdog.observers import Observer
+except ModuleNotFoundError:
+    print("Please install the Python watchdog library")
+    exit(1)
+
+p = None
+
+
+class VitEventHandler(PatternMatchingEventHandler):
+    def __init__(self):
+        super().__init__(patterns=["*/pending.data"], ignore_directories=True)
+
+    def on_modified(self, event):
+        if p:
+            p.send_signal(signal.SIGUSR1)
+
+
+loader = Loader()
+config = ConfigParser(loader)
+task_config = TaskParser(config)
+data_location = task_config.subtree("data.location")
+data_location = expanduser(data_location)
+
+observer = Observer()
+observer.schedule(VitEventHandler(), data_location)
+observer.start()
+
+p = Popen("vit")
+p.wait()
