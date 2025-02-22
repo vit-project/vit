@@ -1,3 +1,8 @@
+##### Sat Feb 22 2025 - released v2.3.3
+
+* **Sat Feb 08 2025:** fix #361: print warning and remove unsupported color definition instead of raising ValueError
+* **Sat Jul 06 2024:** Add script to reload events if pending.data changed
+
 ##### Mon Oct 16 2023 - released v2.3.2
 
 * **Sun Sep 17 2023:** fix(py3.12): `SafeConfigParser` -> `ConfigParser`
