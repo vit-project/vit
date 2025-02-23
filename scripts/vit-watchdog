@@ -5,7 +5,8 @@
 # Only works with Taskwarrior < 3.0 for now.
 
 from os.path import expanduser
-from subprocess import Popen, signal
+from signal import SIGUSR1
+from subprocess import Popen
 
 from vit.config_parser import ConfigParser, TaskParser
 from vit.loader import Loader
@@ -26,7 +27,7 @@ class VitEventHandler(PatternMatchingEventHandler):
 
     def on_modified(self, event):
         if p:
-            p.send_signal(signal.SIGUSR1)
+            p.send_signal(SIGUSR1)
 
 
 loader = Loader()
