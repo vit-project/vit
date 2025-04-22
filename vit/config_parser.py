@@ -285,7 +285,7 @@ class TaskParser:
 
     def parse_uda_string_values(self, uda_data):
         if 'values' in uda_data:
-            values_list = uda_data['values'].rstrip(',').split(',')
+            values_list = uda_data['values'].split(',')
             values_index = {v: i for i, v in enumerate(values_list)}
             return values_list, values_index
         return None, None
