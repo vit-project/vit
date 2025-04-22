@@ -248,6 +248,7 @@ class TaskParser:
     def set_config_data(self):
         self.print_empty_columns = self.is_truthy(self.subtree('print.empty.columns'))
         self.priority_values = self.get_priority_values()
+        self.uda_config = self.get_uda_config()
 
     def get_task_config(self):
         self.task_config = []
@@ -278,6 +279,25 @@ class TaskParser:
 
     def get_priority_values(self):
         return self.subtree('uda.priority.values').split(',')
+
+    def is_string_uda(self, uda_data):
+        return 'type' in uda_data and uda_data['type'].strip() == 'string'
+
+    def parse_uda_string_values(self, uda_data):
+        if 'values' in uda_data:
+            values_list = uda_data['values'].rstrip(',').split(',')
+            values_index = {v: i for i, v in enumerate(values_list)}
+            return values_list, values_index
+        return None, None
+
+    def get_uda_config(self):
+        uda_config = self.subtree('uda.')
+        for uda_data in uda_config.values():
+            if self.is_string_uda(uda_data):
+                values_list, values_index = self.parse_uda_string_values(uda_data)
+                uda_data['values_list'] = values_list
+                uda_data['values_index'] = values_index
+        return uda_config
 
     def transform_string_leaves(self, hierarchy):
         if hierarchy in CONFIG_STRING_LEAVES:
