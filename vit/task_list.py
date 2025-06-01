@@ -195,7 +195,7 @@ class TaskTable:
                     return (a_index > b_index) - (a_index < b_index)
 
                 uda = self.task_config.uda_config.get(column)
-                if uda != None and uda.get('type') == 'string':
+                if uda is not None and uda.get('type') == 'string':
                     values_index = uda.get('values_index')
                     comparator = partial(comparator_uda_string, values_index)
                 else:
