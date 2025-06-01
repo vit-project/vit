@@ -177,7 +177,7 @@ class TaskTable:
     def sort(self):
         if 'sort' in self.report:
             for column, order, collate in reversed(self.report['sort']):
-                def comparator(first, second):
+                def comparator_default(first, second):
                     if first[column] is not None and second[column] is not None:
                         return -1 if first[column] < second[column] else 1 if first[column] > second[column] else 0
                     elif first[column] is None and second[column] is None:
@@ -186,6 +186,20 @@ class TaskTable:
                         return -1
                     elif first[column] is None and second[column] is not None:
                         return 1
+
+                def comparator_uda_string(values_index, first, second):
+                    a, b = first[column], second[column]
+                    default_index = len(values_index)
+                    a_index = values_index.get(a or '', default_index)
+                    b_index = values_index.get(b or '', default_index)
+                    return (a_index > b_index) - (a_index < b_index)
+
+                uda = self.task_config.uda_config.get(column)
+                if uda is not None and uda.get('type') == 'string':
+                    values_index = uda.get('values_index')
+                    comparator = partial(comparator_uda_string, values_index)
+                else:
+                    comparator = comparator_default
                 if order and order == 'descending':
                     self.tasks = sorted(self.tasks, key=cmp_to_key(comparator), reverse=True)
                 else:
