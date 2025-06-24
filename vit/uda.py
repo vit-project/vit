@@ -7,5 +7,5 @@ def get(name, task_config):
 def get_configured(task_config):
     subtree = task_config.subtree(r'^uda\.', walk_subtree=False)
     if 'uda' in subtree:
-        return {k:v['type'] for k, v in subtree['uda'].items()}
+        return {k: v['type'] if 'type' in v else 'string' for k, v in subtree['uda'].items()}
     return {}
