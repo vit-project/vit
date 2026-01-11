@@ -252,6 +252,9 @@ class AutoComplete:
         return len(self.tab_options) - 1 if reverse else 0
 
     def increment_index(self, reverse):
+        if len(self.tab_options) == 0:
+            self.idx = None
+            return
         if self.idx == None:
             self.idx = self.initial_idx(reverse)
         else:
@@ -264,6 +267,9 @@ class AutoComplete:
         tabbed_text = ''
         edit_pos = None
         if self.root_search:
+            if len(self.tab_options) == 0:
+                self.deactivate()
+                return text, None
             self.increment_index(reverse)
             tabbed_text = self.tab_options[self.idx]
         else:
@@ -280,4 +286,3 @@ class AutoComplete:
                     self.increment_index(reverse)
                     tabbed_text, edit_pos = self.assemble(self.tab_options[self.idx])
         return tabbed_text, edit_pos
-
