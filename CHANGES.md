@@ -1,3 +1,15 @@
+##### Tue Mar 17 2026 - released v2.3.4
+
+* **Tue Mar 17 2026:** Support Taskwarrior 'grey' color aliases
+* **Sun Jan 11 2026:** Guard empty autocomplete tab options
+* **Tue Jun 24 2025:** fix #368 default to string type for UDA if no type configured
+* **Mon Jun 02 2025:** Use 'is not None' for None checks
+* **Sun Jun 01 2025:** Fix UDA string sorting (after reset)
+* **Tue Apr 22 2025:** don't strip trailing commas from UDA values, they are valid
+* **Tue Apr 22 2025:** add uda_config attribute to TaskParser instance
+* **Sun Feb 23 2025:** modernize build script
+* **Sun Feb 23 2025:** vit-watchdog: fix signal include
+
 ##### Sat Feb 22 2025 - released v2.3.3
 
 * **Sat Feb 08 2025:** fix #361: print warning and remove unsupported color definition instead of raising ValueError
