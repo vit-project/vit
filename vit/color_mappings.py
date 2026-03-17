@@ -9,6 +9,7 @@ def task_256_to_urwid_256():
         'cyan': 'dark cyan',
         'magenta': 'dark magenta',
         'gray': 'light gray',
+        'grey': 'light gray',
         'yellow': 'brown',
         'color0': 'black',
         'color1': 'dark red',
@@ -52,10 +53,12 @@ def task_color_gray_to_g():
     color_map = {}
     for i in range(0, 24):
         gray_key = 'gray%d' % i
+        grey_key = 'grey%d' % i
         color_key = 'color%d' % (i + 232)
         # NOTE: This is an approximation of the conversion, close enough!
         value = 'g%d' % (i * 4)
         color_map[gray_key] = value
+        color_map[grey_key] = value
         color_map[color_key] = value
     return color_map
 
