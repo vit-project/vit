@@ -1,3 +1,4 @@
 tasklib>=2.4.3
 urwid>=2.1.2
 backports.zoneinfo;python_version<"3.9"
+xdg-base-dirs>=6.0.0

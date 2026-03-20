@@ -8,9 +8,11 @@ VIT provides a user directory that allows for configuring basic settings *(via `
 
 VIT searches for the user directory in this order of priority:
 
-1. The ```VIT_DIR``` environment variable
-2. ```~/.vit``` (the default location)
-3. A ```vit``` directory in any valid [XDG base directory](https://specifications.freedesktop.org/basedir-spec/basedir-spec-latest.html)
+1. The `VIT_DIR` environment variable
+2. `~/.vit` (the old default location)
+3. `$XDG_CONFIG_HOME/vit`, following the [XDG base directory](https://specifications.freedesktop.org/basedir-spec/basedir-spec-latest.html)
+
+If no config exists, you'll be prompted to create one (in `$XDG_CONFIG_HOME/vit`).
 
 #### Taskwarrior configuration
 
