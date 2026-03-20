@@ -38,6 +38,7 @@ from vit.registry import ActionRegistry, RequestReply
 from vit.action_manager import ActionManagerRegistry
 from vit.denotation import DenotationPopupLauncher
 from vit.pid_manager import PidManager
+from vit.markup import markup_to_str
 
 # NOTE: This entire class is a workaround for the fact that urwid catches the
 # 'ctrl l' keypress in its unhandled_input code, and prevents that from being
@@ -571,9 +572,7 @@ class Application:
         self.search_display_message(reverse)
 
     def reconstitute_markup_element_as_string(self, accum, markup):
-        if isinstance(markup, tuple):
-            _, markup = markup
-        return accum + markup
+        return accum + markup_to_str(markup)
 
     def reconstitute_markup_as_string(self, markup):
         if isinstance(markup, list):
