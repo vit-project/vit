@@ -15,6 +15,7 @@ Visual Interactive Taskwarrior full-screen terminal interface.
  * Speed
  * Per-column colorization
  * Advanced tab completion
+ * Bulk modification of tasks
  * Multiple/customizable themes
  * Override/customize column formatters
  * Intelligent sub-project indenting
