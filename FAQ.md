@@ -19,7 +19,7 @@ You'll need to properly set the ```TZ``` environment variable to your
 
 It's recommended to add this to one of your shell's startup scripts.
 
-### Running custom scripts from VIT
+### How do I run custom scripts or commands from VIT
 
 The easiest way to run a custom script is to make sure it's in your `$PATH`. In this example we have a custom script in `/.config/vit/scripts/set_tags` (notice: it does not end in `.sh`)
 
