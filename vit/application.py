@@ -133,6 +133,13 @@ class Application:
     def set_active_context(self):
         self.context = self.task_config.get_active_context()
 
+    def active_context_filter(self):
+        return self.contexts[self.context]['filter'] if self.context and self.reports[self.report].get('context', 1) else []
+
+    def active_view_filters(self):
+        # precedence-preserving concatenation of context, report and extra filters
+        return self.model.build_task_filters(self.active_context_filter(), self.model.active_report_filter(), self.extra_filters)
+
     def load_contexts(self):
         self.contexts = self.task_config.get_contexts()
 
@@ -204,6 +211,7 @@ class Application:
         self.action_manager_registrar.register('TASK_DELETE', self.task_action_delete)
         self.action_manager_registrar.register('TASK_DENOTATE', self.task_action_denotate)
         self.action_manager_registrar.register('TASK_MODIFY', self.task_action_modify)
+        self.action_manager_registrar.register('TASK_MODIFY_ALL', self.task_action_modify_all)
         self.action_manager_registrar.register('TASK_START_STOP', self.task_action_start_stop)
         self.action_manager_registrar.register('TASK_DONE', self.task_action_done)
         self.action_manager_registrar.register('TASK_PRIORITY', self.task_action_priority)
@@ -235,6 +243,7 @@ class Application:
                 else:
                     return str(task[attribute])
             return ''
+
         replacements = [
             {
                 'match_callback': _task_attribute_match,
@@ -402,6 +411,28 @@ class Application:
                     # before hitting enter?
                     if self.execute_command(['task', metadata['uuid'], 'modify'] + args, wait=self.wait):
                         self.activate_message_bar('Task %s modified' % self.model.task_id(metadata['uuid']))
+                elif op == 'modify_bulk':
+                    # same underlying command as the modify command above, only
+                    # the message bar is set to information about the number of
+                    # tasks modified, instead of a single task info
+
+                    # to be absolutely safe, double-check whether the number of tasks matched by
+                    # the filter is still the same (or has changed because of some other operations,
+                    # due/schedule/wait timeouts etc)
+                    ntasks = self.model.get_n_tasks(metadata['target'])
+                    if ntasks != metadata['ntasks']:
+                        self.activate_message_bar('Not applying the modification because the number of tasks has changed (was %s now %s)' % (metadata['ntasks'], ntasks))
+                    elif self.execute_command(['task', metadata['target'], 'modify'] + args, wait=self.wait):
+                        # TODO depending on interactive confirmation prompts,
+                        # not all tasks might actually have been modified. for
+                        # completeness one would need to extract the number of
+                        # modified tasks from the stdout of the task command above.
+                        # this is currently not possible because execute_command(),
+                        # even when called with capture_output=True, doesn't return
+                        # the captured output back to here. An easier method might
+                        # be to go through tasklib and simply check the number of
+                        # modified tasks based on their modified time
+                        self.activate_message_bar('Attempted to modify %s tasks, mileage may vary' % ntasks)
                 elif op == 'annotate':
                     task = self.model.task_annotate(metadata['uuid'], data['text'])
                     if task:
@@ -806,6 +837,11 @@ class Application:
             self.activate_command_bar('modify', 'Modify: ', {'uuid': uuid})
             self.task_list.focus_by_task_uuid(uuid, self.previous_focus_position)
 
+    def task_action_modify_all(self):
+        current_view_filter = self.active_view_filters()
+        ntasks = self.model.get_n_tasks(current_view_filter)
+        self.activate_command_bar('modify_bulk', 'Modify all (%s tasks): ' % ntasks, {'target': current_view_filter, 'ntasks': ntasks})
+
     def task_action_start_stop(self):
         uuid, task = self.get_focused_task()
         if task:
@@ -876,7 +912,7 @@ class Application:
 
     def setup_autocomplete(self, op):
         callback = self.command_bar.set_edit_text_callback()
-        if op in ('filter', 'add', 'modify'):
+        if op in ('filter', 'add', 'modify', 'modify_bulk'):
             self.autocomplete.setup(callback)
         elif op in ('ex',):
             filters = ('report', 'column', 'project', 'tag', 'help')
@@ -978,7 +1014,7 @@ class Application:
         self.task_config.get_projects()
         self.refresh_blocking_task_uuids()
         self.formatter.recalculate_due_datetimes()
-        context_filters = self.contexts[self.context]['filter'] if self.context and self.reports[self.report].get('context', 1) else []
+        context_filters = self.active_context_filter()
         try:
             self.model.update_report(self.report, context_filters=context_filters, extra_filters=self.extra_filters)
         except VitException as err:
