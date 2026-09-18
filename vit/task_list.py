@@ -14,6 +14,7 @@ from vit.base_list_box import BaseListBox
 from vit.list_batcher import ListBatcher
 from vit.formatter.project import Project as ProjectFormatter
 from vit.util import unicode_len
+from vit.markup import normalize_markup, markup_display_width
 
 
 REDUCE_COLUMN_WIDTH_LIMIT = 20
@@ -266,10 +267,12 @@ class TaskTable:
 
     def build_row_column(self, formatted_value):
         if isinstance(formatted_value, tuple):
-            return formatted_value
+            width, text_markup = formatted_value
+            return width, normalize_markup(text_markup)
         else:
-            width = unicode_len(formatted_value) if formatted_value else 0
-            return width, formatted_value
+            text_markup = normalize_markup(formatted_value)
+            width = markup_display_width(text_markup) if formatted_value else 0
+            return width, text_markup
 
     def subproject_indentable(self):
         return self.config.subproject_indentable and self.report['subproject_indentable']
