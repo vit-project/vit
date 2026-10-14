@@ -93,7 +93,7 @@ class Markers(Marker):
         return self.add_label(color, label, width, text_markup)
 
     def format_status(self, width, text_markup, status):
-        if status == 'completed' or status == 'deleted':
+        if status == 'completed' or status == 'deleted' or status == 'waiting':
             color = self.colorizer.status(status)
             label = self.labels['%s.label' % status]
             return self.add_label(color, label, width, text_markup)
