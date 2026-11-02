@@ -1,3 +1,13 @@
+##### Mon Nov 2 2026 - released v2.3.5
+
+* **Mon Nov 02 2026:** Fix #367: Preserve command input when quote validation fails
+* **Sun Nov 01 2026:** Protect VIT workflows with isolated Taskwarrior integration tests
+* **Sun Nov 01 2026:** Defer terminal initialization until the screen is cleared
+* **Sun Nov 01 2026:** add LSP/linting tools to dev package
+* **Sun Nov 01 2026:** Import calc_width from the public Urwid API
+* **Sun Nov 01 2026:** Modernize VIT packaging for Python 3.11 through 3.15
+* **Fri Sep 11 2026:** Add instructions for running custom scripts in VIT
+
 ##### Tue Mar 17 2026 - released v2.3.4
 
 * **Tue Mar 17 2026:** Support Taskwarrior 'grey' color aliases
