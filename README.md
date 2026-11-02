@@ -22,12 +22,12 @@ Visual Interactive Taskwarrior full-screen terminal interface.
 ## Requirements
 
  * [Taskwarrior](https://taskwarrior.org)
- * [Python](https://www.python.org) 3.7+
+ * [Python](https://www.python.org) 3.11–3.15
  * [pip](https://pypi.org/project/pip)
 
 ## Installation
 
-Follow the directions in [INSTALL.md](INSTALL.md)
+Follow the directions in [INSTALL.md](https://github.com/vit-project/vit/blob/2.x/INSTALL.md)
 
 ## Quick start
 
@@ -43,20 +43,20 @@ While VIT is running, type ```:help``` followed by enter to review basic command
  * Do ```vit --help``` *(know the vit command line arguments)*
  * Do ```:help``` in vit *(look over the "commands")*
  * Use an xterm terminal *(for full color support)*
- * For suggestions on further tweaks, see [CUSTOMIZE.md](CUSTOMIZE.md)
- * VIT handles task coloring differently than Taskwarrior, see [COLOR.md](COLOR.md) for more details
+ * For suggestions on further tweaks, see [CUSTOMIZE.md](https://github.com/vit-project/vit/blob/2.x/CUSTOMIZE.md)
+ * VIT handles task coloring differently than Taskwarrior, see [COLOR.md](https://github.com/vit-project/vit/blob/2.x/COLOR.md) for more details
 
 #### Troubleshooting:
 
-See [FAQ.md](FAQ.md)
+See [FAQ.md](https://github.com/vit-project/vit/blob/2.x/FAQ.md)
 
 #### Upgrading
 
-Follow the directions in [UPGRADE.md](UPGRADE.md)
+Follow the directions in [UPGRADE.md](https://github.com/vit-project/vit/blob/2.x/UPGRADE.md)
 
 #### Development:
 
-Interested in the architecture, or in helping out with development? See [DEVELOPMENT.md](DEVELOPMENT.md)
+Interested in the architecture, or in helping out with development? See [DEVELOPMENT.md](https://github.com/vit-project/vit/blob/2.x/DEVELOPMENT.md)
 
 ##### In tribute
 

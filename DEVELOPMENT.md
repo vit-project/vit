@@ -1,26 +1,28 @@
 # Development
 
-1. Clone the repository
-2. Change to the root directory
-3. ```pip install -r requirements.txt```
-4. ```vit/command_line.py``` is the entry point for the application. To run it without a full installation:
-    * Set the ```PYTHONPATH``` environment variable to the root directory of the repository
-    * Run it with ```python vit/command_line.py```
-    * A snazzier option is to create a command line alias. For Bash:
-      ```bash
-      alias vit='PYTHONPATH=[path_to_root_dir] python vit/command_line.py'
-      ```
-    * ...or a shell function. For Bash:
-      ```bash
-      vit() {
-        cd ~/git/vit && PYTHONPATH=${HOME}/git/vit python vit/command_line.py "$@"
-      }
-      export -f vit
-      ```
+1. Clone the repository and change to its root directory.
+2. Create and activate a virtual environment using Python 3.11–3.15. For example, with Python 3.14:
+
+   ```bash
+   python3.14 -m venv .venv
+   source .venv/bin/activate
+   python -m pip install --upgrade pip
+   ```
+
+3. Install VIT in editable mode with its development dependencies:
+
+   ```bash
+   python -m pip install -e . --group dev
+   ```
+
+4. Run `vit`. The installed command uses `vit/command_line.py`, and edits to the source take effect without reinstalling.
+
+Runtime dependencies, package metadata, test configuration, and development/release dependency groups are defined in `pyproject.toml`. Dependency groups require pip 25.1 or newer. Taskwarrior must also be installed to run VIT.
 
 ### Tests
- * Located in the ```tests``` directory
- * Run with ```./run-tests.sh```
+ * Located in the `test` directory.
+ * Run with `python -m pytest` or `./run-tests.sh`. Both accept pytest options, for example `./run-tests.sh -q`.
+ * CI tests Python 3.11 through 3.15, including prereleases when necessary.
 
 ### Debugging
 
@@ -52,8 +54,8 @@ For any developer managing VIT releases, here's a simple checklist:
 
 #### Pre-release
 
- * Check `requirements.txt`, and bump any dependencies if necessary
- * Check `setup.py`, and bump the minimum Python version if the current version is no longer supported
+ * Check the dependencies and `requires-python` in `pyproject.toml`, and update them if necessary.
+ * Keep the Python classifiers, README requirements, and CI test matrix in sync with the supported versions.
 
 #### Release
 
@@ -63,7 +65,7 @@ For any developer managing VIT releases, here's a simple checklist:
  * Commit
  * Add the proper git tag and push it
  * Create a Github release for the tag, use the generated changelog entries in the description
- * Build and publish PyPi releases using `scripts/release-pypi.sh`
+ * Run `scripts/release-pypi.sh` in the activated development environment. It installs the `release` dependency group, builds a source distribution and a wheel in a fresh `dist/release.*` directory, validates them, and prints the upload commands. Run the appropriate printed command to publish.
 
 #### Post-release
 

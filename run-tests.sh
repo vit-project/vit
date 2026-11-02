@@ -1,5 +1,9 @@
 #!/usr/bin/env bash
 
-ROOT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
+set -euo pipefail
 
-PYTHONPATH=${ROOT_DIR} python -m unittest
+ROOT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
+readonly ROOT_DIR
+
+cd "${ROOT_DIR}"
+exec python -m pytest "${@}"

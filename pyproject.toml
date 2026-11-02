@@ -1,6 +1,52 @@
 [build-system]
-requires = [
-    "setuptools>=42",
-    "wheel"
-]
+requires = ["setuptools>=77.0.3"]
 build-backend = "setuptools.build_meta"
+
+[project]
+name = "vit"
+dynamic = ["version"]
+description = "Visual Interactive Taskwarrior full-screen terminal interface"
+readme = "README.md"
+requires-python = ">=3.11"
+license = "MIT"
+license-files = ["LICENSE"]
+authors = [{name = "Chad Phillips", email = "chad@apartmentlines.com"}]
+keywords = ["taskwarrior", "console", "tui", "text-user-interface"]
+classifiers = [
+    "Development Status :: 5 - Production/Stable",
+    "Environment :: Console",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3 :: Only",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Programming Language :: Python :: 3.14",
+    "Programming Language :: Python :: 3.15",
+    "Natural Language :: English",
+    "Topic :: Text Processing :: General",
+]
+dependencies = ["tasklib>=2.4.3", "urwid>=3.0.3"]
+
+[project.urls]
+Homepage = "https://github.com/vit-project/vit"
+Issues = "https://github.com/vit-project/vit/issues"
+
+[project.scripts]
+vit = "vit.command_line:main"
+
+[dependency-groups]
+dev = ["pytest>=8.3"]
+release = ["build>=1.2.2", "twine>=6.1"]
+
+[tool.setuptools]
+packages = ["vit", "vit.formatter", "vit.theme"]
+include-package-data = false
+
+[tool.setuptools.package-data]
+vit = ["config/*.ini", "keybinding/*.ini"]
+
+[tool.setuptools.dynamic]
+version = {attr = "vit.version.VIT"}
+
+[tool.pytest.ini_options]
+testpaths = ["test"]
