@@ -1,3 +1,6 @@
+[![Test status](https://github.com/vit-project/vit/actions/workflows/tests.yml/badge.svg)](https://github.com/vit-project/vit/actions/workflows/tests.yml)
+[![CodeQL](https://github.com/vit-project/vit/actions/workflows/github-code-scanning/codeql/badge.svg)](https://github.com/vit-project/vit/actions/workflows/github-code-scanning/codeql)
+
 # VIT
 
 <img src="images/great-tit-square-small.png" alt="Logo" width="150" height="150" align="right" />
