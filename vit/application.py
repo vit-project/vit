@@ -77,8 +77,11 @@ class Application:
         self.load_early_config()
         self.set_report()
         self.setup_main_loop()
-        self.setup_signal_listeners()
         self.refresh(False)
+
+    def run(self) -> None:
+        """Install process handlers and start the interactive event loop."""
+        self.setup_signal_listeners()
         self.setup_pid()
         self.loop.run()
 
@@ -683,11 +686,13 @@ class Application:
             if self.command_error(returncode, output):
                 return False
             return True
-        success = execute()
-        if update_report and success:
-            self.update_report()
-        self.loop.start()
-        return success
+        try:
+            success = execute()
+            if update_report and success:
+                self.update_report()
+            return success
+        finally:
+            self.loop.start()
 
     def activate_command_bar(self, op, caption, metadata={}, edit_text=None):
         metadata['op'] = op

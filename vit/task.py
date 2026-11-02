@@ -1,5 +1,4 @@
 import os
-from functools import reduce
 
 import tasklib
 from tasklib.task import Task
@@ -27,9 +26,10 @@ class TaskListModel:
     def active_report(self):
         return self.reports[self.report]
 
-    def parse_error(self, err):
-        messages = filter(lambda l : l.startswith('Error:'), str(err).splitlines())
-        return "\n".join(messages)
+    def parse_error(self, err: Exception) -> str:
+        """Prefer explicit error lines without discarding unprefixed diagnostics."""
+        messages = filter(lambda line: line.startswith('Error:'), str(err).splitlines())
+        return "\n".join(messages) or str(err)
 
     def update_report(self, report, context_filters=[], extra_filters=[]):
         self.report = report
@@ -37,7 +37,7 @@ class TaskListModel:
         report_filters = active_report['filter'] if 'filter' in active_report else []
         filters = self.build_task_filters(context_filters, report_filters, extra_filters)
         try:
-            self.tasks = self.tw.tasks.filter(filters) if filters else self.tw.tasks.all()
+            self.tasks = self.tw.tasks.filter(*filters) if filters else self.tw.tasks.all()
             # NOTE: tasklib uses lazy loading and some operation is necessary
             # for self.tasks to actually be populated here.
             # See https://github.com/robgolding/tasklib/issues/81
@@ -45,13 +45,13 @@ class TaskListModel:
         except TaskWarriorException as err:
             raise VitException(self.parse_error(err))
 
-    def build_task_filters(self, *all_filters):
-        def reducer(accum, filters):
+    def build_task_filters(self, *all_filters: list[str]) -> list[str]:
+        """Group each filter source while preserving individual argument values."""
+        filter_parts = []
+        for filters in all_filters:
             if filters:
-                accum.append('( %s )' % ' '.join(filters))
-            return accum
-        filter_parts = reduce(reducer, all_filters, [])
-        return ' '.join(filter_parts) if filter_parts else ''
+                filter_parts.extend(['(', *filters, ')'])
+        return filter_parts
 
     def get_task(self, uuid):
         try:

@@ -49,8 +49,10 @@ class AutoComplete:
             ])
         return command
 
-    def refresh_type(self, ac_type):
-        returncode, stdout, stderr = self.command.run(self.get_refresh_type_command(ac_type), capture_output=True)
+    def refresh_type(self, ac_type: str) -> list[str]:
+        """Fetch completion candidates, preserving backend error details."""
+        command = self.get_refresh_type_command(ac_type)
+        returncode, stdout, stderr = self.command.run(command, capture_output=True)
         if returncode == 0:
             items = list(filter(lambda x: True if x else False, stdout.split("\n")))
             if ac_type == 'project':

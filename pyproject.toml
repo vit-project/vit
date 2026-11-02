@@ -34,13 +34,15 @@ Issues = "https://github.com/vit-project/vit/issues"
 [project.scripts]
 vit = "vit.command_line:main"
 
-[dependency-groups]
+[project.optional-dependencies]
 dev = [
     "pytest",
     "black",
     "flake8",
     "basedpyright",
 ]
+
+[dependency-groups]
 release = ["build>=1.2.2", "twine>=6.1"]
 
 [tool.setuptools]
@@ -55,3 +57,4 @@ version = {attr = "vit.version.VIT"}
 
 [tool.pytest.ini_options]
 testpaths = ["test"]
+markers = ["integration: uses an isolated local Taskwarrior database"]

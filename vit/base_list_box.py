@@ -71,8 +71,11 @@ class BaseListBox(urwid.ListBox):
         self.keypress(size, '<Page Down>')
 
     def keypress_home(self, size):
-        if len(self.body) > 0:
-            self.set_focus(0)
+        """Focus the first selectable row, skipping project headings."""
+        for position, widget in enumerate(self.list_walker):
+            if widget.selectable():
+                self.set_focus(position)
+                return
 
     def keypress_end(self, size):
         if len(self.body) > 0:

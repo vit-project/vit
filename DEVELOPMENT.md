@@ -12,17 +12,26 @@
 3. Install VIT in editable mode with its development dependencies:
 
    ```bash
-   python -m pip install -e . --group dev
+   python -m pip install -e '.[dev]'
    ```
 
 4. Run `vit`. The installed command uses `vit/command_line.py`, and edits to the source take effect without reinstalling.
 
-Runtime dependencies, package metadata, test configuration, and development/release dependency groups are defined in `pyproject.toml`. Dependency groups require pip 25.1 or newer. Taskwarrior must also be installed to run VIT.
+Runtime dependencies, package metadata, test configuration, the `dev` extra, and the `release` dependency group are defined in `pyproject.toml`. The release dependency group requires pip 25.1 or newer. Taskwarrior must also be installed to run VIT.
 
 ### Tests
  * Located in the `test` directory.
  * Run with `python -m pytest` or `./run-tests.sh`. Both accept pytest options, for example `./run-tests.sh -q`.
  * CI tests Python 3.11 through 3.15, including prereleases when necessary.
+ * Install the `task` executable to run integration tests. They use private
+   Taskwarrior and VIT configuration directories and temporary databases;
+   they do not use your tasks, hooks, or synchronization settings. CI installs
+   Taskwarrior from Ubuntu 24.04 and runs the complete suite.
+ * `python -m pytest -m 'not integration'` runs the fast component tests without
+   Taskwarrior. Integration tests are skipped if `task` is unavailable.
+ * `python -m pytest -m integration` runs user workflows with real Taskwarrior,
+   tasklib, and Urwid widgets. Only terminal lifecycle operations are replaced.
+   The shared fixtures live in `test/conftest.py` and `test/support.py`.
 
 ### Debugging
 
