@@ -35,7 +35,12 @@ Issues = "https://github.com/vit-project/vit/issues"
 vit = "vit.command_line:main"
 
 [dependency-groups]
-dev = ["pytest>=8.3"]
+dev = [
+    "pytest",
+    "black",
+    "flake8",
+    "basedpyright",
+]
 release = ["build>=1.2.2", "twine>=6.1"]
 
 [tool.setuptools]
