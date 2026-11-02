@@ -72,9 +72,9 @@ For any developer managing VIT releases, here's a simple checklist:
  * Generate changelog entries using `scripts/generate-changelog-entries.sh`
  * Add changelog entries to `CHANGES.md`
  * Commit
- * Add the proper git tag and push it
+ * Add a `v`-prefixed tag matching the package version (for example, `v2.3.5` for `2.3.5`) and push it.
+ * PyPI releases are automated via [PyPI Trusted Publishing](https://docs.pypi.org/trusted-publishers/adding-a-publisher/).
  * Create a Github release for the tag, use the generated changelog entries in the description
- * Run `scripts/release-pypi.sh` in the activated development environment. It installs the `release` dependency group, builds a source distribution and a wheel in a fresh `dist/release.*` directory, validates them, and prints the upload commands. Run the appropriate printed command to publish.
 
 #### Post-release
 
@@ -84,7 +84,6 @@ For any developer managing VIT releases, here's a simple checklist:
 
 The long-term vision is:
 
- * Solid test coverage
  * Plenty of inline documentation
  * An interface-driven, modular design that allows most components to be overridden/customized
  * A plugin architecture where appropriate (a good example would be the elements of the top status bar -- each element could be a plugin, allowing third-party plugins to be written and used in that portion of the app)
