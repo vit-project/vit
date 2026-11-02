@@ -1,3 +1,7 @@
+"""Shared helpers for terminal output, task data, and text handling."""
+
+from __future__ import annotations
+
 import os
 import sys
 import curses
@@ -5,11 +9,11 @@ import shlex
 
 from urwid import calc_width
 
-curses.setupterm()
-e3_seq = curses.tigetstr('E3') or b''
-clear_screen_seq = curses.tigetstr('clear') or b''
-
-def clear_screen():
+def clear_screen() -> None:
+    """Initialize terminal capabilities when clearing the screen."""
+    curses.setupterm()
+    e3_seq = curses.tigetstr('E3') or b''
+    clear_screen_seq = curses.tigetstr('clear') or b''
     os.write(sys.stdout.fileno(), e3_seq + clear_screen_seq)
 
 def string_to_args(string):
