@@ -3,7 +3,7 @@ import sys
 import curses
 import shlex
 
-from urwid.util import calc_width
+from urwid import calc_width
 
 curses.setupterm()
 e3_seq = curses.tigetstr('E3') or b''
