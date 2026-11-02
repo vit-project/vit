@@ -1,9 +1,16 @@
+"""Editable command prompts and operation-specific input history."""
+
+from __future__ import annotations
+
+import shlex
+
 import urwid
 from vit.readline import Readline
 
+
 class CommandBar(urwid.Edit):
-    """Custom urwid.Edit class for the command bar.
-    """
+    """Custom urwid.Edit class for the command bar."""
+
     def __init__(self, **kwargs):
         self.event = kwargs.pop('event')
         self.autocomplete = kwargs.pop('autocomplete')
@@ -11,11 +18,15 @@ class CommandBar(urwid.Edit):
         self.metadata = None
         self.history = CommandBarHistory()
         self.readline = Readline(self)
+        self.prompt_caption: str = ''
+        self.input_error: bool = False
         return super().__init__(**kwargs)
 
     def keypress(self, size, key):
-        """Overrides Edit.keypress method.
-        """
+        """Overrides Edit.keypress method."""
+        if self.input_error and key != "enter":
+            self.set_caption(self.prompt_caption)
+            self.input_error = False
         if key not in ('tab', 'shift tab'):
             self.autocomplete.deactivate()
         if 'choices' in self.metadata:
@@ -30,6 +41,8 @@ class CommandBar(urwid.Edit):
         elif key in ('enter', 'esc'):
             text = self.get_edit_text().strip()
             if text and key == 'enter':
+                if not self.validate_submission(text):
+                    return None
                 self.history.add(self.metadata['history'], text)
             self.quit({'key': key, 'text': text})
             return None
@@ -48,11 +61,33 @@ class CommandBar(urwid.Edit):
             return None
         return super().keypress(size, key)
 
+    def validate_submission(self, text: str) -> bool:
+        """Keep invalid shell-style input editable and display its parse error.
+
+        :param text: The submitted text, with surrounding whitespace removed.
+        :return: Whether the input can be parsed by the application.
+        """
+        try:
+            shlex.split(text)
+        except ValueError as error:
+            self.input_error = True
+            self.set_caption(
+                [
+                    (
+                        "message error",
+                        f"Invalid input: {error}. Check quotes and escaping.\n",
+                    ),
+                    self.prompt_caption,
+                ]
+            )
+            return False
+        return True
+
     def is_aborting_backspace(self, key):
-        return key == 'backspace' and self.abort_backspace and not self.get_edit_text()
+        return key == "backspace" and self.abort_backspace and not self.get_edit_text()
 
     def is_autocomplete_op(self):
-        return self.metadata['op'] not in ['search-forward', 'search-reverse']
+        return self.metadata["op"] not in ["search-forward", "search-reverse"]
 
     def set_edit_text(self, text, edit_pos=None):
         ret = super().set_edit_text(text)
@@ -62,6 +97,8 @@ class CommandBar(urwid.Edit):
         return ret
 
     def set_command_prompt(self, caption, edit_text=None):
+        self.prompt_caption = caption
+        self.input_error = False
         self.set_caption(caption)
         if edit_text is not None:
             self.set_edit_text(edit_text)
@@ -94,6 +131,7 @@ class CommandBar(urwid.Edit):
 
     def set_edit_text_callback(self):
         return self.set_edit_text
+
 
 class CommandBarHistory:
     """Holds command-specific history for the command bar.
@@ -154,4 +192,3 @@ class CommandBarHistory:
 
     def last_idx(self, command):
         return len(self.get_items(command)) - 1 if self.exists(command) else None
-
