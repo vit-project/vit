@@ -70,9 +70,19 @@ DEFAULTS = {
     },
 }
 
-# strftime() works differently on Windows, test here.
+# strftime() works differently on Windows, test here. Note the MSVCRT
+# strftime() raises ValueError for unknown codes (e.g. '%-d') instead of
+# passing them through, so each probe must be guarded.
 test_datetime = datetime.datetime(1900, 1, 1)
-NO_PAD_FORMAT_CODE = '-' if test_datetime.strftime('%-d') == '1' else '#' if test_datetime.strftime('%#d') == '1' else ''
+try:
+    _DASH_PAD_WORKS = test_datetime.strftime('%-d') == '1'
+except ValueError:
+    _DASH_PAD_WORKS = False
+try:
+    _HASH_PAD_WORKS = test_datetime.strftime('%#d') == '1'
+except ValueError:
+    _HASH_PAD_WORKS = False
+NO_PAD_FORMAT_CODE = '-' if _DASH_PAD_WORKS else '#' if _HASH_PAD_WORKS else ''
 
 DATE_FORMAT_MAPPING = {
     'm': '%%%sm' % NO_PAD_FORMAT_CODE,   # 1 or 2 digit month number, eg '1', '12'
