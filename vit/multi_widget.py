@@ -1,4 +1,9 @@
+"""Display one named child widget, or an empty zero-height container."""
+
+from __future__ import annotations
+
 import urwid
+
 
 class MultiWidget(urwid.Widget):
     """A widget container that presents one child widget at a time."""
@@ -43,10 +48,16 @@ class MultiWidget(urwid.Widget):
         return True
 
     def rows(self, size, focus=False):
-        return self.current_widget.rows(size, focus) if self.current_widget is not None else 0
+        return (
+            self.current_widget.rows(size, focus)
+            if self.current_widget is not None
+            else 0
+        )
 
-    def render(self, size, focus=False):
-        assert self.current_widget is not None
+    def render(self, size: tuple[int, ...], focus: bool = False) -> urwid.Canvas:
+        """Render the active child or a canvas matching the inactive row count."""
+        if self.current_widget is None:
+            return urwid.SolidCanvas(" ", size[0], 0)
 
         return self.current_widget.render(size, focus)
 
@@ -62,7 +73,6 @@ class MultiWidget(urwid.Widget):
 
     def mouse_event(self, size, event, button, col, row, focus):
         if self.current_widget is not None:
-            return self.current_widget.mouse_event(
-                size, event, button, col, row, focus)
+            return self.current_widget.mouse_event(size, event, button, col, row, focus)
         else:
             return False
